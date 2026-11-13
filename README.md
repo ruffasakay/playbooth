@@ -27,7 +27,7 @@ Node 20.19 or newer.
 Useful links for judges:
 
 - `https://playbooth.vercel.app/` — the full experience
-- `https://playbooth.vercel.app/#player` — skips the walk in and goes straight to the deck with Charge loaded
+- `https://playbooth.vercel.app/#player` — skips the walk in and opens the player with Charge loaded (for judges short on time)
 
 ## Mux bonus
 
@@ -51,6 +51,8 @@ The skin supports the same public CSS properties as the Video.js skins: `--media
 
 - **Works**: Video.js v10 player, Mux streams, real playback.
 - **Essential controls**: play/pause, seek bar with film-frame preview, current time and duration, mute and volume, fullscreen (frame included). Also ±10 s, captions with style panel, speed, picture-in-picture, Snap, Snaps compiler, album, eject.
+- **Day and night**: the light switch on the booth's back wall (or the Day/Night button, or L) turns the whole booth to night: street lamps, shop windows and string lights come on, the room dims to lamp light, and the interface switches to its dark palette.
+- **Frames**: 13, including No frame, Instant photo, Film negative, Kraft stitch, Gingham, Washi tape and Konbini receipt.
 - **Snap flow**: each snap downloads the clean frame immediately and joins the Snaps compiler; print singles in any frame, or 2 to 6 as a framed photostrip. Seven frames, including No frame.
 - **Responsive**: tested at 1440×900, 1200×750, 1000×640, 390×844 and 844×390. On tall phones the walk in ends facing the tapes.
 - **Keyboard**: every 3D object has a focusable hotspot (tapes, slot, screen, eject, prints, album). Escape puts a tape back, steps back out of a view, or stands up from the deck. Player shortcuts: Space/K, M, F, C, ←/→, J/L, ↑/↓, 0–9, Home/End, `<`/`>`, and S for a photo.
@@ -72,7 +74,7 @@ Films, all by the Blender Foundation, hosted on Mux:
 | Big Buck Bunny (2008) | © 2008 Blender Foundation, www.bigbuckbunny.org | CC BY 3.0 |
 | Sintel (2010) | © Blender Foundation, durian.blender.org | CC BY 3.0 |
 
-Fonts: Marcellus SC, Courier Prime, Caveat, Atkinson Hyperlegible Next (caption sans) and Literata (caption serif), all SIL Open Font License 1.1.
+Fonts: Fraunces (headings and reading text), DM Mono (interface), Caveat (handwritten notes), Atkinson Hyperlegible Next (caption sans) and Literata (caption serif), all SIL Open Font License 1.1.
 
 All 3D models, icons and illustrations are original and drawn in code.
 

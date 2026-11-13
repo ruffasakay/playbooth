@@ -275,7 +275,7 @@ function CaptionPanel({ onClose }) {
   const ref = useRef(null);
   const custom = !CAPTION_COLORS.some((c) => c.value === style.color);
   useEffect(() => {
-    ref.current?.querySelector('[aria-checked="true"]')?.focus({ preventScroll: true });
+    ref.current?.querySelector('[aria-checked="true"]')?.focus({ preventScroll: true, focusVisible: false });
     const onKey = (e) => {
       if (e.key === 'Escape') {
         e.preventDefault();
@@ -364,7 +364,7 @@ function FramePicker({ active }) {
 
   useEffect(() => {
     if (!active) return undefined;
-    const id = setTimeout(() => group.current?.querySelector('[aria-checked="true"]')?.focus({ preventScroll: true }), useApp.getState().reducedMotion ? 30 : 700);
+    const id = setTimeout(() => group.current?.querySelector('[aria-checked="true"]')?.focus({ preventScroll: true, focusVisible: false }), useApp.getState().reducedMotion ? 30 : 700);
     return () => clearTimeout(id);
   }, [active]);
 
@@ -414,7 +414,7 @@ function FramePicker({ active }) {
             s.confirmFrame();
             s.announce(`${selected.name} frame. Playing.`);
             // the picker is about to unmount: keep keyboard focus inside the player
-            requestAnimationFrame(() => document.querySelector('.pb-skin')?.focus({ preventScroll: true }));
+            requestAnimationFrame(() => document.querySelector('.pb-skin')?.focus({ preventScroll: true, focusVisible: false }));
           }}
         >
           Start the film

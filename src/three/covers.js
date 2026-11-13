@@ -69,8 +69,8 @@ function paint(ctx, movie, img) {
   ctx.fillStyle = '#33261c';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
-  ctx.font = `58px ${FONT_SERIF}`;
-  const lines = wrapLines(ctx, movie.title.toUpperCase(), W - 56, 2);
+  ctx.font = `600 62px ${FONT_SERIF}`;
+  const lines = wrapLines(ctx, movie.title, W - 56, 2);
   lines.forEach((l, i) => ctx.fillText(l, 28, artH + 98 + i * 60));
   ctx.font = `24px ${FONT_MONO}`;
   ctx.fillStyle = 'rgb(51 38 28 / 0.72)';

@@ -5,6 +5,7 @@ import { useApp, movieById } from '../store.js';
 import { SCREEN, SLOT, TAPE, TRAY, cubbyCenters } from './world.js';
 import { restPose, useTrayPhotos } from './Prints.jsx';
 import { hotspotPortal } from './portal.js';
+import { SWITCH_POS } from './Interior.jsx';
 
 /**
  * Every object you can use in the room also has a real <button> over it,
@@ -19,6 +20,7 @@ export function Hotspots() {
   const deck = useApp((s) => s.deck);
   const printing = useApp((s) => s.printing);
   const count = useApp((s) => s.collection.length);
+  const theme = useApp((s) => s.theme);
   const trayPhotos = useTrayPhotos();
   const cubbies = useMemo(cubbyCenters, []);
 
@@ -76,6 +78,7 @@ export function Hotspots() {
               />
             );
           })}
+      <Spot position={SWITCH_POS} label={theme === 'night' ? 'Light switch: lights up' : 'Light switch: lights down'} onActivate={() => useApp.getState().toggleTheme()} />
       <Spot
         position={[TRAY.x + TRAY.w / 2, TRAY.y + 0.05, TRAY.z + TRAY.d / 2]}
         label={count ? `Photo album, ${count} saved` : 'Photo album, empty'}

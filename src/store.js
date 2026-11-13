@@ -12,6 +12,8 @@ import { MOVIES } from './data/movies.js';
  */
 export const useApp = create((set, get) => ({
   phase: 'loading',
+  introDone: false, // the landing camera has finished its slow look around
+  theme: initialTheme(), // 'day' | 'night', flipped by the booth's light switch
   station: 'booth',
   webgl: true,
   reducedMotion: false,
@@ -62,6 +64,20 @@ export const useApp = create((set, get) => ({
 
   announce(message) {
     set((s) => ({ message, messageToken: s.messageToken + 1 }));
+  },
+
+  setTheme(theme) {
+    try {
+      localStorage.setItem('playbooth.theme', theme);
+    } catch {
+      /* private mode */
+    }
+    document.documentElement.dataset.theme = theme;
+    set({ theme });
+    get().announce(theme === 'night' ? 'Night. The lights are low.' : 'Day. The lights are up.');
+  },
+  toggleTheme() {
+    get().setTheme(get().theme === 'night' ? 'day' : 'night');
   },
 
   setPhase(phase) {
@@ -260,6 +276,18 @@ export const useApp = create((set, get) => ({
     set({ albumOpen });
   },
 }));
+
+function initialTheme() {
+  let t = null;
+  try {
+    t = localStorage.getItem('playbooth.theme');
+  } catch {
+    /* private mode */
+  }
+  if (t !== 'day' && t !== 'night') t = typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'day';
+  if (typeof document !== 'undefined') document.documentElement.dataset.theme = t;
+  return t;
+}
 
 function loadCaptionStyle() {
   const fallback = { color: '#ffffff', outline: true, font: 'sans' };

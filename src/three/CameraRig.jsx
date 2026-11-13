@@ -11,7 +11,7 @@ gsap.ticker.lagSmoothing(0);
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
 const STATIONS = {
-  hero: { target: V(-0.2, 1.55, 0.3), dir: V(-0.62, 0.26, 0.74), box: [9.4, 6.0] },
+  hero: { target: V(0.2, 1.5, 0.4), dir: V(0.6, 0.24, 0.76), box: [9.0, 5.8] },
   booth: { target: V(0.3, 1.0, -1.45), dir: V(-0.2, 0.22, 1), box: [4.9, 2.4], maxDist: 3.35 },
   tapes: { target: V(CABINET.x, 1.02, -1.62), dir: V(0.22, 0.1, 1), box: [1.95, 2.25], maxDist: 3.2 },
   player: { target: V(TV.x + 0.35, 0.92, -1.3), dir: V(-0.22, 0.14, 1), box: [2.55, 1.85], maxDist: 3.0 },
@@ -21,6 +21,18 @@ const STATIONS = {
 for (const s of Object.values(STATIONS)) s.dir.normalize();
 
 const fovFor = (aspect, inside) => (aspect < 0.8 ? 60 : aspect < 1.1 ? 52 : inside ? 50 : 40);
+
+/** Where the landing camera starts: around the corner, lower and wider, no text yet. */
+function introStart(width, height) {
+  const pose = poseFor('hero', width, height);
+  const off = pose.pos.clone().sub(pose.target);
+  off.applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.62).multiplyScalar(1.22);
+  off.y -= 1.0;
+  pose.pos.copy(pose.target).add(off);
+  pose.ox = 0;
+  pose.oy = 0;
+  return pose;
+}
 
 export function poseFor(name, width, height) {
   const st = STATIONS[name];
@@ -79,12 +91,7 @@ export function CameraRig() {
     zoom.current.target = 1;
   };
 
-  if (!cur.current) {
-    // the landing page opens a little farther out, then settles in
-    const pose = poseFor('hero', size.width, size.height);
-    pose.pos.sub(pose.target).multiplyScalar(1.28).add(pose.target);
-    snapTo(pose);
-  }
+  if (!cur.current) snapTo(introStart(size.width, size.height));
 
   const runEntry = () => {
     const s = useApp.getState();
@@ -101,7 +108,7 @@ export function CameraRig() {
     }
     const c = cur.current;
     const path = new THREE.CatmullRomCurve3(
-      [V(c.px, c.py, c.pz), V(-3.6, 2.7, 7.6), V(1.6, 2.0, 6.2), V(0.3, 1.7, 4.2), V(0.12, 1.6, 2.7), V(0.08, 1.56, 1.7), end.pos],
+      [V(c.px, c.py, c.pz), V(3.4, 2.5, 7.4), V(-1.2, 2.0, 6.2), V(-0.3, 1.7, 4.2), V(-0.1, 1.6, 2.7), V(-0.06, 1.56, 1.7), end.pos],
       false,
       'centripetal',
     );
@@ -147,11 +154,11 @@ export function CameraRig() {
     const finish = () => {
       motion.curtain.open = 0;
       snapTo(end);
-      useApp.setState({ phase: 'outside', station: 'booth' });
+      useApp.setState({ phase: 'outside', station: 'booth', introDone: true });
     };
     if (s.reducedMotion) return veilCut(finish);
     const c = cur.current;
-    const path = new THREE.CatmullRomCurve3([V(c.px, c.py, c.pz), V(0.1, 1.58, 1.8), V(0.14, 1.62, 2.9), V(0.6, 1.9, 4.8), V(-2.6, 2.6, 7.4), end.pos], false, 'centripetal');
+    const path = new THREE.CatmullRomCurve3([V(c.px, c.py, c.pz), V(-0.1, 1.58, 1.8), V(-0.14, 1.62, 2.9), V(-0.6, 1.9, 4.8), V(2.6, 2.4, 7.4), end.pos], false, 'centripetal');
     const lookAt = new THREE.CatmullRomCurve3([V(c.tx, c.ty, c.tz), V(0, 1.4, 3.6), V(0, 1.5, 6), V(0, 1.6, 2.6), end.target], false, 'centripetal');
     const prog = { t: 0 };
     const p = new THREE.Vector3();
@@ -184,7 +191,9 @@ export function CameraRig() {
         else if (s.phase === 'leaving') runExit();
         else if (s.phase === 'outside' && before.phase === 'loading' && !introDone.current) {
           introDone.current = true;
-          tweenTo(poseFor('hero', size.width, size.height), s.reducedMotion ? 0 : 2.8, 'power2.out');
+          // a slow look around the street before any words appear (timing lives in the preloader)
+          if (s.reducedMotion) snapTo(poseFor('hero', size.width, size.height));
+          else tweenTo(poseFor('hero', size.width, size.height), 6.2, 'power1.inOut');
         }
       } else if (s.phase === 'inside' && s.station !== before.station) {
         resetLook();
@@ -198,6 +207,10 @@ export function CameraRig() {
   useEffect(() => {
     const s = useApp.getState();
     if (s.phase === 'entering' || s.phase === 'leaving' || s.phase === 'loading') return;
+    if (s.phase === 'outside' && !introDone.current) {
+      // missed the opening (e.g. remounted on resize): just settle on the hero view
+      introDone.current = true;
+    }
     tl.current?.kill();
     snapTo(poseFor(s.phase === 'inside' ? s.station : 'hero', size.width, size.height));
   }, [size.width, size.height]);

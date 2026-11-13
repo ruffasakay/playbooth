@@ -1,29 +1,33 @@
 /*
- * PLAYBOOTH tokens: warm paper, brown ink, a terracotta and a teal.
- * Colors match src/three/world.js so the room and the screen feel like one place.
+ * PLAYBOOTH tokens.
+ * Type: Fraunces (soft serif) leads, DM Mono supports, Caveat for the odd handwritten note.
+ * Color: 60% warm paper, 30% brown ink and wood, 10% accent (terracotta, teal).
+ * Night swaps the surfaces and keeps the accents.
  */
 :root {
   color-scheme: light;
   --paper: #f4ede0;
-  --paper-2: #ebe1cf;
+  --paper-rgb: 244 237 224;
   --cream: #efe4cf;
   --ink: #33261c;
   --ink-2: #4a3a2d;
   --ink-soft: rgb(51 38 28 / 0.72);
+  --tint: rgb(51 38 28 / 0.08);
   --band: #3a2b20;
+  --band-ink: #f4ede0;
   --terracotta: #9e4330;
   --terracotta-light: #cf6a4c;
   --teal: #3c8a78;
   --teal-deep: #2c6658;
-  --walnut: #4a3125;
   --night: #1c140f;
   --bar-bg: rgb(28 20 14 / 0.8);
   --bar-ink: #f4ede0;
   --bar-ink-soft: rgb(244 237 224 / 0.7);
 
-  --serif: 'Marcellus SC', 'Cormorant SC', Georgia, serif;
-  --mono: 'Courier Prime', 'Courier New', ui-monospace, monospace;
+  --serif: 'Fraunces Variable', Fraunces, Georgia, serif;
+  --mono: 'DM Mono', ui-monospace, 'SF Mono', Menlo, monospace;
   --hand: 'Caveat', 'Segoe Print', cursive;
+  --soft: 'SOFT' 100, 'WONK' 0;
 
   --ease: cubic-bezier(0.22, 0.7, 0.2, 1);
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -33,4 +37,19 @@
   --safe-right: env(safe-area-inset-right, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
+}
+
+:root[data-theme='night'] {
+  color-scheme: dark;
+  --paper: #1f1914;
+  --paper-rgb: 31 25 20;
+  --cream: #2a221b;
+  --ink: #efe4cf;
+  --ink-2: #e2d5bd;
+  --ink-soft: rgb(239 228 207 / 0.72);
+  --tint: rgb(239 228 207 / 0.09);
+  --band: #efe4cf;
+  --band-ink: #1f1914;
+  --terracotta: #e08a6c;
+  --teal: #4fa592;
 }

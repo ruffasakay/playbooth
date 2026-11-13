@@ -32,8 +32,8 @@ export const PAL = {
   leafLight: '#6f8a5c',
 };
 
-export const FONT_SERIF = '/fonts/MarcellusSC.woff';
-export const FONT_MONO = '/fonts/CourierPrime.woff';
+export const FONT_SERIF = '/fonts/Fraunces.woff';
+export const FONT_MONO = '/fonts/DMMono.woff';
 export const FONT_HAND = '/fonts/Caveat.woff';
 
 const cache = new Map();
@@ -138,4 +138,38 @@ export function smoothstep(a, b, x) {
 
 export function damp(current, target, lambda, dt) {
   return THREE.MathUtils.lerp(current, target, 1 - Math.exp(-lambda * dt));
+}
+
+/* ---------- day and night ---------- */
+
+/** 0 = day, 1 = night. Eased toward the theme by the DayNight controller. */
+export const light = { t: 0 };
+const glowRegistry = new Set();
+
+/**
+ * Ref callback: blend `key` on the object between a day and a night value
+ * (numbers or colors). An empty key blends the object itself (a Color).
+ */
+export function dayNight(key, day, night) {
+  const d = typeof day === 'string' ? new THREE.Color(day) : day;
+  const n = typeof night === 'string' ? new THREE.Color(night) : night;
+  let entry = null;
+  return (obj) => {
+    if (entry) glowRegistry.delete(entry);
+    entry = null;
+    if (!obj) return;
+    entry = { obj, key, day: d, night: n };
+    glowRegistry.add(entry);
+    applyEntry(entry, light.t);
+  };
+}
+
+function applyEntry(e, t) {
+  if (e.day instanceof THREE.Color) (e.key ? e.obj[e.key] : e.obj).lerpColors(e.day, e.night, t);
+  else e.obj[e.key] = e.day + (e.night - e.day) * t;
+}
+
+export function applyLight(t) {
+  light.t = t;
+  for (const e of glowRegistry) applyEntry(e, t);
 }

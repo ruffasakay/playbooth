@@ -21,7 +21,7 @@ export const Seek = ({ back }) => (
       <path {...line} d="M12 4.2a7.8 7.8 0 1 1-7.1 4.6" />
       <path {...line} d="M12 1.8l2.6 2.4L12 6.6" />
     </g>
-    <text x="12" y="15.4" textAnchor="middle" fontSize="7.4" fontFamily="'Courier Prime', monospace" fontWeight="700" fill="currentColor">10</text>
+    <text x="12" y="15.4" textAnchor="middle" fontSize="7.4" fontFamily="'DM Mono', monospace" fontWeight="500" fill="currentColor">10</text>
   </svg>
 );
 export const Volume = ({ level = 'high' }) => (

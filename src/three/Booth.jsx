@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import { RoundedBox, Text } from '@react-three/drei';
 import { useApp } from '../store.js';
-import { BOOTH, FONT_HAND, FONT_MONO, FONT_SERIF, PAL, mat, motion } from './world.js';
+import { BOOTH, FONT_HAND, FONT_MONO, FONT_SERIF, PAL, dayNight, mat, motion } from './world.js';
 import { canvasTexture } from './canvasTexture.js';
 import { BORDERS, frameLayout, paintComposite } from '../data/borders.js';
 
@@ -19,6 +19,7 @@ export function Booth() {
       <Doorway />
       <Curtains />
       <DisplayCase />
+      <Awning />
       <CoinPlate />
       <Sconce />
     </group>
@@ -34,7 +35,7 @@ function Plinth() {
 }
 
 function Shell() {
-  const body = mat(PAL.booth, { roughness: 0.6 });
+  const body = mat('#f1e9db', { roughness: 0.6 });
   const sideW = halfW - door.halfW;
   const seam = mat('#cbc3b6', { roughness: 0.7 });
   const plaster = mat(PAL.plaster, { roughness: 0.92 });
@@ -63,10 +64,15 @@ function Shell() {
           </mesh>
         </group>
       ))}
-      {/* kick plate */}
-      <mesh position={[0, 0.09, halfD + 0.002]} material={mat('#b9b1a5', { roughness: 0.5, metalness: 0.2 })}>
-        <boxGeometry args={[halfW * 2, 0.18, 0.01]} />
+      {/* terracotta base band: the booth's one warm accent at street level */}
+      <mesh position={[0, 0.17, halfD + 0.004]} material={mat(PAL.terracotta, { roughness: 0.7 })}>
+        <boxGeometry args={[halfW * 2 + 0.01, 0.34, 0.012]} />
       </mesh>
+      {[-1, 1].map((sx) => (
+        <mesh key={sx} position={[sx * (halfW + 0.004), 0.17, 0]} material={mat(PAL.terracotta, { roughness: 0.7 })}>
+          <boxGeometry args={[0.012, 0.34, halfD * 2 + 0.01]} />
+        </mesh>
+      ))}
 
       {/* inside: plaster above, wood wainscot below */}
       <mesh position={[0, (wallH + wainH) / 2, -innerZ + 0.006]} material={plaster}>
@@ -110,7 +116,10 @@ function Shell() {
 function Roof() {
   return (
     <group position={[0, wallH, 0]}>
-      <RoundedBox args={[halfW * 2 + 0.22, 0.16, halfD * 2 + 0.22]} radius={0.03} smoothness={2} position={[0, 0.08, 0]} castShadow receiveShadow material={mat(PAL.boothShade, { roughness: 0.7 })} />
+      <RoundedBox args={[halfW * 2 + 0.22, 0.16, halfD * 2 + 0.22]} radius={0.03} smoothness={2} position={[0, 0.08, 0]} castShadow receiveShadow material={mat('#e6dccb', { roughness: 0.7 })} />
+      <mesh position={[0, 0.02, 0]} material={mat(PAL.woodDark)}>
+        <boxGeometry args={[halfW * 2 + 0.24, 0.04, halfD * 2 + 0.24]} />
+      </mesh>
       <mesh position={[0, -0.004, 0]} rotation={[Math.PI / 2, 0, 0]} material={mat('#efe8dc', { roughness: 0.95 })}>
         <planeGeometry args={[halfW * 2 - wall * 2, halfD * 2 - wall * 2]} />
       </mesh>
@@ -120,16 +129,16 @@ function Roof() {
 
 function SignBox() {
   return (
-    <group position={[0, 2.66, halfD + 0.06]}>
-      <RoundedBox args={[2.6, 0.5, 0.12]} radius={0.04} smoothness={3} castShadow material={mat('#d9d1c4', { roughness: 0.5 })} />
+    <group position={[0, 2.72, halfD + 0.06]}>
+      <RoundedBox args={[2.6, 0.52, 0.12]} radius={0.04} smoothness={3} castShadow material={mat(PAL.woodDark, { roughness: 0.6 })} />
       <mesh position={[0, 0, 0.062]}>
-        <planeGeometry args={[2.46, 0.38]} />
-        <meshStandardMaterial color="#f6efe2" emissive="#fff0d6" emissiveIntensity={0.35} roughness={0.4} />
+        <planeGeometry args={[2.46, 0.4]} />
+        <meshStandardMaterial color={PAL.tealDeep} emissive="#3c8a78" emissiveIntensity={0} roughness={0.55} ref={dayNight('emissiveIntensity', 0, 0.35)} />
       </mesh>
-      <Text font={FONT_SERIF} fontSize={0.2} letterSpacing={0.18} color={PAL.ink} anchorX="center" anchorY="middle" position={[0, 0.035, 0.07]}>
+      <Text font={FONT_SERIF} fontSize={0.21} letterSpacing={0.14} color="#f4ede0" anchorX="center" anchorY="middle" position={[0, 0.035, 0.07]}>
         PLAYBOOTH
       </Text>
-      <Text font={FONT_MONO} fontSize={0.055} letterSpacing={0.12} color={PAL.inkSoft} anchorX="center" anchorY="middle" position={[0, -0.12, 0.07]}>
+      <Text font={FONT_MONO} fontSize={0.052} letterSpacing={0.1} color="#d8e8e2" anchorX="center" anchorY="middle" position={[0, -0.125, 0.07]}>
         photos and films
       </Text>
     </group>
@@ -137,7 +146,7 @@ function SignBox() {
 }
 
 function Doorway() {
-  const trim = mat('#d2cabd', { roughness: 0.55 });
+  const trim = mat(PAL.woodDark, { roughness: 0.6 });
   const z = halfD - wall / 2;
   return (
     <group>
@@ -212,10 +221,8 @@ function Curtains() {
 }
 
 /** Glass case on the side wall with sample photostrips, the way real booths advertise. */
-function DisplayCase() {
-  const strips = useMemo(
-    () =>
-      ['lace', 'stamp', 'polka'].map((id, k) =>
+export function makeSampleStrips(ids = ['lace', 'stamp', 'polka']) {
+  return ids.map((id, k) =>
         canvasTexture(240, 720, (ctx, w, h) => {
           const border = BORDERS.find((b) => b.id === id);
           const bg = border.strip.wood ? '#4a3125' : border.strip.bg;
@@ -249,15 +256,17 @@ function DisplayCase() {
             ctx.drawImage(c, 15, 18 + i * ((h - 120) / 3), L.W, L.H);
           }
           ctx.fillStyle = border.strip.ink;
-          ctx.font = '26px "Marcellus SC", serif';
+          ctx.font = '600 26px "Fraunces Variable", Fraunces, serif';
           ctx.textAlign = 'center';
           ctx.fillText('PLAYBOOTH', w / 2, h - 40);
         }),
-      ),
-    [],
   );
+}
+
+function DisplayCase() {
+  const strips = useMemo(() => makeSampleStrips(), []);
   return (
-    <group position={[-halfW - 0.01, 1.45, 0.55]} rotation={[0, -Math.PI / 2, 0]}>
+    <group position={[halfW + 0.01, 1.45, 0.55]} rotation={[0, Math.PI / 2, 0]}>
       <RoundedBox args={[1.12, 1.3, 0.06]} radius={0.02} smoothness={2} position={[0, 0, -0.02]} castShadow material={mat('#cfc7ba', { roughness: 0.4, metalness: 0.15 })} />
       <mesh position={[0, 0, 0.012]} material={mat('#e9e2d6')}>
         <planeGeometry args={[1.02, 1.2]} />
@@ -279,9 +288,29 @@ function DisplayCase() {
   );
 }
 
+/** A terracotta canvas awning over the door. */
+function Awning() {
+  const canvas = mat(PAL.terracotta, { roughness: 0.85, side: THREE.DoubleSide });
+  return (
+    <group position={[0, door.h + 0.1, halfD + 0.02]}>
+      <mesh position={[0, 0, 0.27]} rotation={[0.42, 0, 0]} castShadow material={canvas}>
+        <boxGeometry args={[door.halfW * 2 + 0.5, 0.025, 0.62]} />
+      </mesh>
+      <mesh position={[0, -0.13, 0.55]} castShadow material={canvas}>
+        <boxGeometry args={[door.halfW * 2 + 0.5, 0.16, 0.02]} />
+      </mesh>
+      {[-1, 1].map((sx) => (
+        <mesh key={sx} position={[sx * (door.halfW + 0.2), -0.02, 0.27]} rotation={[0.42, 0, 0]} material={mat(PAL.woodDark)}>
+          <boxGeometry args={[0.03, 0.03, 0.62]} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 function CoinPlate() {
   return (
-    <group position={[door.halfW + 0.48, 1.25, halfD + 0.004]}>
+    <group position={[-door.halfW - 0.5, 1.25, halfD + 0.004]}>
       <RoundedBox args={[0.32, 0.46, 0.02]} radius={0.015} smoothness={2} material={mat('#b4aea4', { metalness: 0.55, roughness: 0.35 })} />
       <mesh position={[0, 0.1, 0.012]} material={mat('#2a2622')}>
         <boxGeometry args={[0.02, 0.09, 0.005]} />
@@ -298,13 +327,13 @@ function CoinPlate() {
 
 function Sconce() {
   return (
-    <group position={[-door.halfW - 0.4, 2.15, halfD + 0.08]}>
+    <group position={[door.halfW + 0.4, 2.05, halfD + 0.08]}>
       <mesh position={[0, 0, -0.05]} material={mat('#8d877e', { metalness: 0.5, roughness: 0.4 })}>
         <boxGeometry args={[0.1, 0.16, 0.04]} />
       </mesh>
       <mesh>
         <cylinderGeometry args={[0.07, 0.06, 0.18, 18]} />
-        <meshStandardMaterial color="#fff3dc" emissive="#ffd9a3" emissiveIntensity={1.1} roughness={0.4} />
+        <meshStandardMaterial color="#fff3dc" emissive="#ffd9a3" emissiveIntensity={0.6} roughness={0.4} ref={dayNight('emissiveIntensity', 0.6, 3)} />
       </mesh>
     </group>
   );

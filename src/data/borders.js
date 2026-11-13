@@ -4,8 +4,8 @@
  * and in photostrips. Sizes are fractions of the photo's width.
  */
 
-export const FONT_SERIF = '"Marcellus SC", "Cormorant SC", Georgia, serif';
-export const FONT_MONO = '"Courier Prime", "Courier New", ui-monospace, monospace';
+export const FONT_SERIF = '"Fraunces Variable", Fraunces, Georgia, serif';
+export const FONT_MONO = '"DM Mono", ui-monospace, "SF Mono", Menlo, monospace';
 export const FONT_HAND = 'Caveat, "Segoe Print", cursive';
 
 const C = {
@@ -43,6 +43,15 @@ export const BORDERS = [
     strip: { bg: '#f6f1e7', ink: C.ink },
   },
   {
+    id: 'instant',
+    name: 'Instant photo',
+    hint: 'A thick white bottom edge with the film written on it by hand.',
+    pads: { t: 0.055, r: 0.055, b: 0.24, l: 0.055 },
+    radius: 0,
+    swatch: ['#f7f4ee', '#33261c'],
+    strip: { bg: '#e9e0cf', ink: '#33261c' },
+  },
+  {
     id: 'lace',
     name: 'Lace',
     hint: 'A cotton lace doily laid on a dark wooden table.',
@@ -68,6 +77,51 @@ export const BORDERS = [
     radius: 0,
     swatch: ['#efe4cf', '#33261c'],
     strip: { bg: '#2e231b', ink: '#efe4cf' },
+  },
+  {
+    id: 'negative',
+    name: 'Film negative',
+    hint: 'Amber film base, sprocket holes and edge printing.',
+    pads: { t: 0.1, r: 0.03, b: 0.1, l: 0.03 },
+    radius: 0.006,
+    swatch: ['#3a2416', '#e08a3c'],
+    strip: { bg: '#2a1d14', ink: '#e8b27a' },
+  },
+  {
+    id: 'kraft',
+    name: 'Kraft stitch',
+    hint: 'Brown kraft paper with a cream thread stitched around the picture.',
+    pads: { t: 0.07, r: 0.07, b: 0.07, l: 0.07 },
+    radius: 0,
+    swatch: ['#b48a5c', '#f1e3c6'],
+    strip: { bg: '#b48a5c', ink: '#33261c' },
+  },
+  {
+    id: 'gingham',
+    name: 'Gingham',
+    hint: 'A terracotta and cream picnic check.',
+    pads: { t: 0.065, r: 0.065, b: 0.065, l: 0.065 },
+    radius: 0.018,
+    swatch: ['#c97a62', '#f4ede0'],
+    strip: { bg: '#f4ede0', ink: '#33261c' },
+  },
+  {
+    id: 'washi',
+    name: 'Washi tape',
+    hint: 'Pinned to paper with two strips of teal tape.',
+    pads: { t: 0.07, r: 0.07, b: 0.07, l: 0.07 },
+    radius: 0,
+    swatch: ['#f4ede0', '#3c8a78'],
+    strip: { bg: '#e9e0cf', ink: '#33261c' },
+  },
+  {
+    id: 'receipt',
+    name: 'Konbini receipt',
+    hint: 'Printed on a corner shop’s thermal paper, torn at both ends.',
+    pads: { t: 0.07, r: 0.05, b: 0.2, l: 0.05 },
+    radius: 0,
+    swatch: ['#fbfaf6', '#6b6259'],
+    strip: { bg: '#e9e0cf', ink: '#33261c' },
   },
   {
     id: 'polka',
@@ -440,8 +494,204 @@ function stripeFront(ctx, L) {
   ctx.restore();
 }
 
+
+function instantBack(ctx, L) {
+  ctx.fillStyle = '#f7f4ee';
+  ctx.fillRect(0, 0, L.W, L.H);
+  const g = ctx.createLinearGradient(0, 0, 0, L.H);
+  g.addColorStop(0, 'rgb(255 255 255 / 0.25)');
+  g.addColorStop(1, 'rgb(51 38 28 / 0.05)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, L.W, L.H);
+  ctx.strokeStyle = 'rgb(51 38 28 / 0.12)';
+  ctx.lineWidth = Math.max(1, L.u * 0.002);
+  ctx.strokeRect(L.win.x, L.win.y, L.win.w, L.win.h);
+}
+
+function instantFront(ctx, L, meta) {
+  const { u, win } = L;
+  const y = win.y + win.h + (L.H - win.y - win.h) * 0.52;
+  ctx.fillStyle = '#2e3f6b';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+  const text = fitText(ctx, meta.title || 'playbooth', win.w * 0.62, `600 {s} ${FONT_HAND}`, Math.round(u * 0.085), 10);
+  ctx.save();
+  ctx.translate(win.x + u * 0.02, y);
+  ctx.rotate(-0.025);
+  ctx.fillText(text, 0, 0);
+  ctx.restore();
+  ctx.textAlign = 'right';
+  ctx.fillStyle = C.inkSoft;
+  ctx.font = `${Math.round(u * 0.022)}px ${FONT_MONO}`;
+  ctx.fillText(meta.date || '', win.x + win.w, y + u * 0.01);
+}
+
+function negativeBack(ctx, L) {
+  const { u, win } = L;
+  const g = ctx.createLinearGradient(0, 0, L.W, L.H);
+  g.addColorStop(0, '#3d2617');
+  g.addColorStop(1, '#2a1a10');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, L.W, L.H);
+  const holeW = u * 0.03;
+  const holeH = u * 0.042;
+  const gap = u * 0.066;
+  const count = Math.floor(L.W / gap);
+  const start = (L.W - (count - 1) * gap) / 2;
+  ctx.fillStyle = 'rgb(244 226 200 / 0.88)';
+  for (const bandY of [win.y * 0.42, win.y + win.h + (L.H - win.y - win.h) * 0.58]) {
+    for (let i = 0; i < count; i++) {
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(start + i * gap - holeW / 2, bandY - holeH / 2, holeW, holeH, holeW * 0.25);
+      else ctx.rect(start + i * gap - holeW / 2, bandY - holeH / 2, holeW, holeH);
+      ctx.fill();
+    }
+  }
+}
+
+function negativeFront(ctx, L, meta) {
+  const { u, win } = L;
+  ctx.fillStyle = '#e08a3c';
+  ctx.font = `500 ${Math.round(u * 0.019)}px ${FONT_MONO}`;
+  ctx.textBaseline = 'middle';
+  const y = win.y * 0.86;
+  ctx.textAlign = 'left';
+  ctx.fillText('PLAYBOOTH 400', win.x + u * 0.01, y);
+  ctx.textAlign = 'right';
+  ctx.fillText(`▸ ${meta.timecode || '12'}`, win.x + win.w - u * 0.01, y);
+  ctx.textAlign = 'center';
+  ctx.fillText('13A', L.W / 2, win.y + win.h + (L.H - win.y - win.h) * 0.16);
+}
+
+function kraftBack(ctx, L) {
+  const { u, win } = L;
+  ctx.fillStyle = '#b48a5c';
+  ctx.fillRect(0, 0, L.W, L.H);
+  for (let i = 0; i < 1400; i++) {
+    ctx.fillStyle = i % 3 ? 'rgb(90 60 30 / 0.12)' : 'rgb(255 240 210 / 0.12)';
+    ctx.fillRect((i * 97.13) % L.W, (i * 53.71) % L.H, u * 0.004 * (1 + (i % 3)), u * 0.0012);
+  }
+  const inset = u * 0.03;
+  ctx.strokeStyle = '#f1e3c6';
+  ctx.lineWidth = Math.max(1, u * 0.004);
+  ctx.setLineDash([u * 0.016, u * 0.011]);
+  ctx.strokeRect(win.x - inset, win.y - inset, win.w + inset * 2, win.h + inset * 2);
+  ctx.setLineDash([]);
+}
+
+function ginghamBack(ctx, L) {
+  const { u, win } = L;
+  ctx.fillStyle = '#f4ede0';
+  ctx.fillRect(0, 0, L.W, L.H);
+  const step = u * 0.032;
+  ctx.fillStyle = 'rgb(176 82 58 / 0.42)';
+  for (let x = 0; x < L.W; x += step * 2) ctx.fillRect(x, 0, step, L.H);
+  for (let y = 0; y < L.H; y += step * 2) ctx.fillRect(0, y, L.W, step);
+  ctx.fillStyle = '#f4ede0';
+  const rim = u * 0.008;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(win.x - rim, win.y - rim, win.w + rim * 2, win.h + rim * 2, win.r + rim);
+  else ctx.rect(win.x - rim, win.y - rim, win.w + rim * 2, win.h + rim * 2);
+  ctx.fill();
+}
+
+function washiBack(ctx, L) {
+  ctx.fillStyle = '#f4ede0';
+  ctx.fillRect(0, 0, L.W, L.H);
+  for (let i = 0; i < 600; i++) {
+    ctx.fillStyle = 'rgb(120 90 60 / 0.05)';
+    ctx.fillRect((i * 71.3) % L.W, (i * 37.9) % L.H, L.u * 0.006, L.u * 0.006);
+  }
+}
+
+function tape(ctx, cx, cy, w, h, angle, u) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(angle);
+  ctx.fillStyle = 'rgb(60 138 120 / 0.78)';
+  ctx.beginPath();
+  const teeth = 7;
+  ctx.moveTo(-w / 2, -h / 2);
+  ctx.lineTo(w / 2, -h / 2);
+  for (let i = 0; i <= teeth; i++) ctx.lineTo(w / 2 + (i % 2 ? u * 0.006 : 0), -h / 2 + (h * i) / teeth);
+  ctx.lineTo(-w / 2, h / 2);
+  for (let i = teeth; i >= 0; i--) ctx.lineTo(-w / 2 - (i % 2 ? u * 0.006 : 0), -h / 2 + (h * i) / teeth);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = 'rgb(244 237 224 / 0.55)';
+  for (let x = -w / 2 + u * 0.015; x < w / 2; x += u * 0.03) {
+    ctx.beginPath();
+    ctx.arc(x, 0, u * 0.005, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function washiFront(ctx, L) {
+  const { u, win } = L;
+  tape(ctx, win.x + u * 0.03, win.y + u * 0.01, u * 0.22, u * 0.055, -0.62, u);
+  tape(ctx, win.x + win.w - u * 0.03, win.y + win.h - u * 0.01, u * 0.22, u * 0.055, -0.62, u);
+}
+
+function receiptBack(ctx, L) {
+  ctx.fillStyle = '#fbfaf6';
+  ctx.fillRect(0, 0, L.W, L.H);
+  ctx.strokeStyle = 'rgb(51 38 28 / 0.18)';
+  ctx.lineWidth = Math.max(1, L.u * 0.002);
+  ctx.strokeRect(L.win.x, L.win.y, L.win.w, L.win.h);
+}
+
+function receiptFront(ctx, L, meta) {
+  const { u, win } = L;
+  const left = win.x;
+  const right = win.x + win.w;
+  ctx.fillStyle = '#4a433c';
+  ctx.textBaseline = 'middle';
+  ctx.font = `500 ${Math.round(u * 0.024)}px ${FONT_MONO}`;
+  ctx.textAlign = 'center';
+  ctx.fillText('PLAYBOOTH  CORNER STORE', L.W / 2, win.y * 0.55);
+  const base = win.y + win.h + u * 0.04;
+  ctx.textAlign = 'left';
+  const line = fitText(ctx, `1 x ${meta.title || 'FILM'}`.toUpperCase(), win.w * 0.7, `{s} ${FONT_MONO}`, Math.round(u * 0.022), 8);
+  ctx.fillText(line, left, base);
+  ctx.textAlign = 'right';
+  ctx.fillText(meta.timecode || '', right, base);
+  ctx.fillStyle = 'rgb(74 67 60 / 0.5)';
+  for (let x = left; x < right; x += u * 0.014) ctx.fillRect(x, base + u * 0.026, u * 0.007, Math.max(1, u * 0.0015));
+  ctx.fillStyle = '#4a433c';
+  ctx.textAlign = 'left';
+  ctx.fillText(meta.date || '', left, base + u * 0.06);
+  ctx.textAlign = 'right';
+  ctx.fillText('THANK YOU', right, base + u * 0.06);
+  let bx = L.W / 2 - u * 0.12;
+  for (let i = 0; i < 40; i++) {
+    const bw = u * (i % 3 === 0 ? 0.004 : 0.002);
+    ctx.fillRect(bx, base + u * 0.09, bw, u * 0.035);
+    bx += bw + u * 0.0022;
+  }
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-out';
+  const tooth = u * 0.016;
+  for (const y of [0, L.H]) {
+    ctx.beginPath();
+    for (let x = 0; x <= L.W + tooth; x += tooth) {
+      ctx.moveTo(x - tooth / 2, y);
+      ctx.lineTo(x, y + (y ? -tooth * 0.55 : tooth * 0.55));
+      ctx.lineTo(x + tooth / 2, y);
+    }
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
 const PAINTERS = {
   none: [() => {}, () => {}],
+  instant: [instantBack, instantFront],
+  negative: [negativeBack, negativeFront],
+  kraft: [kraftBack, () => {}],
+  gingham: [ginghamBack, () => {}],
+  washi: [washiBack, washiFront],
+  receipt: [receiptBack, receiptFront],
   booth: [boothBack, boothFront],
   lace: [laceBack, () => {}],
   stamp: [stampBack, stampFront],
@@ -550,9 +800,9 @@ let fontsReady;
 export function ensureFrameFonts() {
   if (!fontsReady) {
     fontsReady = Promise.all([
-      document.fonts.load(`32px "Marcellus SC"`),
-      document.fonts.load(`32px "Courier Prime"`),
-      document.fonts.load(`700 32px "Courier Prime"`),
+      document.fonts.load(`500 32px "Fraunces Variable"`),
+      document.fonts.load(`400 32px "DM Mono"`),
+      document.fonts.load(`500 32px "DM Mono"`),
       document.fonts.load(`600 32px Caveat`),
     ]).catch(() => {});
   }

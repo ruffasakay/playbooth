@@ -1,8 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import '@fontsource/marcellus-sc/400.css';
-import '@fontsource/courier-prime/400.css';
-import '@fontsource/courier-prime/700.css';
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource/dm-mono/400.css';
+import '@fontsource/dm-mono/500.css';
 import '@fontsource/caveat/600.css';
 import '@fontsource-variable/atkinson-hyperlegible-next';
 import '@fontsource-variable/literata';

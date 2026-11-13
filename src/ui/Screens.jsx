@@ -17,7 +17,13 @@ export function Preloader() {
   }, []);
   useEffect(() => {
     if (!done) return undefined;
-    if (useApp.getState().phase === 'loading') useApp.setState({ phase: 'outside' });
+    const st = useApp.getState();
+    if (st.phase === 'loading') {
+      useApp.setState({ phase: 'outside' });
+      // the camera takes a slow look around first; words arrive after it
+      const wait = !st.webgl || st.reducedMotion ? 0 : 4300;
+      setTimeout(() => useApp.setState({ introDone: true }), wait);
+    }
     const id = setTimeout(() => setGone(true), 900);
     return () => clearTimeout(id);
   }, [done]);
@@ -38,19 +44,20 @@ export function Preloader() {
 
 export function Hero() {
   const phase = useApp((s) => s.phase);
+  const intro = useApp((s) => s.introDone);
   const enter = useApp((s) => s.enterBooth);
-  const visible = phase === 'outside';
+  const visible = phase === 'outside' && intro;
   const cta = useRef(null);
 
   useEffect(() => {
-    if (phase !== 'outside') return undefined;
+    if (!visible) return undefined;
     const onKey = (e) => {
       if (e.key === 'Enter' && document.activeElement === document.body) enter();
     };
     window.addEventListener('keydown', onKey);
     if (document.activeElement === document.body) cta.current?.focus({ preventScroll: true });
     return () => window.removeEventListener('keydown', onKey);
-  }, [phase, enter]);
+  }, [visible, enter]);
 
   return (
     <section className="hero" data-visible={visible || undefined} data-leaving={phase === 'entering' || undefined} aria-labelledby="hero-title" inert={!visible || undefined}>
@@ -81,24 +88,12 @@ export function Hero() {
           </li>
         </ol>
         <div className="hero-actions reveal" style={{ '--i': 5 }}>
-          <button ref={cta} type="button" className="btn btn--primary btn--lg" onClick={enter} disabled={phase !== 'outside'}>
-            <kbd aria-hidden="true">Enter</kbd> Enter to play
+          <button ref={cta} type="button" className="btn btn--primary btn--lg" onClick={enter} disabled={!visible}>
+            Enter to play
+            <kbd aria-hidden="true">Enter</kbd>
           </button>
-          <a
-            className="link"
-            href="#player"
-            onClick={(e) => {
-              e.preventDefault();
-              deepLinkToPlayer();
-            }}
-          >
-            Go straight to the player
-          </a>
         </div>
       </div>
-      <p className="hero-foot reveal" style={{ '--i': 6 }}>
-        Six Blender open movies, shared under Creative Commons Attribution.
-      </p>
     </section>
   );
 }
@@ -130,8 +125,29 @@ const NAV = [
   { id: 'booth', key: '4', label: 'Room' },
 ];
 
+/** Day and night for the whole booth; the same thing the wall switch does. */
+function ThemeToggle() {
+  const night = useApp((s) => s.theme === 'night');
+  return (
+    <button type="button" className="theme-toggle" onClick={() => useApp.getState().toggleTheme()} aria-label={night ? 'Switch to day' : 'Switch to night'} aria-keyshortcuts="L">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+        {night ? (
+          <path d="M19.5 14.6A7.8 7.8 0 0 1 9.4 4.5a7.8 7.8 0 1 0 10.1 10.1Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+        ) : (
+          <g fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7" />
+          </g>
+        )}
+      </svg>
+      <span>{night ? 'Night' : 'Day'}</span>
+    </button>
+  );
+}
+
 export function RoomUI() {
   const phase = useApp((s) => s.phase);
+  const intro = useApp((s) => s.introDone);
   const station = useApp((s) => s.station);
   const webgl = useApp((s) => s.webgl);
   const veil = useApp((s) => s.veil);
@@ -145,6 +161,7 @@ export function RoomUI() {
           <RoomNav station={station} />
         </>
       )}
+      {((phase === 'outside' && intro) || (phase === 'inside' && station !== 'watch' && !inspect)) && <ThemeToggle />}
       <PromptCard />
       <div className="veil" data-on={veil || undefined} aria-hidden="true" />
     </>
@@ -192,6 +209,7 @@ function RoomNav({ station }) {
       else if ((e.key === 'w' || e.key === 'W') && canWatch) go('watch');
       else if (e.key === 'q' || e.key === 'Q') leave();
       else if (e.key === '5') useApp.getState().setCompilerOpen(true);
+      else if (e.key === 'l' || e.key === 'L') useApp.getState().toggleTheme();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
