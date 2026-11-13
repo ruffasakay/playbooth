@@ -1,0 +1,48 @@
+/*
+ * PLAYBOOTH tokens.
+ * Colors match src/three/world.js so the DOM deck and the 3D machine are one object.
+ */
+:root {
+  color-scheme: light;
+
+  --sky: #d6d9f7;
+  --sky-deep: #b3b7ee;
+  --butter: #f5cf5e;
+  --butter-light: #fff1c2;
+  --butter-deep: #c99a2c;
+  --cream: #fff1d6;
+  --paper: #fff7e8;
+  --cherry: #b5294e;
+  --cherry-deep: #7f1a37;
+  --mint: #7fcbb5;
+  --mint-deep: #4f9f88;
+  --honey: #d39457;
+  --walnut: #7a4a2b;
+  --walnut-deep: #573420;
+  --ink: #2a2140;
+  --ink-soft: rgb(42 33 64 / 0.74);
+  --glass: #191527;
+  --lcd-bg: #20302b;
+  --lcd-text: #9ff5d4;
+
+  --font-display: 'DynaPuff', 'Trebuchet MS', system-ui, sans-serif;
+  --font-text: 'Atkinson Hyperlegible Next Variable', 'Atkinson Hyperlegible Next', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Atkinson Hyperlegible Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* type scale: a perfect fourth from 16px */
+  --step--1: 0.8125rem;
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-2: 1.5625rem;
+  --step-3: clamp(2.2rem, 5.2vw + 0.6rem, 4.4rem);
+
+  --radius-key: 14px;
+  --radius-panel: 24px;
+  --focus-ring: 3px solid var(--ink);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+}
