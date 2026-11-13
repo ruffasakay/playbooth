@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { MOVIES } from '../data/movies.js';
-import { useApp, movieById } from '../store.js';
-import { Logo } from './Logo.jsx';
+import { useApp } from '../store.js';
+import { Logo, Wordmark } from './Logo.jsx';
 
 /* ---------- preloader ---------- */
 
@@ -12,25 +12,23 @@ export function Preloader() {
   const [gone, setGone] = useState(false);
   const done = (ready || !webgl) && minDone;
   useEffect(() => {
-    const id = setTimeout(() => setMinDone(true), 900);
+    const id = setTimeout(() => setMinDone(true), 1100);
     return () => clearTimeout(id);
   }, []);
   useEffect(() => {
     if (!done) return undefined;
     if (useApp.getState().phase === 'loading') useApp.setState({ phase: 'outside' });
-    const id = setTimeout(() => setGone(true), 700);
+    const id = setTimeout(() => setGone(true), 900);
     return () => clearTimeout(id);
   }, [done]);
   if (gone) return null;
   return (
     <div className="preloader" data-done={done || undefined} role="status" aria-live="polite">
       <div className="preloader-inner">
-        <Logo size={88} />
-        <p className="preloader-title">PLAYBOOTH</p>
-        <div className="preloader-strip" aria-hidden="true">
-          <span />
-        </div>
-        <p className="preloader-text">{done ? 'The booth is open.' : 'Setting up the booth…'}</p>
+        <Logo size={56} />
+        <Wordmark className="preloader-mark" />
+        <span className="preloader-line" aria-hidden="true"><span /></span>
+        <span className="preloader-text">{done ? 'Open' : 'Warming up the booth'}</span>
       </div>
     </div>
   );
@@ -41,84 +39,77 @@ export function Preloader() {
 export function Hero() {
   const phase = useApp((s) => s.phase);
   const enter = useApp((s) => s.enterBooth);
-  const visible = phase === 'outside' || phase === 'loading';
+  const visible = phase === 'outside';
   const cta = useRef(null);
-  const leaving = phase === 'entering';
 
   useEffect(() => {
-    if (phase === 'outside' && document.activeElement === document.body) {
-      // land keyboard users on the main action without scrolling
-      cta.current?.focus({ preventScroll: true });
-    }
-  }, [phase]);
-
-  const goStraight = (e) => {
-    e.preventDefault();
-    deepLinkToPlayer();
-  };
+    if (phase !== 'outside') return undefined;
+    const onKey = (e) => {
+      if (e.key === 'Enter' && document.activeElement === document.body) enter();
+    };
+    window.addEventListener('keydown', onKey);
+    if (document.activeElement === document.body) cta.current?.focus({ preventScroll: true });
+    return () => window.removeEventListener('keydown', onKey);
+  }, [phase, enter]);
 
   return (
-    <section
-      className="hero"
-      data-visible={visible || undefined}
-      data-leaving={leaving || undefined}
-      aria-labelledby="hero-title"
-      inert={!visible || undefined}
-    >
+    <section className="hero" data-visible={visible || undefined} data-leaving={phase === 'entering' || undefined} aria-labelledby="hero-title" inert={!visible || undefined}>
       <div className="hero-copy">
-        <div className="hero-brand">
-          <Logo size={64} />
-          <h1 id="hero-title" className="hero-title">
-            PLAYBOOTH
-          </h1>
-        </div>
-        <p className="hero-lede">
-          Your own little movie booth. Pick a movie, step inside, capture your favorite moments,
-          and print them as memories.
+        <p className="hero-kicker reveal" style={{ '--i': 0 }}>
+          <Logo size={26} /> a photobooth for films
         </p>
-        <ol className="hero-steps">
+        <Wordmark as="h1" id="hero-title" className="hero-title reveal reveal--1" />
+        <p className="hero-hand reveal" style={{ '--i': 2 }}>
+          play a film, keep the moment
+        </p>
+        <p className="hero-lede reveal" style={{ '--i': 3 }}>
+          Step inside, slide a tape into the player and watch. Press Snap on any frame you love and the booth keeps it,
+          ready to print.
+        </p>
+        <ol className="hero-beats reveal" style={{ '--i': 4 }}>
           <li>
-            <span>
-              <strong>Choose a movie</strong> from the tape cabinet.
-            </span>
+            <span className="beat-name">Play</span>
+            <span className="beat-text">Pick a film from the rack and frame your screen.</span>
           </li>
           <li>
-            <span>
-              <strong>Pick a frame</strong> for your movie screen.
-            </span>
+            <span className="beat-name">Snap</span>
+            <span className="beat-text">Catch any frame, playing or paused. It downloads at once.</span>
           </li>
           <li>
-            <span>
-              <strong>Watch and snap</strong> the moments you love.
-            </span>
-          </li>
-          <li>
-            <span>
-              <strong>Collect your prints</strong> from the booth’s printer.
-            </span>
+            <span className="beat-name">Print</span>
+            <span className="beat-text">Print snaps one by one, or stack them into a photostrip.</span>
           </li>
         </ol>
-        <div className="hero-actions">
-          <button ref={cta} type="button" className="cta" onClick={enter} disabled={phase !== 'outside'}>
-            <span className="cta-face">Enter to play</span>
+        <div className="hero-actions reveal" style={{ '--i': 5 }}>
+          <button ref={cta} type="button" className="btn btn--primary btn--lg" onClick={enter} disabled={phase !== 'outside'}>
+            <kbd aria-hidden="true">Enter</kbd> Enter to play
           </button>
-          <a className="quiet-link" href="#player" onClick={goStraight}>
+          <a
+            className="link"
+            href="#player"
+            onClick={(e) => {
+              e.preventDefault();
+              deepLinkToPlayer();
+            }}
+          >
             Go straight to the player
           </a>
         </div>
       </div>
+      <p className="hero-foot reveal" style={{ '--i': 6 }}>
+        Six Blender open movies, shared under Creative Commons Attribution.
+      </p>
     </section>
   );
 }
 
-/** Skip the walk-in: open the booth with the first tape already reading. */
 export function deepLinkToPlayer() {
   const s = useApp.getState();
   if (s.phase === 'inside') {
     if (!s.insertedTapeId) s.requestInsert(MOVIES[0].id);
     return;
   }
-  useApp.setState({ phase: 'inside', station: 'booth' });
+  useApp.setState({ phase: 'inside', station: 'player' });
   if (s.webgl) {
     import('../three/world.js').then(({ motion }) => {
       motion.curtain.open = 1;
@@ -132,11 +123,11 @@ export function deepLinkToPlayer() {
 
 /* ---------- inside the booth ---------- */
 
-const STATIONS = [
-  { id: 'tapes', label: 'Tapes' },
-  { id: 'booth', label: 'Whole booth' },
-  { id: 'player', label: 'Player' },
-  { id: 'prints', label: 'Prints' },
+const NAV = [
+  { id: 'tapes', key: '1', label: 'Films' },
+  { id: 'player', key: '2', label: 'Player' },
+  { id: 'prints', key: '3', label: 'Prints' },
+  { id: 'booth', key: '4', label: 'Room' },
 ];
 
 export function RoomUI() {
@@ -144,69 +135,97 @@ export function RoomUI() {
   const station = useApp((s) => s.station);
   const webgl = useApp((s) => s.webgl);
   const veil = useApp((s) => s.veil);
+  const inspect = useApp((s) => s.inspectId);
   return (
     <>
-      {phase === 'entering' || phase === 'leaving' ? <SkipButton /> : null}
-      {phase === 'inside' && station !== 'watch' && webgl && (
+      {(phase === 'entering' || phase === 'leaving') && <SkipButton />}
+      {phase === 'inside' && station !== 'watch' && webgl && !inspect && (
         <>
-          <Plaque station={station} />
-          <Hint />
+          <RoomBrand />
+          <RoomNav station={station} />
         </>
       )}
+      <PromptCard />
       <div className="veil" data-on={veil || undefined} aria-hidden="true" />
     </>
   );
 }
 
+function RoomBrand() {
+  return (
+    <div className="room-brand" aria-hidden="true">
+      <Logo size={24} />
+      <Wordmark />
+    </div>
+  );
+}
+
 function SkipButton() {
   const skip = useApp((s) => s.skipIntro);
-  const phase = useApp((s) => s.phase);
   const ref = useRef(null);
   useEffect(() => {
     ref.current?.focus({ preventScroll: true });
-    const onKey = (e) => {
-      if (e.key === 'Escape') skip();
-    };
+    const onKey = (e) => e.key === 'Escape' && skip();
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [skip]);
   return (
-    <button ref={ref} type="button" className="skip" onClick={skip}>
-      {phase === 'entering' ? 'Skip the walk in' : 'Skip the walk out'}
+    <button ref={ref} type="button" className="btn btn--ghost skip" onClick={skip}>
+      <kbd aria-hidden="true">Esc</kbd> Skip
     </button>
   );
 }
 
-function Plaque({ station }) {
+function RoomNav({ station }) {
   const go = useApp((s) => s.goStation);
   const leave = useApp((s) => s.leaveBooth);
   const inserted = useApp((s) => s.insertedTapeId);
   const deck = useApp((s) => s.deck);
+  const canWatch = inserted && deck !== 'reading';
+  const snaps = useApp((s) => s.snaps.length);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.target.closest?.('input, textarea, dialog, [role="dialog"]') || e.metaKey || e.ctrlKey || e.altKey) return;
+      const hit = NAV.find((n) => n.key === e.key);
+      if (hit) go(hit.id);
+      else if ((e.key === 'w' || e.key === 'W') && canWatch) go('watch');
+      else if (e.key === 'q' || e.key === 'Q') leave();
+      else if (e.key === '5') useApp.getState().setCompilerOpen(true);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [go, leave, canWatch]);
+
   return (
-    <nav className="plaque" aria-label="Move around the booth">
-      <ul className="plaque-keys">
-        {STATIONS.map((st) => (
-          <li key={st.id}>
-            <button
-              type="button"
-              className="plaque-key"
-              aria-current={station === st.id ? 'location' : undefined}
-              onClick={() => go(st.id)}
-            >
-              {st.label}
+    <nav className="room-nav" aria-label="Move around the booth">
+      <ul>
+        {NAV.map((n) => (
+          <li key={n.id}>
+            <button type="button" className="nav-key" aria-current={station === n.id ? 'location' : undefined} aria-keyshortcuts={n.key} onClick={() => go(n.id)}>
+              <kbd aria-hidden="true">{n.key}</kbd>
+              {n.label}
             </button>
           </li>
         ))}
-        {inserted && deck !== 'reading' && (
+        {canWatch && (
           <li>
-            <button type="button" className="plaque-key plaque-key--watch" onClick={() => go('watch')}>
-              Sit and watch
+            <button type="button" className="nav-key nav-key--accent" aria-keyshortcuts="W" onClick={() => go('watch')}>
+              <kbd aria-hidden="true">W</kbd>
+              Watch
             </button>
           </li>
         )}
-        <li className="plaque-out">
-          <button type="button" className="plaque-key plaque-key--out" onClick={leave}>
-            Step outside
+        <li>
+          <button type="button" className="nav-key" aria-keyshortcuts="5" onClick={() => useApp.getState().setCompilerOpen(true)}>
+            <kbd aria-hidden="true">5</kbd>
+            Snaps{snaps ? ` ${snaps}` : ''}
+          </button>
+        </li>
+        <li>
+          <button type="button" className="nav-key" onClick={leave}>
+            <kbd aria-hidden="true">Q</kbd>
+            Step out
           </button>
         </li>
       </ul>
@@ -214,31 +233,26 @@ function Plaque({ station }) {
   );
 }
 
-function Hint() {
-  const held = useApp((s) => movieById(s.heldTapeId));
-  const dragging = useApp((s) => s.dragging);
-  const inserted = useApp((s) => movieById(s.insertedTapeId));
-  const deck = useApp((s) => s.deck);
-  const printing = useApp((s) => s.printing);
-  const station = useApp((s) => s.station);
-  const printBatch = useApp((s) => s.printBatch.length);
+/** The little card that names what's under the pointer, like a game's interact prompt. */
+function PromptCard() {
+  const hover = useApp((s) => s.hover);
   const coarse = useApp((s) => s.coarsePointer);
-
-  let text;
-  if (printing) text = 'Printing your photos…';
-  else if (dragging) text = 'Bring the tape to the glowing slot. It snaps in when it’s close.';
-  else if (held) text = `Holding ${held.title}. ${coarse ? 'Tap' : 'Click'} the glowing slot under the screen, or drag the tape into it.`;
-  else if (inserted && deck === 'reading') text = `Reading ${inserted.title}…`;
-  else if (station === 'prints' && printBatch) text = `${coarse ? 'Tap' : 'Click'} a print to see it larger or save it. The tray is your album.`;
-  else if (inserted) text = `${inserted.title} is in. ${coarse ? 'Tap' : 'Click'} the screen to sit down and watch.`;
-  else text = coarse
-    ? 'Tap a tape to pick it up, then tap the glowing slot on the player.'
-    : 'Drag a tape into the player’s slot, or click a tape and then the slot.';
-
+  if (!hover || coarse) return null;
+  const left = Math.min(hover.x + 18, window.innerWidth - 270);
+  const top = Math.min(hover.y + 18, window.innerHeight - 140);
   return (
-    <p className="hint" aria-hidden="true">
-      {text}
-    </p>
+    <div className="prompt-card" style={{ left, top }} aria-hidden="true">
+      <p className="prompt-title">{hover.title}</p>
+      {hover.sub && <p className="prompt-sub">{hover.sub}</p>}
+      <ul>
+        {hover.actions.map(([key, label]) => (
+          <li key={label}>
+            <kbd>{key === 'click' ? 'Click' : key === 'drag' ? 'Drag' : key}</kbd>
+            {label}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

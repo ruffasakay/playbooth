@@ -1,134 +1,68 @@
 /**
- * PLAYBOOTH icons: chunky, rounded, drawn on a 24-unit grid.
- * Filled shapes for the primary keys, 2.4-unit strokes for the rest.
- * The play triangle sits 1 unit right of geometric center so it looks
- * centered next to pause (optical, not geometric, centering).
+ * Fine line icons on a 24-unit grid: 1.7 strokes, round joins.
+ * The play triangle is nudged right of center so it reads as centered.
  */
-const base = {
-  width: 24,
-  height: 24,
-  viewBox: '0 0 24 24',
-  'aria-hidden': true,
-  focusable: false,
-  className: 'icon',
-};
-const stroke = {
-  fill: 'none',
-  stroke: 'currentColor',
-  strokeWidth: 2.4,
-  strokeLinecap: 'round',
-  strokeLinejoin: 'round',
-};
+const base = { width: 24, height: 24, viewBox: '0 0 24 24', 'aria-hidden': true, focusable: false, className: 'icon' };
+const line = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round', strokeLinejoin: 'round' };
 
-export const IconPlay = () => (
+export const Play = () => (
+  <svg {...base}><path d="M8.2 5.6v12.8c0 .7.8 1.1 1.4.7l9.4-6.4c.5-.4.5-1.1 0-1.4L9.6 4.9c-.6-.4-1.4 0-1.4.7Z" fill="currentColor" /></svg>
+);
+export const Pause = () => (
+  <svg {...base}><rect x="6.5" y="5" width="3.6" height="14" rx="1" fill="currentColor" /><rect x="13.9" y="5" width="3.6" height="14" rx="1" fill="currentColor" /></svg>
+);
+export const Replay = () => (
+  <svg {...base}><path {...line} d="M4.6 12a7.4 7.4 0 1 0 2.2-5.3" /><path {...line} d="M4.4 4.2v3.6H8" /></svg>
+);
+/** Circular arrow with the step written inside, like a remote's skip key. */
+export const Seek = ({ back }) => (
   <svg {...base}>
-    <path d="M8.6 5.4c0-1.1 1.2-1.8 2.2-1.2l9 6.3c.9.6.9 1.9 0 2.5l-9 6.3c-1 .6-2.2-.1-2.2-1.2V5.4Z" fill="currentColor" transform="translate(-1.6 0)" />
+    <g transform={back ? 'translate(24 0) scale(-1 1)' : undefined}>
+      <path {...line} d="M12 4.2a7.8 7.8 0 1 1-7.1 4.6" />
+      <path {...line} d="M12 1.8l2.6 2.4L12 6.6" />
+    </g>
+    <text x="12" y="15.4" textAnchor="middle" fontSize="7.4" fontFamily="'Courier Prime', monospace" fontWeight="700" fill="currentColor">10</text>
   </svg>
 );
-
-export const IconPause = () => (
+export const Volume = ({ level = 'high' }) => (
   <svg {...base}>
-    <rect x="5.5" y="4.5" width="4.6" height="15" rx="1.8" fill="currentColor" />
-    <rect x="13.9" y="4.5" width="4.6" height="15" rx="1.8" fill="currentColor" />
+    <path d="M4 9.6c0-.5.4-.9.9-.9h2.6l4-3.2c.6-.5 1.5-.1 1.5.7v11.6c0 .8-.9 1.2-1.5.7l-4-3.2H4.9c-.5 0-.9-.4-.9-.9V9.6Z" fill="currentColor" />
+    {level === 'off' ? <path {...line} d="m16.4 9.6 4.4 4.8m0-4.8-4.4 4.8" /> : <path {...line} d="M16.2 9.4a3.7 3.7 0 0 1 0 5.2" />}
+    {level === 'high' && <path {...line} d="M18.7 6.9a7.3 7.3 0 0 1 0 10.2" />}
   </svg>
 );
-
-export const IconReplay = () => (
+export const Captions = ({ on }) => (
   <svg {...base}>
-    <path {...stroke} d="M4.5 12a7.5 7.5 0 1 0 2.4-5.5" />
-    <path d="M4 3.8v4.6h4.6" {...stroke} />
+    <rect x="3" y="5.5" width="18" height="13" rx="2.4" {...line} fill={on ? 'currentColor' : 'none'} />
+    <path d="M10.2 10.5a2 2 0 1 0 0 3M16.2 10.5a2 2 0 1 0 0 3" fill="none" stroke={on ? 'var(--bar-bg, #1e1610)' : 'currentColor'} strokeWidth="1.6" strokeLinecap="round" />
   </svg>
 );
-
-const SeekGlyph = ({ forward }) => (
-  <svg {...base} style={forward ? undefined : { transform: 'scaleX(-1)' }}>
-    <path {...stroke} d="M12 4.6a7.6 7.6 0 1 1-6.9 4.4" />
-    <path {...stroke} d="M12 1.9 15 4.6 12 7.3" />
-  </svg>
+export const Pip = () => (
+  <svg {...base}><rect x="3" y="5" width="18" height="14" rx="2" {...line} /><rect x="12" y="11.5" width="7" height="5" rx="1" fill="currentColor" /></svg>
 );
-export const IconBack = () => <SeekGlyph forward={false} />;
-export const IconForward = () => <SeekGlyph forward />;
-
-export const IconVolume = ({ level = 'high' }) => (
-  <svg {...base}>
-    <path d="M3.6 9.4c0-.7.5-1.2 1.2-1.2h2.6l4.1-3.4c.8-.7 2-.1 2 1v12.4c0 1.1-1.2 1.7-2 1l-4.1-3.4H4.8c-.7 0-1.2-.5-1.2-1.2V9.4Z" fill="currentColor" />
-    {level === 'off' ? (
-      <path {...stroke} d="m16.5 9.5 5 5m0-5-5 5" />
-    ) : (
-      <>
-        <path {...stroke} d="M16.4 9.2a3.9 3.9 0 0 1 0 5.6" />
-        {level !== 'low' && <path {...stroke} d="M19 6.6a7.6 7.6 0 0 1 0 10.8" />}
-      </>
-    )}
-  </svg>
+export const Fullscreen = ({ exit }) => (
+  <svg {...base}>{exit ? <path {...line} d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" /> : <path {...line} d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />}</svg>
+);
+export const Camera = () => (
+  <svg {...base}><path {...line} d="M4 8.2c0-.9.7-1.6 1.6-1.6h2.2l1.4-2h5.6l1.4 2h2.2c.9 0 1.6.7 1.6 1.6v9.2c0 .9-.7 1.6-1.6 1.6H5.6c-.9 0-1.6-.7-1.6-1.6V8.2Z" /><circle cx="12" cy="12.6" r="3.4" {...line} /></svg>
+);
+export const Album = () => (
+  <svg {...base}><rect x="7" y="3.5" width="13" height="13" rx="1.4" {...line} /><path {...line} d="M4 7.5v11c0 1.1.9 2 2 2h11" /><path {...line} d="m9.6 13.4 2.6-3 2 2 1.4-1.4 2.2 2.4" /></svg>
+);
+export const Print = () => (
+  <svg {...base}><path {...line} d="M7 8V3.6h10V8" /><rect x="3.5" y="8" width="17" height="8.4" rx="1.6" {...line} /><path {...line} d="M7 13.6h10v6.8H7z" /></svg>
+);
+export const Eject = () => (
+  <svg {...base}><path d="M11.2 5.2c.4-.5 1.2-.5 1.6 0l5.4 6.4c.5.6.1 1.4-.8 1.4H6.6c-.9 0-1.3-.8-.8-1.4l5.4-6.4Z" fill="currentColor" /><rect x="5.6" y="15.4" width="12.8" height="2.6" rx="0.8" fill="currentColor" /></svg>
+);
+export const Back = () => (
+  <svg {...base}><path {...line} d="M15 5.5 8.5 12l6.5 6.5" /></svg>
 );
 
-export const IconCaptions = ({ on }) => (
-  <svg {...base}>
-    <rect x="2.8" y="5" width="18.4" height="14" rx="3.6" fill={on ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.4" />
-    <path
-      d="M10.4 10.3a2.2 2.2 0 1 0 0 3.4M17 10.3a2.2 2.2 0 1 0 0 3.4"
-      fill="none"
-      stroke={on ? 'var(--key-face, #fff7e8)' : 'currentColor'}
-      strokeWidth="2.1"
-      strokeLinecap="round"
-    />
-  </svg>
+/** A small stack of snaps. */
+export const Stack = () => (
+  <svg {...base}><rect x="6.5" y="6.5" width="13" height="11" rx="1.2" {...line} /><path {...line} d="M4 15V5.2C4 4.5 4.5 4 5.2 4H16" /><path {...line} d="m9 14.6 2.4-2.7 1.8 1.8 1.3-1.3 2 2.2" /></svg>
 );
-
-export const IconFullscreen = ({ exit }) => (
-  <svg {...base}>
-    {exit ? (
-      <path {...stroke} d="M9 3.8V9H3.8M15 3.8V9h5.2M9 20.2V15H3.8M15 20.2V15h5.2" />
-    ) : (
-      <path {...stroke} d="M3.8 9V3.8H9M20.2 9V3.8H15M3.8 15v5.2H9M20.2 15v5.2H15" />
-    )}
-  </svg>
-);
-
-export const IconSnap = () => (
-  <svg {...base}>
-    <path d="M8.2 5.6 9.3 4c.3-.4.7-.6 1.2-.6h3c.5 0 .9.2 1.2.6l1.1 1.6h2.6c1.4 0 2.6 1.2 2.6 2.6v8.6c0 1.4-1.2 2.6-2.6 2.6H5.6C4.2 19.4 3 18.2 3 16.8V8.2c0-1.4 1.2-2.6 2.6-2.6h2.6Z" fill="currentColor" />
-    <circle cx="12" cy="12.4" r="3.6" fill="var(--key-face, #fff7e8)" />
-    <circle cx="12" cy="12.4" r="1.7" fill="currentColor" />
-  </svg>
-);
-
-export const IconAlbum = () => (
-  <svg {...base}>
-    <rect x="6.6" y="3" width="14.4" height="12.2" rx="2.2" fill="none" stroke="currentColor" strokeWidth="2.4" />
-    <path d="M3 8.6v10c0 1.3 1.1 2.4 2.4 2.4h11" {...stroke} />
-    <path d="m9.6 13 3-3.4 2.4 2.4 1.6-1.6 2.6 2.6" {...stroke} strokeWidth="2" />
-  </svg>
-);
-
-export const IconPrint = () => (
-  <svg {...base}>
-    <path {...stroke} d="M7 8.6V3.6h10v5" />
-    <path d="M4.6 8.4h14.8c1 0 1.8.8 1.8 1.8v5.6c0 1-.8 1.8-1.8 1.8H17v-3.2H7v3.2H4.6c-1 0-1.8-.8-1.8-1.8v-5.6c0-1 .8-1.8 1.8-1.8Z" fill="currentColor" />
-    <path {...stroke} d="M7 14.4h10v6H7z" />
-  </svg>
-);
-
-export const IconEject = () => (
-  <svg {...base}>
-    <path d="M10.9 4.4c.6-.8 1.6-.8 2.2 0l5.6 7.2c.6.8 0 1.9-1 1.9H6.3c-1 0-1.6-1.1-1-1.9l5.6-7.2Z" fill="currentColor" />
-    <rect x="5" y="16" width="14" height="3.6" rx="1.4" fill="currentColor" />
-  </svg>
-);
-
-/** Stand up from the seat and look around the booth again. */
-export const IconRoom = () => (
-  <svg {...base}>
-    <path {...stroke} d="M3.6 20.4V8.2L12 3.6l8.4 4.6v12.2" />
-    <path d="M8.6 20.4v-7.6c0-.9.7-1.6 1.6-1.6h3.6c.9 0 1.6.7 1.6 1.6v7.6" {...stroke} />
-    <path {...stroke} d="M12 11.4v9" />
-  </svg>
-);
-
-export const IconSpeed = () => (
-  <svg {...base}>
-    <path {...stroke} d="M4.4 17.4a8.6 8.6 0 1 1 15.2 0" />
-    <path {...stroke} d="m12 13.2 3.6-4.4" />
-  </svg>
+export const TextStyle = () => (
+  <svg {...base}><path {...line} d="M4 18 9 6l5 12M5.8 14h6.4" /><path {...line} d="M15.5 12.4c.5-.9 1.4-1.4 2.5-1.4 1.6 0 2.5.9 2.5 2.5V18m0-3.2c-.5-.3-1.3-.5-2.2-.5-1.4 0-2.5.6-2.5 1.8 0 1.1.9 1.9 2.1 1.9 1.2 0 2.1-.6 2.6-1.4" /></svg>
 );

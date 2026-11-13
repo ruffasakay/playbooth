@@ -3,10 +3,11 @@ import { useApp } from './store.js';
 import { loadPhotos } from './lib/photos.js';
 import { PlayerLayer } from './player/PlayerLayer.jsx';
 import { Announcer, Hero, Preloader, RoomUI, deepLinkToPlayer } from './ui/Screens.jsx';
-import { AlbumDialog, FlatShelf, PhotoDialog } from './ui/Dialogs.jsx';
+import { AlbumDialog, CompilerDialog, FlatShelf, PhotoDialog } from './ui/Dialogs.jsx';
 import { hotspotPortal } from './three/portal.js';
 
 const Stage = lazy(() => import('./three/Stage.jsx'));
+const Inspect = lazy(() => import('./three/Inspect.jsx'));
 
 if (import.meta.env.DEV) window.__app = useApp;
 
@@ -60,9 +61,8 @@ function useEnvironment() {
     const onKey = (e) => {
       if (e.key !== 'Escape' || e.defaultPrevented) return;
       const s = useApp.getState();
-      if (s.phase !== 'inside' || s.station === 'watch' || s.albumOpen || s.lightboxId) return;
-      if (s.heldTapeId) s.returnTape();
-      else if (s.station !== 'booth') s.goStation('booth');
+      if (s.phase !== 'inside' || s.station === 'watch' || s.albumOpen || s.lightboxId || s.inspectId || s.compilerOpen) return;
+      if (s.station !== 'booth') s.goStation('booth');
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -74,13 +74,18 @@ function useEnvironment() {
   }, []);
 }
 
+function InspectGate() {
+  const open = useApp((s) => !!s.inspectId);
+  return open ? <Inspect /> : null;
+}
+
 export default function App() {
   useEnvironment();
   const webgl = useApp((s) => s.webgl);
   const phase = useApp((s) => s.phase);
   return (
     <div className="app" data-phase={phase}>
-      <a className="skip-link" href="#main-action" onClick={(e) => { e.preventDefault(); document.querySelector('.cta, .plaque-key, .pb-skin')?.focus(); }}>
+      <a className="skip-link" href="#main-action" onClick={(e) => { e.preventDefault(); document.querySelector('.hero .btn--primary, .nav-key, .pb-skin')?.focus(); }}>
         Skip to the booth controls
       </a>
       {webgl && (
@@ -94,8 +99,14 @@ export default function App() {
         <Hero />
         <FlatShelf />
         <RoomUI />
+        {webgl && (
+          <Suspense fallback={null}>
+            <InspectGate />
+          </Suspense>
+        )}
         <PlayerLayer />
       </main>
+      <CompilerDialog />
       <AlbumDialog />
       <PhotoDialog />
       <Announcer />

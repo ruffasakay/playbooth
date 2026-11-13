@@ -6,6 +6,7 @@ import {
   formatTimecode,
   frameLayout,
   paintComposite,
+  paintStrip,
 } from '../data/borders.js';
 
 let store;
@@ -19,55 +20,113 @@ const MAX_WIDTH = 1600;
 export class CaptureError extends Error {}
 
 /**
- * Draw the current video frame inside the chosen frame and return a photo.
- * Needs a CORS-clean video (crossOrigin="anonymous" and CORS headers on the
- * media), otherwise the browser refuses to read the pixels back.
+ * Grab the current frame exactly as the film shows it, no frame around it.
+ * Needs a CORS-clean video (crossOrigin="anonymous" plus CORS headers).
  */
-export async function capturePhoto({ video, borderId, movie }) {
+export async function captureRaw({ video, movie }) {
   if (!video || video.readyState < 2 || !video.videoWidth) {
     throw new CaptureError('The picture isn’t ready yet. Try again in a moment.');
   }
-  await ensureFrameFonts();
-  const border = borderById(borderId);
-  const aspect = video.videoWidth / video.videoHeight;
-  const units = 1 + border.pads.l + border.pads.r;
-  const pxWidth = Math.min(MAX_WIDTH, Math.round(video.videoWidth * units));
-  const L = frameLayout(border, aspect, pxWidth);
+  const scale = Math.min(1, 1920 / video.videoWidth);
   const canvas = document.createElement('canvas');
-  canvas.width = L.W;
-  canvas.height = L.H;
-  const ctx = canvas.getContext('2d');
+  canvas.width = Math.round(video.videoWidth * scale);
+  canvas.height = Math.round(video.videoHeight * scale);
+  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
   const time = video.currentTime;
-  const meta = { title: movie?.title, date: formatDate(), timecode: formatTimecode(time) };
-  paintComposite(ctx, border, L, meta, (c, win) => {
-    c.drawImage(video, win.x, win.y, win.w, win.h);
-  });
-
   let blob;
   try {
-    blob = await new Promise((resolve, reject) => {
-      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('empty'))), 'image/jpeg', 0.92);
-    });
+    blob = await toJpeg(canvas);
   } catch {
-    throw new CaptureError(
-      'This browser won’t let the booth read this video’s pixels, so the photo couldn’t be saved.',
-    );
+    throw new CaptureError('This browser won’t let the booth read this video’s pixels, so the snap couldn’t be saved.');
   }
-
-  const photo = {
-    id: `p_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
+  return {
+    id: `n_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
+    kind: 'snap',
     blob,
-    width: L.W,
-    height: L.H,
+    url: URL.createObjectURL(blob),
+    width: canvas.width,
+    height: canvas.height,
     movieId: movie?.id ?? null,
     title: movie?.title ?? 'Untitled',
     time,
-    timecode: meta.timecode,
+    timecode: formatTimecode(time),
+    createdAt: Date.now(),
+  };
+}
+
+function toJpeg(canvas) {
+  return new Promise((resolve, reject) => {
+    try {
+      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('empty'))), 'image/jpeg', 0.92);
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+async function framedCanvas(snap, border, movie) {
+  const bitmap = await createImageBitmap(snap.blob);
+  const aspect = bitmap.width / bitmap.height;
+  const units = 1 + border.pads.l + border.pads.r;
+  const L = frameLayout(border, aspect, Math.min(MAX_WIDTH, Math.round(bitmap.width * units)));
+  const canvas = document.createElement('canvas');
+  canvas.width = L.W;
+  canvas.height = L.H;
+  paintComposite(canvas.getContext('2d'), border, L, { title: movie?.title ?? snap.title, date: formatDate(), timecode: snap.timecode }, (c, win) => {
+    c.drawImage(bitmap, win.x, win.y, win.w, win.h);
+  });
+  bitmap.close?.();
+  return canvas;
+}
+
+const makeId = (p) => `${p}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+
+/** One snap, printed in a frame. */
+export async function framePrint(snap, borderId, movie) {
+  await ensureFrameFonts();
+  const border = borderById(borderId);
+  const canvas = await framedCanvas(snap, border, movie);
+  const blob = await toJpeg(canvas);
+  return {
+    id: makeId('p'),
+    kind: 'print',
+    blob,
+    url: URL.createObjectURL(blob),
+    width: canvas.width,
+    height: canvas.height,
+    movieId: snap.movieId,
+    title: snap.title,
+    time: snap.time,
+    timecode: snap.timecode,
     borderId: border.id,
     createdAt: Date.now(),
   };
-  photo.url = URL.createObjectURL(blob);
-  return photo;
+}
+
+/** Several snaps, each in its frame, stacked into a photostrip. */
+export async function collagePrint(snaps, borderId, movie) {
+  await ensureFrameFonts();
+  const border = borderById(borderId);
+  const framed = [];
+  for (const snap of snaps) framed.push(await framedCanvas(snap, border, movie));
+  const canvas = document.createElement('canvas');
+  paintStrip(canvas.getContext('2d'), border, framed, { title: movie?.title ?? snaps[0].title, date: formatDate() });
+  const blob = await toJpeg(canvas);
+  return {
+    id: makeId('s'),
+    kind: 'strip',
+    blob,
+    url: URL.createObjectURL(blob),
+    width: canvas.width,
+    height: canvas.height,
+    movieId: snaps[0].movieId,
+    title: snaps[0].title,
+    time: snaps[0].time,
+    timecode: `${snaps[0].timecode}–${snaps[snaps.length - 1].timecode}`,
+    borderId: border.id,
+    createdAt: Date.now(),
+    parts: snaps.map((p) => p.id),
+  };
 }
 
 export async function savePhoto(photo) {
@@ -106,7 +165,8 @@ export function photoFileName(photo) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
   const tc = (photo.timecode || '').replace(/:/g, 'm');
-  return `playbooth-${slug}${tc ? `-${tc}s` : ''}.jpg`;
+  const kind = photo.kind === 'strip' ? '-strip' : photo.kind === 'snap' ? '-snap' : '';
+  return `playbooth-${slug}${kind}${tc ? `-${tc.replace(/[^0-9m]/g, '')}` : ''}.jpg`;
 }
 
 export function downloadPhoto(photo) {

@@ -4,14 +4,13 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
 import { MOVIES } from '../data/movies.js';
 import { useApp } from '../store.js';
-import { FONT_DISPLAY, FONT_MONO } from '../data/borders.js';
-import { canvasTexture, wrapLines } from './canvasTexture.js';
-import { PAL, SLOT_ENTRY, SLOT_INSIDE, TAPE, cubbyCenters, damp, smoothstep } from './world.js';
+import { SLOT_ENTRY, SLOT_INSIDE, TAPE, cubbyCenters, damp, interaction, mat, smoothstep } from './world.js';
+import { coverTexture } from './covers.js';
 
 const DRAG_PLANE = new THREE.Plane(new THREE.Vector3(0, 0, 1), -(SLOT_ENTRY.position.z + 0.14));
 const SNAP_RADIUS = 0.3;
 const PULL_RADIUS = 0.95;
-const TAP_SLOP = 7; // px of movement before a press becomes a drag
+const TAP_SLOP = 7;
 
 const tmpV = new THREE.Vector3();
 const tmpQ = new THREE.Quaternion();
@@ -22,69 +21,38 @@ export function Tapes() {
   return MOVIES.slice(0, 9).map((movie, i) => <Tape key={movie.id} movie={movie} cubby={cubbies[i]} />);
 }
 
-/** Tape label as a canvas texture. Drawn once fonts are available. */
-function useLabelTexture(movie) {
-  const tex = useMemo(
-    () =>
-      canvasTexture(512, 192, () => {}, { anisotropy: 8 }),
-    [],
+/** A VHS clamshell case with the film's cover behind the clear sleeve. */
+export function TapeCase({ movie, highlight }) {
+  const cover = useMemo(() => coverTexture(movie), [movie]);
+  const shell = useMemo(() => new THREE.MeshStandardMaterial({ color: '#1f1c1a', roughness: 0.45, metalness: 0.05, emissive: '#ffd9a0', emissiveIntensity: 0 }), []);
+  useFrame((_, dt) => {
+    const target = highlight?.current ? 0.06 : 0;
+    shell.emissiveIntensity = damp(shell.emissiveIntensity, target, 10, Math.min(dt, 0.05));
+  });
+  return (
+    <group>
+      <RoundedBox args={[TAPE.w, TAPE.h, TAPE.d]} radius={0.006} smoothness={3} material={shell} castShadow receiveShadow />
+      <mesh position={[0, 0, TAPE.d / 2 + 0.0015]}>
+        <planeGeometry args={[TAPE.w - 0.01, TAPE.h - 0.01]} />
+        <meshStandardMaterial map={cover} roughness={0.35} metalness={0} />
+      </mesh>
+      {/* spine label */}
+      <mesh position={[-TAPE.w / 2 - 0.0015, 0, 0]} rotation={[0, -Math.PI / 2, 0]} material={mat('#efe4cf')}>
+        <planeGeometry args={[TAPE.d - 0.012, TAPE.h - 0.04]} />
+      </mesh>
+    </group>
   );
-  useEffect(() => {
-    let alive = true;
-    const paint = () => {
-      if (!alive) return;
-      const { ctx } = tex.userData;
-      const w = 512;
-      const h = 192;
-      ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = movie.colors.label;
-      ctx.beginPath();
-      ctx.roundRect(0, 0, w, h, 18);
-      ctx.fill();
-      ctx.fillStyle = movie.colors.shell;
-      ctx.fillRect(0, 0, w, 16);
-      ctx.fillStyle = movie.colors.ink;
-      ctx.textBaseline = 'alphabetic';
-      ctx.textAlign = 'left';
-      ctx.font = `700 56px ${FONT_DISPLAY}`;
-      const lines = wrapLines(ctx, movie.title, w - 44, 2);
-      const top = lines.length > 1 ? 72 : 96;
-      lines.forEach((line, i) => ctx.fillText(line, 22, top + i * 54));
-      ctx.font = `600 26px ${FONT_MONO}`;
-      ctx.globalAlpha = 0.75;
-      ctx.fillText(movie.note || '', 22, h - 18);
-      ctx.globalAlpha = 1;
-      tex.needsUpdate = true;
-    };
-    paint();
-    document.fonts.ready.then(paint);
-    document.fonts.load(`700 56px ${FONT_DISPLAY}`).then(paint).catch(() => {});
-    return () => {
-      alive = false;
-    };
-  }, [movie, tex]);
-  return tex;
 }
 
 function Tape({ movie, cubby }) {
   const id = movie.id;
   const group = useRef();
-  const { camera, size } = useThree();
-  const label = useLabelTexture(movie);
-  const shell = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: movie.colors.shell,
-        roughness: 0.55,
-        emissive: movie.colors.shell,
-        emissiveIntensity: 0,
-      }),
-    [movie],
-  );
+  const { camera } = useThree();
+  const highlight = useRef(false);
 
   const home = useMemo(() => {
-    const pos = new THREE.Vector3(cubby.x, cubby.floorY + TAPE.h / 2 + 0.012, cubby.z);
-    const quat = new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.14, 0, 0));
+    const pos = new THREE.Vector3(cubby.x, cubby.floorY + TAPE.h / 2 + 0.004, cubby.z);
+    const quat = new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.16, 0, 0));
     return { pos, quat };
   }, [cubby]);
 
@@ -92,71 +60,72 @@ function Tape({ movie, cubby }) {
     mode: 'shelf',
     hover: false,
     press: null,
-    drag: new THREE.Vector3().copy(home.pos),
+    drag: new THREE.Vector3(),
     snapped: false,
     lastAttraction: 0,
     t: 0,
     from: { pos: new THREE.Vector3(), quat: new THREE.Quaternion() },
-    placed: false,
   });
 
-  // Put the tape on its shelf on first frame.
   useEffect(() => {
-    if (!group.current) return;
-    group.current.position.copy(home.pos);
-    group.current.quaternion.copy(home.quat);
+    group.current?.position.copy(home.pos);
+    group.current?.quaternion.copy(home.quat);
   }, [home]);
-
-  const setCursor = (c) => {
-    document.body.style.cursor = c;
-  };
 
   const canInteract = () => {
     const s = useApp.getState();
-    return (
-      s.phase === 'inside' &&
-      s.station !== 'watch' &&
-      !s.insertingId &&
-      ['shelf', 'carry', 'drag'].includes(st.current.mode) &&
-      s.insertedTapeId !== id
-    );
+    return s.phase === 'inside' && s.station !== 'watch' && !s.insertingId && !s.inspectId && ['shelf', 'drag'].includes(st.current.mode) && s.insertedTapeId !== id;
+  };
+
+  const showPrompt = (e) => {
+    useApp.getState().setHover({
+      title: movie.title,
+      sub: `${movie.year}  ${movie.genre}`,
+      actions: [
+        ['click', 'Inspect'],
+        ['drag', 'Put in player'],
+      ],
+      x: e.clientX,
+      y: e.clientY,
+    });
   };
 
   const onPointerOver = (e) => {
     if (!canInteract()) return;
     e.stopPropagation();
     st.current.hover = true;
-    setCursor(st.current.mode === 'drag' ? 'grabbing' : 'grab');
+    document.body.style.cursor = 'grab';
+    showPrompt(e);
   };
   const onPointerOut = () => {
     st.current.hover = false;
-    if (st.current.mode !== 'drag') setCursor('');
+    if (st.current.mode !== 'drag') document.body.style.cursor = '';
+    useApp.getState().setHover(null);
   };
 
   const onPointerDown = (e) => {
     if (!canInteract() || e.button > 0) return;
     e.stopPropagation();
+    interaction.grabbed = true;
     e.target.setPointerCapture?.(e.pointerId);
-    st.current.press = {
-      x: e.clientX,
-      y: e.clientY,
-      pointerId: e.pointerId,
-      wasCarry: st.current.mode === 'carry',
-      dragging: false,
-    };
+    st.current.press = { x: e.clientX, y: e.clientY, pointerId: e.pointerId, dragging: false };
   };
 
   const onPointerMove = (e) => {
     const p = st.current.press;
-    if (!p || p.pointerId !== e.pointerId) return;
+    if (!p) {
+      if (st.current.hover && e.pointerType === 'mouse') showPrompt(e);
+      return;
+    }
+    if (p.pointerId !== e.pointerId) return;
     e.stopPropagation();
     if (!p.dragging) {
       if (Math.hypot(e.clientX - p.x, e.clientY - p.y) < TAP_SLOP) return;
       p.dragging = true;
       st.current.mode = 'drag';
-      setCursor('grabbing');
+      document.body.style.cursor = 'grabbing';
+      useApp.setState({ dragging: true, heldTapeId: id, hover: null });
       const s = useApp.getState();
-      useApp.setState({ dragging: true, heldTapeId: id });
       if (s.station === 'tapes') s.goStation('booth');
     }
     if (e.ray.intersectPlane(DRAG_PLANE, tmpV)) {
@@ -174,23 +143,18 @@ function Tape({ movie, cubby }) {
     st.current.press = null;
     const s = useApp.getState();
     if (p.dragging) {
-      setCursor(st.current.hover ? 'grab' : '');
-      if (!cancelled && st.current.snapped) {
-        s.requestInsert(id);
-      } else {
+      document.body.style.cursor = st.current.hover ? 'grab' : '';
+      if (!cancelled && st.current.snapped) s.requestInsert(id);
+      else {
         st.current.mode = 'shelf';
         useApp.setState({ dragging: false, attraction: 0, heldTapeId: null });
-        s.announce(`${movie.title} is back on the shelf.`);
       }
       st.current.snapped = false;
       return;
     }
-    if (cancelled) return;
-    // A tap: pick the tape up, or put a carried tape back.
-    if (p.wasCarry) s.returnTape();
-    else {
-      s.pickTape(id);
-      s.goStation('player');
+    if (!cancelled) {
+      document.body.style.cursor = '';
+      s.openInspect(id);
     }
   };
 
@@ -202,48 +166,29 @@ function Tape({ movie, cubby }) {
     const reduced = s.reducedMotion;
     dt = Math.min(dt, 0.05);
 
-    // react to the store
     if (s.insertingId === id && local.mode !== 'insert' && local.mode !== 'inside') {
       local.mode = 'insert';
       local.t = reduced ? 1 : 0;
       local.from.pos.copy(g.position);
       local.from.quat.copy(g.quaternion);
-      g.visible = true;
     } else if (s.insertedTapeId === id && !['insert', 'inside'].includes(local.mode)) {
       local.mode = 'inside';
     } else if (local.mode === 'inside' && s.insertedTapeId !== id) {
       local.mode = 'eject';
       local.t = reduced ? 1 : 0;
-      g.visible = true;
-    } else if (local.mode === 'shelf' && s.heldTapeId === id && !s.dragging) {
-      local.mode = 'carry';
-    } else if (local.mode === 'carry' && s.heldTapeId !== id) {
-      local.mode = 'shelf';
     }
 
-    const highlight =
-      local.hover || s.focusedTapeId === id || local.mode === 'carry' || local.mode === 'drag';
-    shell.emissiveIntensity = damp(shell.emissiveIntensity, highlight ? 0.22 : 0, 10, dt);
+    g.visible = s.inspectId !== id && local.mode !== 'inside';
+    highlight.current = local.hover || s.focusedTapeId === id || local.mode === 'drag';
 
     switch (local.mode) {
       case 'shelf': {
         tmpV.copy(home.pos);
         if (local.hover || s.focusedTapeId === id) {
-          tmpV.z += 0.07;
-          tmpV.y += 0.015;
+          tmpV.z += 0.06;
+          tmpV.y += 0.012;
         }
         follow(g, tmpV, home.quat, reduced ? 40 : 9, dt);
-        break;
-      }
-      case 'carry': {
-        const aspect = size.width / size.height;
-        const fov = THREE.MathUtils.degToRad(camera.fov);
-        const halfH = 0.95 * Math.tan(fov / 2);
-        const halfW = halfH * aspect;
-        tmpV.set(halfW * 0.55, -halfH * 0.58, -0.95).applyMatrix4(camera.matrixWorld);
-        tmpE.set(0.3, -0.35, 0.06);
-        tmpQ.setFromEuler(tmpE).premultiply(camera.quaternion);
-        follow(g, tmpV, tmpQ, reduced ? 40 : 10, dt);
         break;
       }
       case 'drag': {
@@ -254,31 +199,30 @@ function Tape({ movie, cubby }) {
           local.lastAttraction = a;
           useApp.setState({ attraction: a });
         }
-        if (local.snapped) {
-          follow(g, SLOT_ENTRY.position, SLOT_ENTRY.quaternion, 22, dt);
-        } else {
+        if (local.snapped) follow(g, SLOT_ENTRY.position, SLOT_ENTRY.quaternion, 22, dt);
+        else {
           tmpV.copy(local.drag).lerp(SLOT_ENTRY.position, a * 0.7);
-          tmpE.set(0.18, 0, 0);
+          tmpE.set(0.12, 0, 0);
           tmpQ.setFromEuler(tmpE).premultiply(camera.quaternion).slerp(SLOT_ENTRY.quaternion, a);
           follow(g, tmpV, tmpQ, 16, dt);
         }
         break;
       }
       case 'insert': {
-        local.t = Math.min(1, local.t + dt / 0.85);
+        local.t = Math.min(1, local.t + dt / 1.0);
         const t = local.t;
-        if (t < 0.55) {
-          const k = easeInOut(t / 0.55);
+        if (t < 0.6) {
+          const k = easeInOut(t / 0.6);
           g.position.lerpVectors(local.from.pos, SLOT_ENTRY.position, k);
+          g.position.y += Math.sin(k * Math.PI) * 0.12;
           g.quaternion.slerpQuaternions(local.from.quat, SLOT_ENTRY.quaternion, k);
         } else {
-          const k = easeIn((t - 0.55) / 0.45);
+          const k = easeIn((t - 0.6) / 0.4);
           g.position.lerpVectors(SLOT_ENTRY.position, SLOT_INSIDE, k);
           g.quaternion.copy(SLOT_ENTRY.quaternion);
         }
         if (t >= 1) {
           local.mode = 'inside';
-          g.visible = false;
           s.insertTape(id);
         }
         break;
@@ -286,11 +230,10 @@ function Tape({ movie, cubby }) {
       case 'inside': {
         g.position.copy(SLOT_INSIDE);
         g.quaternion.copy(SLOT_ENTRY.quaternion);
-        g.visible = false;
         break;
       }
       case 'eject': {
-        local.t = Math.min(1, local.t + dt / 0.5);
+        local.t = Math.min(1, local.t + dt / 0.55);
         g.position.lerpVectors(SLOT_INSIDE, SLOT_ENTRY.position, easeOut(local.t));
         g.quaternion.copy(SLOT_ENTRY.quaternion);
         if (local.t >= 1) local.mode = 'shelf';
@@ -314,26 +257,9 @@ function Tape({ movie, cubby }) {
         if (st.current.press?.dragging) endPress(e, true);
       }}
     >
-      <RoundedBox args={[TAPE.w, TAPE.h, TAPE.d]} radius={0.018} smoothness={3} material={shell} castShadow />
-      {/* label */}
-      <mesh position={[0, 0.035, TAPE.d / 2 + 0.002]}>
-        <planeGeometry args={[TAPE.w - 0.05, 0.124]} />
-        <meshStandardMaterial map={label} transparent roughness={0.7} />
-      </mesh>
-      {/* reel window */}
-      <mesh position={[0, -0.06, TAPE.d / 2 + 0.002]}>
-        <planeGeometry args={[0.2, 0.06]} />
-        <meshStandardMaterial color={PAL.glass} roughness={0.25} />
-      </mesh>
-      {[-0.058, 0.058].map((x) => (
-        <mesh key={x} position={[x, -0.06, TAPE.d / 2 + 0.004]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.022, 0.022, 0.004, 16]} />
-          <meshStandardMaterial color={PAL.paper} roughness={0.5} />
-        </mesh>
-      ))}
-      {/* generous invisible hit area so the tape is easy to grab on touch */}
+      <TapeCase movie={movie} highlight={highlight} />
       <mesh>
-        <boxGeometry args={[TAPE.w + 0.08, TAPE.h + 0.1, TAPE.d + 0.14]} />
+        <boxGeometry args={[TAPE.w + 0.06, TAPE.h + 0.06, TAPE.d + 0.12]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} colorWrite={false} />
       </mesh>
     </group>

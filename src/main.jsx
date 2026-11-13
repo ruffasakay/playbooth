@@ -1,10 +1,11 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import '@fontsource/dynapuff/600.css';
-import '@fontsource/dynapuff/700.css';
+import '@fontsource/marcellus-sc/400.css';
+import '@fontsource/courier-prime/400.css';
+import '@fontsource/courier-prime/700.css';
+import '@fontsource/caveat/600.css';
 import '@fontsource-variable/atkinson-hyperlegible-next';
-import '@fontsource/atkinson-hyperlegible-mono/500.css';
-import '@fontsource/atkinson-hyperlegible-mono/600.css';
+import '@fontsource-variable/literata';
 import './styles/tokens.css';
 import './styles/app.css';
 import './styles/skin.css';

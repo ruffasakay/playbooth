@@ -6,7 +6,7 @@ Built for the Video.js v10 Skins Design Challenge with **Video.js 10.4.0 (`@vide
 
 ## Design thinking (for the submission form)
 
-> PLAYBOOTH treats the player as a place, not a panel. You enter a photobooth, pick a VHS-style tape, and the Video.js skin is the front of the booth's machine: a framed screen above a chunky physical deck. The controls are keys with real travel, a film-strip seek bar with a reel thumb, an LCD time readout and a volume fader. They sit on the deck, never over the picture, so they stay readable over any footage. Every visible control works, the whole booth is operable by keyboard and screen reader, and the frame you choose is drawn by one painter for the live preview, the 3D screen and your printed photos.
+> PLAYBOOTH is a photobooth for films. You step into a little white booth on a quiet street, pick a tape from the rack and watch it on an old television. The Video.js skin is the photo frame itself: the frame you choose becomes the player's border, and the controls float over the picture and fade away while you watch. Press Snap on any frame, playing or paused, and it downloads at once and waits in the booth's tray, ready to be printed one by one in its frame or stacked into a photostrip. Warm paper, brown ink and late-afternoon light, inspired by the quiet of a corner shop at golden hour.
 
 ## Run it
 
@@ -39,7 +39,7 @@ Playback uses Video.js's `MuxVideo` with `preferPlayback: 'mse'` and `crossOrigi
 
 | Where | What |
 | --- | --- |
-| `src/player/Skin.jsx` | **The skin.** Video.js `Container`, `Controls`, `PlayButton`, `SeekButton`, `TimeSlider` (with Mux storyboard thumbnails), `Time`, `MuteButton`, `VolumeSlider`, `CaptionsButton`, `PlaybackRateButton`, `FullscreenButton`, `Poster`, `BufferingIndicator`, status, seek and volume indicators, `ErrorDialog`, `Hotkey`s and `StatusAnnouncer`, plus the photo keys |
+| `src/player/Skin.jsx` | **The skin.** The chosen frame is the border; floating, auto-hiding controls (Video.js `Controls.Content`/`Backdrop`); Snap key; caption style panel (color presets + custom picker, outline or box, sans or serif); picture-in-picture. Video.js `Container`, `Controls`, `PlayButton`, `SeekButton`, `TimeSlider` (with Mux storyboard thumbnails), `Time`, `MuteButton`, `VolumeSlider`, `CaptionsButton`, `PlaybackRateButton`, `FullscreenButton`, `Poster`, `BufferingIndicator`, status, seek and volume indicators, `ErrorDialog`, `Hotkey`s and `StatusAnnouncer`, plus the photo keys |
 | `src/styles/skin.css` | Skin styles. Container queries size the deck to the player, not the window |
 | `src/data/borders.js` | The five photo frames and the single painter used everywhere |
 | `src/three/*` | The booth: exterior, curtains, interior, cabinet, tapes with magnetic snapping, machine, printer, prints, camera rig, keyboard hotspots |
@@ -50,11 +50,12 @@ The skin supports the same public CSS properties as the Video.js skins: `--media
 ## Checklist against the brief
 
 - **Works**: Video.js v10 player, Mux streams, real playback.
-- **Essential controls**: play/pause, seek bar, current time and duration, mute and volume, fullscreen (the whole machine goes fullscreen). Also captions, speed, ±10 s, snapshot, album, print, eject.
+- **Essential controls**: play/pause, seek bar with film-frame preview, current time and duration, mute and volume, fullscreen (frame included). Also ±10 s, captions with style panel, speed, picture-in-picture, Snap, Snaps compiler, album, eject.
+- **Snap flow**: each snap downloads the clean frame immediately and joins the Snaps compiler; print singles in any frame, or 2 to 6 as a framed photostrip. Seven frames, including No frame.
 - **Responsive**: tested at 1440×900, 1200×750, 1000×640, 390×844 and 844×390. On tall phones the walk in ends facing the tapes.
 - **Keyboard**: every 3D object has a focusable hotspot (tapes, slot, screen, eject, prints, album). Escape puts a tape back, steps back out of a view, or stands up from the deck. Player shortcuts: Space/K, M, F, C, ←/→, J/L, ↑/↓, 0–9, Home/End, `<`/`>`, and S for a photo.
 - **Readable over any video**: controls are on the deck, not over the picture. Indicators and the error dialog use solid surfaces.
-- **Touch targets**: every deck control is at least 44×44 px (checked automatically at phone sizes).
+- **Touch targets**: controls are 44×44 px, 38–40 px only inside very small players; nothing is clipped at the tested sizes.
 - **Reduced motion**: the walk in becomes a quick fade, the camera cuts instead of flying, tapes and prints move instantly, idle animations stop.
 - Also handles `prefers-reduced-transparency`, `prefers-contrast: more`, `forced-colors`, RTL arrow keys in the frame picker, and a no-WebGL fallback (tapes become buttons; force it with `?flat`).
 
@@ -71,7 +72,7 @@ Films, all by the Blender Foundation, hosted on Mux:
 | Big Buck Bunny (2008) | © 2008 Blender Foundation, www.bigbuckbunny.org | CC BY 3.0 |
 | Sintel (2010) | © Blender Foundation, durian.blender.org | CC BY 3.0 |
 
-Fonts: DynaPuff, Atkinson Hyperlegible Next and Atkinson Hyperlegible Mono, SIL Open Font License 1.1 (licenses in `public/fonts`).
+Fonts: Marcellus SC, Courier Prime, Caveat, Atkinson Hyperlegible Next (caption sans) and Literata (caption serif), all SIL Open Font License 1.1.
 
 All 3D models, icons and illustrations are original and drawn in code.
 
@@ -79,6 +80,9 @@ This entry is licensed under the Apache License, Version 2.0, per the challenge 
 
 ## Known limits
 
+- Add `?lite` to the URL to force the lightweight renderer (no shadows or reflections); it also switches on by itself on slow devices.
+- Browsers may ask once to allow multiple downloads when you snap several frames.
+- Tape covers use a frame from each film via Mux's image API; drop official posters in `public/covers/` and set `cover` in `src/data/movies.js` to use them instead.
 - Tested in headless Chromium with software rendering. Check on a real iPhone (Safari) and in Firefox before submitting, especially screenshots and fullscreen.
 - On iPhone, fullscreen hands the video to the system player, so the deck isn't shown in fullscreen there. This is platform behavior.
 - Photos are stored in this browser only (IndexedDB). Private browsing may not keep them; the booth says so and offers download.

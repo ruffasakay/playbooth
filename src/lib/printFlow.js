@@ -1,41 +1,55 @@
 import { useApp, movieById } from '../store.js';
-import { capturePhoto, savePhoto } from './photos.js';
+import { captureRaw, collagePrint, downloadPhoto, framePrint, savePhoto } from './photos.js';
 
-/** Take a photo of the current frame and keep it. Returns the photo or null. */
-export async function snapPhoto() {
+/**
+ * Snap: the exact frame on screen, playing or paused, downloads at once
+ * and lands in the booth's compiler for printing later.
+ */
+export async function snapPhoto({ download = true } = {}) {
   const s = useApp.getState();
   const movie = movieById(s.insertedTapeId);
   try {
-    const photo = await capturePhoto({ video: s.videoEl, borderId: s.borderId, movie });
-    const saved = await savePhoto(photo);
-    useApp.getState().addPhoto(photo);
-    const n = useApp.getState().sessionPhotos.length;
-    s.announce(
-      saved
-        ? `Photo ${n} saved at ${photo.timecode}.`
-        : `Photo ${n} taken. This browser can’t store it, so download it before you leave.`,
-    );
-    return photo;
+    const snap = await captureRaw({ video: s.videoEl, movie });
+    useApp.getState().addSnap(snap);
+    if (download) downloadPhoto(snap);
+    s.announce(`Snap ${useApp.getState().snaps.length} saved at ${snap.timecode}.`);
+    return snap;
   } catch (err) {
-    s.announce(err?.message || 'The photo couldn’t be taken.');
+    s.announce(err?.message || 'The snap couldn’t be taken.');
     return null;
   }
 }
 
-/**
- * Print this tape's photos. If nothing was captured, the booth takes one
- * last photo of the current frame so there is always something to print.
- */
-export async function printPhotos() {
-  const s = useApp.getState();
-  if (s.printing) return;
-  let photos = s.sessionPhotos.slice(-8);
-  if (!photos.length) {
-    const p = await snapPhoto();
-    if (!p) return;
-    photos = [p];
+async function keep(items) {
+  for (const item of items) {
+    await savePhoto(item);
+    useApp.getState().addPhoto(item);
   }
+}
+
+async function sendToPrinter(items) {
   const video = useApp.getState().videoEl;
   if (video && !video.paused) video.pause();
-  useApp.getState().startPrint(photos);
+  if (document.fullscreenElement) await document.exitFullscreen().catch(() => {});
+  useApp.setState({ compilerOpen: false });
+  if (useApp.getState().phase !== 'inside') useApp.setState({ phase: 'inside' });
+  useApp.getState().startPrint(items);
+}
+
+/** Print each selected snap on its own, in the frame. */
+export async function printEach(snaps, borderId) {
+  if (!snaps.length || useApp.getState().printing) return;
+  const prints = [];
+  for (const snap of snaps) prints.push(await framePrint(snap, borderId, movieById(snap.movieId)));
+  await keep(prints);
+  await sendToPrinter(prints);
+}
+
+/** Stack the selected snaps into one framed photostrip. */
+export async function printStrip(snaps, borderId) {
+  if (snaps.length < 2 || useApp.getState().printing) return;
+  const ordered = [...snaps].sort((a, b) => a.createdAt - b.createdAt);
+  const strip = await collagePrint(ordered, borderId, movieById(ordered[0].movieId));
+  await keep([strip]);
+  await sendToPrinter([strip]);
 }

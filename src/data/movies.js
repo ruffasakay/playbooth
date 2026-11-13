@@ -13,13 +13,21 @@
  *   credit      License credit, printed on the back of photos (CC-BY needs one)
  *   captions    Optional WebVTT URL. Mux auto-generated captions need nothing
  *               here: they arrive inside the stream and show up automatically.
- *   colors      Tape shell, label and label text
+ *   coverTime   Seconds into the film for the frame used on the tape cover.
+ *               Mux serves it from image.mux.com. To use an official poster
+ *               instead, add  cover: '/covers/<file>.jpg'  (place the file in
+ *               public/covers/).
+ *   colors      Fallback cover colors while the cover image loads
  *
  * The cabinet holds 9 cubbies. Tapes fill them in order; empty cubbies get props.
  */
 export const MOVIES = [
   {
     id: 'charge',
+    year: '2022',
+    genre: 'Short, sci-fi action',
+    synopsis: 'A desperate scavenger slips into a heavily guarded energy facility, and the security robot on duty refuses to let it go.',
+    coverTime: 64,
     title: 'Charge',
     note: '2022  Blender Studio',
     credit: '(CC) Blender Foundation | studio.blender.org',
@@ -29,6 +37,10 @@ export const MOVIES = [
   },
   {
     id: 'sprite-fright',
+    year: '2021',
+    genre: 'Short, horror comedy',
+    synopsis: 'Rowdy teenagers trek into an isolated British forest and meet peaceful mushroom creatures who turn out to be a force of nature.',
+    coverTime: 150,
     title: 'Sprite Fright',
     note: '2021  Blender Studio',
     credit: '(CC) Blender Foundation | studio.blender.org',
@@ -38,6 +50,10 @@ export const MOVIES = [
   },
   {
     id: 'tears-of-steel',
+    year: '2012',
+    genre: 'Short, live-action sci-fi',
+    synopsis: 'In a near-future Amsterdam, warriors and scientists gather to replay a moment from the past and save the world from destructive robots.',
+    coverTime: 95,
     title: 'Tears of Steel',
     note: '2012  Mango project',
     credit: '(CC) Blender Foundation | mango.blender.org',
@@ -47,6 +63,10 @@ export const MOVIES = [
   },
   {
     id: 'wing-it',
+    year: '2023',
+    genre: 'Short, comedy',
+    synopsis: 'On a quiet farm, two unlikely friends build a homemade flying machine and find out, loudly, whether it works.',
+    coverTime: 70,
     title: 'Wing It!',
     note: '2023  Blender Studio',
     credit: '(CC) Blender Foundation | studio.blender.org',
@@ -56,6 +76,10 @@ export const MOVIES = [
   },
   {
     id: 'big-buck-bunny',
+    year: '2008',
+    genre: 'Short, comedy',
+    synopsis: 'A big, gentle rabbit is pushed too far by three bullying rodents, and the forest gets a very creative revenge.',
+    coverTime: 120,
     title: 'Big Buck Bunny',
     note: '2008  Peach project',
     credit: '© 2008 Blender Foundation | www.bigbuckbunny.org',
@@ -65,6 +89,10 @@ export const MOVIES = [
   },
   {
     id: 'sintel',
+    year: '2010',
+    genre: 'Short, fantasy',
+    synopsis: 'A lone young woman crosses a harsh land searching for the baby dragon she once raised and lost.',
+    coverTime: 215,
     title: 'Sintel',
     note: '2010  Durian project',
     credit: '© Blender Foundation | durian.blender.org',
@@ -79,6 +107,7 @@ if (import.meta.env.DEV && typeof location !== 'undefined' && new URLSearchParam
   for (const m of MOVIES) {
     delete m.playbackId;
     m.src = '/dev/sample.mp4';
+    m.cover = null;
     m.captions = '/dev/sample.vtt';
   }
 }

@@ -1,215 +1,155 @@
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import { RoundedBox, Text } from '@react-three/drei';
 import { useApp } from '../store.js';
-import { BOOTH, FONT_URL, PAL, clay, motion } from './world.js';
+import { BOOTH, FONT_HAND, FONT_MONO, FONT_SERIF, PAL, mat, motion } from './world.js';
 import { canvasTexture } from './canvasTexture.js';
+import { BORDERS, frameLayout, paintComposite } from '../data/borders.js';
 
 const { halfW, halfD, wallH, wall, door } = BOOTH;
 
 export function Booth() {
   return (
     <group>
-      <Platform />
-      <Walls />
+      <Plinth />
+      <Shell />
       <Roof />
-      <MarqueeSign />
+      <SignBox />
       <Doorway />
       <Curtains />
-      <StripPoster />
-      <SideWindow />
-      <Plant position={[-1.25, 0, halfD + 0.42]} scale={1} />
-      <Plant position={[1.3, 0, halfD + 0.42]} scale={0.82} leaf={PAL.mintDeep} />
-      <WelcomeSign />
-      <Lantern />
+      <DisplayCase />
+      <CoinPlate />
+      <Sconce />
     </group>
   );
 }
 
-function Platform() {
+function Plinth() {
   return (
-    <group>
-      <RoundedBox args={[halfW * 2 + 0.5, 0.36, halfD * 2 + 0.7]} radius={0.08} smoothness={3} position={[0, -0.18, 0.12]} receiveShadow castShadow material={clay(PAL.honey)} />
-      {/* plank seams */}
-      {Array.from({ length: 7 }, (_, i) => (
-        <mesh key={i} position={[-halfW - 0.25 + (i + 1) * ((halfW * 2 + 0.5) / 8), 0.002, halfD + 0.3]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[0.012, 0.5]} />
-          <meshBasicMaterial color={PAL.walnut} transparent opacity={0.35} />
-        </mesh>
-      ))}
-      <RoundedBox args={[1.9, 0.2, 0.55]} radius={0.06} smoothness={3} position={[0, -0.26, halfD + 0.72]} receiveShadow castShadow material={clay(PAL.honey)} />
-      {/* stepping stones toward the hero camera */}
-      {[
-        [-0.25, 3.55, 0.42],
-        [0.35, 4.25, 0.36],
-        [-0.15, 4.95, 0.4],
-        [0.45, 5.7, 0.33],
-      ].map(([x, z, r], i) => (
-        <mesh key={i} position={[x, -0.345, z]} receiveShadow>
-          <cylinderGeometry args={[r, r * 1.04, 0.05, 28]} />
-          <meshStandardMaterial color={PAL.cream} roughness={0.9} />
-        </mesh>
-      ))}
-    </group>
+    <mesh position={[0, -0.06, 0]} receiveShadow castShadow material={mat('#cfc6b8', { roughness: 0.9 })}>
+      <boxGeometry args={[halfW * 2 + 0.24, 0.12, halfD * 2 + 0.24]} />
+    </mesh>
   );
 }
 
-function Walls() {
-  const body = clay(PAL.butter);
-  const trim = clay(PAL.walnut);
+function Shell() {
+  const body = mat(PAL.booth, { roughness: 0.6 });
   const sideW = halfW - door.halfW;
-  const wain = clay(PAL.mint);
-  const inner = halfD - wall; // inner face of the back wall
-  const innerX = halfW - wall; // inner face of the side walls
+  const seam = mat('#cbc3b6', { roughness: 0.7 });
+  const plaster = mat(PAL.plaster, { roughness: 0.92 });
+  const wainscot = mat('#a77a52', { roughness: 0.7 });
+  const rail = mat(PAL.woodDark);
+  const innerX = halfW - wall;
+  const innerZ = halfD - wall;
+  const wainH = 0.92;
   return (
     <group>
-      {/* back and sides */}
-      <RoundedBox args={[halfW * 2, wallH, wall]} radius={0.05} smoothness={2} position={[0, wallH / 2, -halfD + wall / 2]} castShadow receiveShadow material={body} />
-      <RoundedBox args={[wall, wallH, halfD * 2]} radius={0.05} smoothness={2} position={[-halfW + wall / 2, wallH / 2, 0]} castShadow receiveShadow material={body} />
-      <RoundedBox args={[wall, wallH, halfD * 2]} radius={0.05} smoothness={2} position={[halfW - wall / 2, wallH / 2, 0]} castShadow receiveShadow material={body} />
-      {/* front wall around the doorway */}
-      <RoundedBox args={[sideW, wallH, wall]} radius={0.05} smoothness={2} position={[-door.halfW - sideW / 2, wallH / 2, halfD - wall / 2]} castShadow receiveShadow material={body} />
-      <RoundedBox args={[sideW, wallH, wall]} radius={0.05} smoothness={2} position={[door.halfW + sideW / 2, wallH / 2, halfD - wall / 2]} castShadow receiveShadow material={body} />
-      <RoundedBox args={[door.halfW * 2 + 0.02, wallH - door.h, wall]} radius={0.04} smoothness={2} position={[0, door.h + (wallH - door.h) / 2, halfD - wall / 2]} castShadow receiveShadow material={body} />
+      <RoundedBox args={[halfW * 2, wallH, wall]} radius={0.03} smoothness={2} position={[0, wallH / 2, -halfD + wall / 2]} castShadow receiveShadow material={body} />
+      <RoundedBox args={[wall, wallH, halfD * 2]} radius={0.03} smoothness={2} position={[-halfW + wall / 2, wallH / 2, 0]} castShadow receiveShadow material={body} />
+      <RoundedBox args={[wall, wallH, halfD * 2]} radius={0.03} smoothness={2} position={[halfW - wall / 2, wallH / 2, 0]} castShadow receiveShadow material={body} />
+      <RoundedBox args={[sideW, wallH, wall]} radius={0.03} smoothness={2} position={[-door.halfW - sideW / 2, wallH / 2, halfD - wall / 2]} castShadow receiveShadow material={body} />
+      <RoundedBox args={[sideW, wallH, wall]} radius={0.03} smoothness={2} position={[door.halfW + sideW / 2, wallH / 2, halfD - wall / 2]} castShadow receiveShadow material={body} />
+      <RoundedBox args={[door.halfW * 2 + 0.02, wallH - door.h, wall]} radius={0.02} smoothness={2} position={[0, door.h + (wallH - door.h) / 2, halfD - wall / 2]} castShadow receiveShadow material={body} />
 
-      {/* corner posts */}
-      {[
-        [-halfW, -halfD],
-        [halfW, -halfD],
-        [-halfW, halfD],
-        [halfW, halfD],
-      ].map(([x, z], i) => (
-        <RoundedBox key={i} args={[0.32, wallH + 0.12, 0.32]} radius={0.07} smoothness={3} position={[x, (wallH + 0.12) / 2 - 0.06, z]} castShadow material={trim} />
+      {/* panel seams on the outside, like a prefabricated kiosk */}
+      {[-1.7, -0.85, 0, 0.85, 1.7].map((z) => (
+        <group key={z}>
+          <mesh position={[-halfW - 0.001, wallH / 2, z]} rotation={[0, -Math.PI / 2, 0]} material={seam}>
+            <planeGeometry args={[0.012, wallH - 0.1]} />
+          </mesh>
+          <mesh position={[halfW + 0.001, wallH / 2, z]} rotation={[0, Math.PI / 2, 0]} material={seam}>
+            <planeGeometry args={[0.012, wallH - 0.1]} />
+          </mesh>
+        </group>
       ))}
-      {/* base trim, outside */}
-      <RoundedBox args={[halfW * 2, 0.22, 0.06]} radius={0.03} smoothness={2} position={[0, 0.11, halfD + 0.02]} material={trim} />
-      <RoundedBox args={[0.06, 0.22, halfD * 2]} radius={0.03} smoothness={2} position={[-halfW - 0.02, 0.11, 0]} material={trim} />
-      <RoundedBox args={[0.06, 0.22, halfD * 2]} radius={0.03} smoothness={2} position={[halfW + 0.02, 0.11, 0]} material={trim} />
+      {/* kick plate */}
+      <mesh position={[0, 0.09, halfD + 0.002]} material={mat('#b9b1a5', { roughness: 0.5, metalness: 0.2 })}>
+        <boxGeometry args={[halfW * 2, 0.18, 0.01]} />
+      </mesh>
 
-      {/* inside: mint wainscot and a cream upper wall */}
-      <mesh position={[0, 0.5, -inner + 0.011]} receiveShadow material={wain}>
-        <boxGeometry args={[halfW * 2 - wall * 2, 1.0, 0.02]} />
+      {/* inside: plaster above, wood wainscot below */}
+      <mesh position={[0, (wallH + wainH) / 2, -innerZ + 0.006]} material={plaster}>
+        <boxGeometry args={[innerX * 2, wallH - wainH, 0.01]} />
       </mesh>
-      <mesh position={[-innerX + 0.011, 0.5, 0]} rotation={[0, Math.PI / 2, 0]} material={wain}>
-        <boxGeometry args={[halfD * 2 - wall * 2, 1.0, 0.02]} />
-      </mesh>
-      <mesh position={[innerX - 0.011, 0.5, 0]} rotation={[0, -Math.PI / 2, 0]} material={wain}>
-        <boxGeometry args={[halfD * 2 - wall * 2, 1.0, 0.02]} />
+      <mesh position={[0, wainH / 2, -innerZ + 0.008]} material={wainscot}>
+        <boxGeometry args={[innerX * 2, wainH, 0.014]} />
       </mesh>
       {[-1, 1].map((side) => (
-        <mesh key={side} position={[side * (door.halfW + (halfW - wall - door.halfW) / 2), wallH / 2, inner - 0.008]} material={clay(PAL.cream)}>
-          <boxGeometry args={[halfW - wall - door.halfW, wallH, 0.012]} />
+        <group key={side}>
+          <mesh position={[side * (innerX - 0.006), (wallH + wainH) / 2, 0]} rotation={[0, side * -Math.PI / 2, 0]} material={plaster}>
+            <boxGeometry args={[innerZ * 2, wallH - wainH, 0.01]} />
+          </mesh>
+          <mesh position={[side * (innerX - 0.008), wainH / 2, 0]} rotation={[0, side * -Math.PI / 2, 0]} material={wainscot}>
+            <boxGeometry args={[innerZ * 2, wainH, 0.014]} />
+          </mesh>
+          <mesh position={[side * (door.halfW + (innerX - door.halfW) / 2), wallH / 2, innerZ - 0.006]} material={plaster}>
+            <boxGeometry args={[innerX - door.halfW, wallH, 0.01]} />
+          </mesh>
+        </group>
+      ))}
+      {/* chair rail */}
+      <mesh position={[0, wainH + 0.015, -innerZ + 0.025]} material={rail}>
+        <boxGeometry args={[innerX * 2, 0.04, 0.04]} />
+      </mesh>
+      {[-1, 1].map((side) => (
+        <mesh key={side} position={[side * (innerX - 0.025), wainH + 0.015, 0]} material={rail}>
+          <boxGeometry args={[0.04, 0.04, innerZ * 2]} />
         </mesh>
       ))}
-      <mesh position={[0, 1.02, -inner + 0.03]} material={trim}>
-        <boxGeometry args={[halfW * 2 - wall * 2, 0.05, 0.05]} />
-      </mesh>
-      <mesh position={[0, (wallH + 1.0) / 2, -inner + 0.008]} material={clay(PAL.cream)}>
-        <boxGeometry args={[halfW * 2 - wall * 2, wallH - 1.0, 0.012]} />
-      </mesh>
-      <mesh position={[-innerX + 0.008, (wallH + 1.0) / 2, 0]} rotation={[0, Math.PI / 2, 0]} material={clay(PAL.cream)}>
-        <boxGeometry args={[halfD * 2 - wall * 2, wallH - 1.0, 0.012]} />
-      </mesh>
-      <mesh position={[innerX - 0.008, (wallH + 1.0) / 2, 0]} rotation={[0, -Math.PI / 2, 0]} material={clay(PAL.cream)}>
-        <boxGeometry args={[halfD * 2 - wall * 2, wallH - 1.0, 0.012]} />
-      </mesh>
+      {/* vertical battens on the wainscot */}
+      {Array.from({ length: 13 }, (_, i) => (
+        <mesh key={i} position={[-innerX + 0.2 + i * ((innerX * 2 - 0.4) / 12), wainH / 2, -innerZ + 0.018]} material={mat('#8f6844')}>
+          <boxGeometry args={[0.018, wainH - 0.04, 0.008]} />
+        </mesh>
+      ))}
     </group>
   );
 }
 
 function Roof() {
-  const count = 15;
-  const span = halfW * 2 + 0.5;
-  const scallopR = span / count / 2;
   return (
     <group position={[0, wallH, 0]}>
-      <RoundedBox args={[halfW * 2 + 0.5, 0.28, halfD * 2 + 0.5]} radius={0.1} smoothness={3} position={[0, 0.14, 0]} castShadow receiveShadow material={clay(PAL.cherry)} />
-      <RoundedBox args={[halfW * 2 + 0.2, 0.12, halfD * 2 + 0.2]} radius={0.05} smoothness={2} position={[0, 0.33, 0]} castShadow material={clay(PAL.cherryDeep)} />
-      {/* scalloped awning edge along the front */}
-      {Array.from({ length: count }, (_, i) => (
-        <mesh
-          key={i}
-          position={[-span / 2 + scallopR * (2 * i + 1), -0.01, halfD + 0.25]}
-          rotation={[Math.PI / 2, 0, 0]}
-          castShadow
-          material={clay(i % 2 ? PAL.paper : PAL.cherry)}
-        >
-          <cylinderGeometry args={[scallopR, scallopR, 0.05, 20, 1, false, Math.PI / 2, Math.PI]} />
-        </mesh>
-      ))}
+      <RoundedBox args={[halfW * 2 + 0.22, 0.16, halfD * 2 + 0.22]} radius={0.03} smoothness={2} position={[0, 0.08, 0]} castShadow receiveShadow material={mat(PAL.boothShade, { roughness: 0.7 })} />
+      <mesh position={[0, -0.004, 0]} rotation={[Math.PI / 2, 0, 0]} material={mat('#efe8dc', { roughness: 0.95 })}>
+        <planeGeometry args={[halfW * 2 - wall * 2, halfD * 2 - wall * 2]} />
+      </mesh>
     </group>
   );
 }
 
-const BULB_ON = new THREE.MeshStandardMaterial({ color: '#fff1c2', emissive: '#ffd27a', emissiveIntensity: 2.2, roughness: 0.4 });
-const BULB_OFF = new THREE.MeshStandardMaterial({ color: '#f3d9a6', emissive: '#ffb84d', emissiveIntensity: 0.35, roughness: 0.4 });
-
-function MarqueeSign() {
-  const bulbs = useMemo(() => {
-    const out = [];
-    const w = 3.7;
-    const h = 0.9;
-    const step = 0.24;
-    for (let x = -w / 2; x <= w / 2 + 0.001; x += step) {
-      out.push([x, h / 2]);
-      out.push([x, -h / 2]);
-    }
-    for (let y = -h / 2 + step; y < h / 2 - 0.05; y += step) {
-      out.push([-w / 2, y]);
-      out.push([w / 2, y]);
-    }
-    return out;
-  }, []);
-  const refs = useRef([]);
-  const reduced = useApp((s) => s.reducedMotion);
-  useFrame(({ clock }) => {
-    const step = Math.floor(clock.elapsedTime * 5);
-    refs.current.forEach((m, i) => {
-      if (!m) return;
-      m.material = reduced || (i + step) % 3 !== 0 ? BULB_ON : BULB_OFF;
-    });
-  });
+function SignBox() {
   return (
-    <group position={[0, wallH + 0.95, halfD + 0.02]}>
-      <RoundedBox args={[3.95, 1.12, 0.22]} radius={0.12} smoothness={3} castShadow material={clay(PAL.ink)} />
-      <RoundedBox args={[3.55, 0.72, 0.06]} radius={0.06} smoothness={2} position={[0, 0, 0.1]} material={clay('#3a2f5c')} />
-      <Text font={FONT_URL} fontSize={0.46} letterSpacing={0.02} color={PAL.butter} anchorX="center" anchorY="middle" position={[0, 0.02, 0.14]} outlineWidth={0.012} outlineColor={PAL.cherryDeep}>
+    <group position={[0, 2.66, halfD + 0.06]}>
+      <RoundedBox args={[2.6, 0.5, 0.12]} radius={0.04} smoothness={3} castShadow material={mat('#d9d1c4', { roughness: 0.5 })} />
+      <mesh position={[0, 0, 0.062]}>
+        <planeGeometry args={[2.46, 0.38]} />
+        <meshStandardMaterial color="#f6efe2" emissive="#fff0d6" emissiveIntensity={0.35} roughness={0.4} />
+      </mesh>
+      <Text font={FONT_SERIF} fontSize={0.2} letterSpacing={0.18} color={PAL.ink} anchorX="center" anchorY="middle" position={[0, 0.035, 0.07]}>
         PLAYBOOTH
       </Text>
-      {bulbs.map(([x, y], i) => (
-        <mesh key={i} ref={(m) => (refs.current[i] = m)} position={[x, y, 0.13]} material={BULB_ON}>
-          <sphereGeometry args={[0.045, 12, 10]} />
-        </mesh>
-      ))}
-      {/* posts holding the sign */}
-      {[-1.3, 1.3].map((x) => (
-        <mesh key={x} position={[x, -0.62, -0.05]} material={clay(PAL.walnut)}>
-          <cylinderGeometry args={[0.05, 0.05, 0.3, 12]} />
-        </mesh>
-      ))}
+      <Text font={FONT_MONO} fontSize={0.055} letterSpacing={0.12} color={PAL.inkSoft} anchorX="center" anchorY="middle" position={[0, -0.12, 0.07]}>
+        photos and films
+      </Text>
     </group>
   );
 }
 
 function Doorway() {
-  const trim = clay(PAL.walnut);
-  const z = halfD + 0.02;
+  const trim = mat('#d2cabd', { roughness: 0.55 });
+  const z = halfD - wall / 2;
   return (
     <group>
-      <RoundedBox args={[0.16, door.h + 0.12, 0.28]} radius={0.05} smoothness={2} position={[-door.halfW - 0.04, (door.h + 0.12) / 2, z - 0.1]} castShadow material={trim} />
-      <RoundedBox args={[0.16, door.h + 0.12, 0.28]} radius={0.05} smoothness={2} position={[door.halfW + 0.04, (door.h + 0.12) / 2, z - 0.1]} castShadow material={trim} />
-      <RoundedBox args={[door.halfW * 2 + 0.4, 0.2, 0.3]} radius={0.06} smoothness={2} position={[0, door.h + 0.08, z - 0.1]} castShadow material={trim} />
-      {/* valance */}
-      <RoundedBox args={[door.halfW * 2 + 0.06, 0.24, 0.12]} radius={0.06} smoothness={3} position={[0, door.h - 0.1, halfD - 0.02]} castShadow material={clay(PAL.cherryDeep)} />
-      {/* threshold */}
-      <RoundedBox args={[door.halfW * 2 + 0.2, 0.05, 0.4]} radius={0.02} smoothness={2} position={[0, 0.02, halfD - 0.08]} material={trim} />
+      <RoundedBox args={[0.08, door.h + 0.06, wall + 0.06]} radius={0.02} smoothness={2} position={[-door.halfW - 0.02, (door.h + 0.06) / 2, z]} castShadow material={trim} />
+      <RoundedBox args={[0.08, door.h + 0.06, wall + 0.06]} radius={0.02} smoothness={2} position={[door.halfW + 0.02, (door.h + 0.06) / 2, z]} castShadow material={trim} />
+      <RoundedBox args={[door.halfW * 2 + 0.12, 0.08, wall + 0.06]} radius={0.02} smoothness={2} position={[0, door.h + 0.02, z]} castShadow material={trim} />
     </group>
   );
 }
 
 function makeCurtainGeometry() {
-  const g = new THREE.PlaneGeometry(door.halfW + 0.06, door.h - 0.12, 30, 6);
+  const g = new THREE.PlaneGeometry(door.halfW + 0.05, door.h - 0.08, 34, 8);
   g.userData.base = Float32Array.from(g.attributes.position.array);
   return g;
 }
@@ -220,41 +160,39 @@ function Curtains() {
   const material = useMemo(
     () =>
       new THREE.MeshPhysicalMaterial({
-        color: PAL.cherry,
-        roughness: 0.85,
-        sheen: 1,
-        sheenRoughness: 0.45,
-        sheenColor: new THREE.Color('#ff9fb8'),
+        color: '#8f3a2b',
+        roughness: 0.9,
+        sheen: 0.8,
+        sheenRoughness: 0.5,
+        sheenColor: new THREE.Color('#d98c74'),
         side: THREE.DoubleSide,
       }),
     [],
   );
   const reduced = useApp((s) => s.reducedMotion);
-  const halfWidth = (door.halfW + 0.06) / 2;
-  const height = door.h - 0.12;
+  const halfWidth = (door.halfW + 0.05) / 2;
+  const height = door.h - 0.08;
+  const last = useMemo(() => ({ open: -1 }), []);
 
   useFrame(({ clock }) => {
     const o = motion.curtain.open;
+    if (reduced && Math.abs(o - last.open) < 0.0001) return;
+    last.open = o;
     const t = clock.elapsedTime;
-    for (const [geo, side] of [
-      [left, -1],
-      [right, 1],
-    ]) {
+    for (const [geo, side] of [[left, -1], [right, 1]]) {
       const base = geo.userData.base;
       const pos = geo.attributes.position;
       for (let i = 0; i < pos.count; i++) {
         const bx = base[i * 3];
         const by = base[i * 3 + 1];
-        // 0 at the jamb, 1 at the middle of the doorway
         const u = side < 0 ? (bx + halfWidth) / (halfWidth * 2) : (halfWidth - bx) / (halfWidth * 2);
-        const v = (by + height / 2) / height; // 0 bottom, 1 top
-        const tie = 0.55 + 0.45 * (1 - v); // gather harder toward the bottom tie
-        const gather = 1 - 0.84 * o * tie;
+        const v = (by + height / 2) / height;
+        const gather = 1 - 0.86 * o * (0.6 + 0.4 * (1 - v));
         const jamb = side < 0 ? -halfWidth : halfWidth;
         const x = jamb + (bx - jamb) * gather;
-        const sway = reduced ? 0 : Math.sin(t * 1.3 + u * 3) * 0.006 * (1 - o) * (1 - v);
-        const amp = 0.022 + 0.05 * o;
-        const z = Math.sin(u * Math.PI * 7) * amp * (0.6 + 0.4 * (1 - v * 0.5)) + sway;
+        const sway = reduced ? 0 : Math.sin(t * 0.9 + u * 2.5) * 0.004 * (1 - o) * (1 - v);
+        const amp = 0.018 + 0.045 * o;
+        const z = Math.sin(u * Math.PI * 9) * amp + sway;
         pos.setXYZ(i, x, by, z);
       }
       pos.needsUpdate = true;
@@ -263,149 +201,110 @@ function Curtains() {
   });
 
   return (
-    <group position={[0, (door.h - 0.12) / 2 + 0.02, halfD - wall / 2 + 0.02]}>
-      <mesh geometry={left} material={material} position={[-door.halfW + halfWidth - 0.03, 0, 0]} castShadow />
-      <mesh geometry={right} material={material} position={[door.halfW - halfWidth + 0.03, 0, 0]} castShadow />
-      {/* curtain rod */}
-      <mesh position={[0, height / 2 + 0.02, 0.02]} rotation={[0, 0, Math.PI / 2]} material={clay(PAL.butterDeep, { metalness: 0.3, roughness: 0.4 })}>
-        <cylinderGeometry args={[0.022, 0.022, door.halfW * 2 + 0.1, 12]} />
+    <group position={[0, (door.h - 0.08) / 2 + 0.01, halfD - wall / 2 + 0.02]}>
+      <mesh geometry={left} material={material} position={[-door.halfW + halfWidth - 0.02, 0, 0]} castShadow />
+      <mesh geometry={right} material={material} position={[door.halfW - halfWidth + 0.02, 0, 0]} castShadow />
+      <mesh position={[0, height / 2 + 0.02, 0.02]} rotation={[0, 0, Math.PI / 2]} material={mat('#8d877e', { metalness: 0.6, roughness: 0.35 })}>
+        <cylinderGeometry args={[0.014, 0.014, door.halfW * 2 + 0.06, 10]} />
       </mesh>
     </group>
   );
 }
 
-function StripPoster() {
-  const tex = useMemo(
+/** Glass case on the side wall with sample photostrips, the way real booths advertise. */
+function DisplayCase() {
+  const strips = useMemo(
     () =>
-      canvasTexture(256, 768, (ctx, w, h) => {
-        ctx.fillStyle = PAL.paper;
-        ctx.fillRect(0, 0, w, h);
-        const pad = 20;
-        const fh = (h - pad * 2 - 90) / 4;
-        const scenes = [
-          [PAL.lilac, (x, y, fw, f) => { ctx.fillStyle = PAL.butter; ctx.beginPath(); ctx.arc(x + fw * 0.5, y + f * 0.55, f * 0.22, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = PAL.mint; ctx.fillRect(x, y + f * 0.68, fw, f * 0.32); }],
-          [PAL.peach, (x, y, fw, f) => { ctx.fillStyle = PAL.cherry; ctx.beginPath(); const cx = x + fw / 2, cy = y + f * 0.55, s = f * 0.2; ctx.moveTo(cx, cy + s); ctx.bezierCurveTo(cx - s * 2, cy - s * 0.4, cx - s * 0.6, cy - s * 1.8, cx, cy - s * 0.6); ctx.bezierCurveTo(cx + s * 0.6, cy - s * 1.8, cx + s * 2, cy - s * 0.4, cx, cy + s); ctx.fill(); }],
-          [PAL.mint, (x, y, fw, f) => { ctx.fillStyle = PAL.paper; for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.arc(x + fw * (0.2 + i * 0.15), y + f * (0.3 + (i % 2) * 0.25), f * 0.05, 0, Math.PI * 2); ctx.fill(); } }],
-          [PAL.ink, (x, y, fw, f) => { ctx.fillStyle = PAL.butter; ctx.beginPath(); ctx.arc(x + fw * 0.6, y + f * 0.45, f * 0.2, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = PAL.ink; ctx.beginPath(); ctx.arc(x + fw * 0.68, y + f * 0.4, f * 0.18, 0, Math.PI * 2); ctx.fill(); }],
-        ];
-        scenes.forEach(([bg, draw], i) => {
-          const y = pad + i * (fh + 8);
+      ['lace', 'stamp', 'polka'].map((id, k) =>
+        canvasTexture(240, 720, (ctx, w, h) => {
+          const border = BORDERS.find((b) => b.id === id);
+          const bg = border.strip.wood ? '#4a3125' : border.strip.bg;
           ctx.fillStyle = bg;
-          ctx.fillRect(pad, y, w - pad * 2, fh);
-          draw(pad, y, w - pad * 2, fh);
-        });
-        ctx.fillStyle = PAL.cherry;
-        ctx.font = '700 34px DynaPuff, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('PLAYBOOTH', w / 2, h - 50);
-      }),
+          ctx.fillRect(0, 0, w, h);
+          const scenes = [
+            ['#d9b48a', '#8c6a52'],
+            ['#b9c4c4', '#5d6f74'],
+            ['#e3c49a', '#a0432f'],
+          ];
+          for (let i = 0; i < 3; i++) {
+            const L = frameLayout(border, 4 / 3, w - 30);
+            const c = document.createElement('canvas');
+            c.width = L.W;
+            c.height = L.H;
+            paintComposite(c.getContext('2d'), border, L, { title: '', date: '' }, (g, win) => {
+              const [sky, ground] = scenes[(i + k) % 3];
+              const grad = g.createLinearGradient(0, win.y, 0, win.y + win.h);
+              grad.addColorStop(0, sky);
+              grad.addColorStop(1, ground);
+              g.fillStyle = grad;
+              g.fillRect(win.x, win.y, win.w, win.h);
+              g.fillStyle = 'rgb(40 28 20 / 0.55)';
+              g.beginPath();
+              g.ellipse(win.x + win.w * (0.42 + i * 0.06), win.y + win.h * 0.78, win.w * 0.16, win.h * 0.42, 0, Math.PI, 0);
+              g.fill();
+              g.beginPath();
+              g.arc(win.x + win.w * (0.42 + i * 0.06), win.y + win.h * 0.32, win.w * 0.085, 0, Math.PI * 2);
+              g.fill();
+            });
+            ctx.drawImage(c, 15, 18 + i * ((h - 120) / 3), L.W, L.H);
+          }
+          ctx.fillStyle = border.strip.ink;
+          ctx.font = '26px "Marcellus SC", serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('PLAYBOOTH', w / 2, h - 40);
+        }),
+      ),
     [],
   );
   return (
-    <group position={[-halfW - 0.012, 1.55, 0.75]} rotation={[0, -Math.PI / 2, 0.035]}>
-      <mesh castShadow position={[0, 0, -0.005]}>
-        <boxGeometry args={[0.66, 1.86, 0.02]} />
-        <meshStandardMaterial color={PAL.walnut} roughness={0.8} />
+    <group position={[-halfW - 0.01, 1.45, 0.55]} rotation={[0, -Math.PI / 2, 0]}>
+      <RoundedBox args={[1.12, 1.3, 0.06]} radius={0.02} smoothness={2} position={[0, 0, -0.02]} castShadow material={mat('#cfc7ba', { roughness: 0.4, metalness: 0.15 })} />
+      <mesh position={[0, 0, 0.012]} material={mat('#e9e2d6')}>
+        <planeGeometry args={[1.02, 1.2]} />
       </mesh>
-      <mesh position={[0, 0, 0.008]}>
-        <planeGeometry args={[0.58, 1.74]} />
-        <meshStandardMaterial map={tex} roughness={0.9} />
-      </mesh>
-      <mesh position={[0, 0.9, 0.02]} material={clay(PAL.cherry)}>
-        <sphereGeometry args={[0.04, 12, 10]} />
-      </mesh>
-    </group>
-  );
-}
-
-function SideWindow() {
-  return (
-    <group>
-      <group position={[halfW + 0.005, 1.8, -0.5]} rotation={[0, Math.PI / 2, 0]}>
-        <RoundedBox args={[1.25, 0.95, 0.08]} radius={0.05} smoothness={2} material={clay(PAL.walnut)} />
-        <mesh position={[0, 0, 0.045]}>
-          <planeGeometry args={[1.05, 0.75]} />
-          <meshStandardMaterial color="#ffe3a3" emissive="#ffc46b" emissiveIntensity={0.55} roughness={0.3} />
-        </mesh>
-        <mesh position={[0, 0, 0.05]} material={clay(PAL.walnut)}>
-          <boxGeometry args={[0.05, 0.75, 0.02]} />
-        </mesh>
-        <mesh position={[0, 0, 0.05]} material={clay(PAL.walnut)}>
-          <boxGeometry args={[1.05, 0.05, 0.02]} />
-        </mesh>
-        <RoundedBox args={[1.35, 0.12, 0.22]} radius={0.04} smoothness={2} position={[0, -0.52, 0.08]} material={clay(PAL.walnut)} />
-        {[-0.38, 0, 0.38].map((x, i) => (
-          <mesh key={x} position={[x, -0.36, 0.12]}>
-            <sphereGeometry args={[0.1 + (i % 2) * 0.03, 14, 12]} />
-            <meshStandardMaterial color={i % 2 ? PAL.cherry : PAL.peach} roughness={0.8} />
-          </mesh>
-        ))}
-      </group>
-    </group>
-  );
-}
-
-function Plant({ position, scale = 1, leaf = PAL.mint }) {
-  return (
-    <group position={position} scale={scale}>
-      <mesh position={[0, 0.2, 0]} castShadow material={clay(PAL.peach)}>
-        <cylinderGeometry args={[0.2, 0.15, 0.4, 20]} />
-      </mesh>
-      <mesh position={[0, 0.41, 0]} material={clay('#6b4a33')}>
-        <cylinderGeometry args={[0.18, 0.18, 0.03, 20]} />
-      </mesh>
-      {[
-        [0, 0.72, 0, 0.26],
-        [-0.14, 0.6, 0.06, 0.2],
-        [0.15, 0.62, -0.04, 0.21],
-        [0.02, 0.92, 0.04, 0.17],
-      ].map(([x, y, z, r], i) => (
-        <mesh key={i} position={[x, y, z]} castShadow material={clay(leaf)}>
-          <sphereGeometry args={[r, 18, 14]} />
+      {strips.map((tex, i) => (
+        <mesh key={i} position={[-0.31 + i * 0.31, 0.02, 0.016]} rotation={[0, 0, (i - 1) * 0.03]}>
+          <planeGeometry args={[0.25, 0.75]} />
+          <meshStandardMaterial map={tex} roughness={0.55} />
         </mesh>
       ))}
-    </group>
-  );
-}
-
-function WelcomeSign() {
-  return (
-    <group position={[1.95, 0, halfD + 0.75]} rotation={[0, -0.35, 0]}>
-      {[-1, 1].map((s) => (
-        <mesh key={s} position={[0, 0.42, s * 0.12]} rotation={[s * 0.22, 0, 0]} castShadow material={clay(PAL.walnut)}>
-          <boxGeometry args={[0.62, 0.86, 0.04]} />
-        </mesh>
-      ))}
-      <mesh position={[0, 0.45, 0.215]} rotation={[0.22, 0, 0]}>
-        <planeGeometry args={[0.52, 0.7]} />
-        <meshStandardMaterial color={PAL.ink} roughness={0.95} />
+      <mesh position={[0, 0, 0.03]}>
+        <planeGeometry args={[1.02, 1.2]} />
+        <meshPhysicalMaterial transparent opacity={0.12} roughness={0.05} metalness={0} color="#ffffff" />
       </mesh>
-      <Text font={FONT_URL} fontSize={0.1} color={PAL.butter} position={[0, 0.6, 0.235]} rotation={[0.22, 0, 0]} anchorX="center" anchorY="middle">
-        Now
-      </Text>
-      <Text font={FONT_URL} fontSize={0.1} color={PAL.butter} position={[0, 0.47, 0.25]} rotation={[0.22, 0, 0]} anchorX="center" anchorY="middle">
-        showing
-      </Text>
-      <Text font={FONT_URL} fontSize={0.07} color={PAL.paper} position={[0, 0.3, 0.29]} rotation={[0.22, 0, 0]} anchorX="center" anchorY="middle" maxWidth={0.46} textAlign="center">
-        Step inside
+      <Text font={FONT_HAND} fontSize={0.075} color={PAL.ink} position={[0.26, -0.52, 0.035]} rotation={[0, 0, -0.04]}>
+        prints while you wait
       </Text>
     </group>
   );
 }
 
-function Lantern() {
+function CoinPlate() {
   return (
-    <group position={[-door.halfW - 0.42, 2.1, halfD + 0.09]}>
-      <mesh material={clay(PAL.walnut)} position={[0, 0.18, -0.04]}>
-        <boxGeometry args={[0.05, 0.1, 0.12]} />
+    <group position={[door.halfW + 0.48, 1.25, halfD + 0.004]}>
+      <RoundedBox args={[0.32, 0.46, 0.02]} radius={0.015} smoothness={2} material={mat('#b4aea4', { metalness: 0.55, roughness: 0.35 })} />
+      <mesh position={[0, 0.1, 0.012]} material={mat('#2a2622')}>
+        <boxGeometry args={[0.02, 0.09, 0.005]} />
       </mesh>
-      <mesh position={[0, 0, 0.04]}>
-        <sphereGeometry args={[0.11, 18, 14]} />
-        <meshStandardMaterial color="#fff2c9" emissive="#ffcf70" emissiveIntensity={1.6} />
+      <Text font={FONT_MONO} fontSize={0.032} color={PAL.ink} position={[0, -0.07, 0.013]} anchorX="center">
+        PHOTOS
+      </Text>
+      <Text font={FONT_MONO} fontSize={0.032} color={PAL.ink} position={[0, -0.12, 0.013]} anchorX="center">
+        FILMS
+      </Text>
+    </group>
+  );
+}
+
+function Sconce() {
+  return (
+    <group position={[-door.halfW - 0.4, 2.15, halfD + 0.08]}>
+      <mesh position={[0, 0, -0.05]} material={mat('#8d877e', { metalness: 0.5, roughness: 0.4 })}>
+        <boxGeometry args={[0.1, 0.16, 0.04]} />
       </mesh>
-      <mesh position={[0, 0.12, 0.04]} material={clay(PAL.cherry)}>
-        <cylinderGeometry args={[0.06, 0.12, 0.07, 16]} />
+      <mesh>
+        <cylinderGeometry args={[0.07, 0.06, 0.18, 18]} />
+        <meshStandardMaterial color="#fff3dc" emissive="#ffd9a3" emissiveIntensity={1.1} roughness={0.4} />
       </mesh>
     </group>
   );

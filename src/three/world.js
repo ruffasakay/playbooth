@@ -1,117 +1,107 @@
 import * as THREE from 'three';
 
-/** Colors shared with the CSS tokens in styles/tokens.css. */
+/**
+ * Late-afternoon light, worn materials, few colors.
+ * Matches the CSS tokens in styles/tokens.css.
+ */
 export const PAL = {
-  sky: '#d6d9f7',
-  skyTop: '#b3b7ee',
-  horizon: '#f7e2d6',
-  grass: '#a3d9b4',
-  grassDark: '#86c79c',
-  butter: '#f5cf5e',
-  butterDeep: '#e9b844',
-  cream: '#fff1d6',
-  paper: '#fff7e8',
-  cherry: '#b5294e',
-  cherryDeep: '#8f1f3e',
-  mint: '#7fcbb5',
-  mintDeep: '#5fae98',
-  honey: '#d39457',
-  walnut: '#7a4a2b',
-  ink: '#2a2140',
-  lilac: '#c9cdf5',
-  periwinkle: '#5a5fc8',
-  peach: '#f2a98a',
-  glass: '#191527',
+  haze: '#e9dcc8',
+  hazeTop: '#c9cfd3',
+  horizon: '#f2d9b8',
+  paper: '#f4ede0',
+  cream: '#ebe2d0',
+  booth: '#ece6dc',
+  boothShade: '#d9d1c4',
+  plaster: '#efe7d9',
+  ink: '#33261c',
+  inkSoft: '#5a483a',
+  wood: '#9a6a44',
+  woodDark: '#5c3d28',
+  woodLight: '#b98a5e',
+  terracotta: '#9e4330',
+  terracottaDeep: '#7a3024',
+  teal: '#3c8a78',
+  tealDeep: '#2c6658',
+  navy: '#27324a',
+  ochre: '#d2a24c',
+  asphalt: '#6d6560',
+  paver: '#b9ada0',
+  metal: '#a9a59d',
+  glass: '#141210',
+  leaf: '#4f6b4a',
+  leafLight: '#6f8a5c',
 };
 
-export const FONT_URL = '/fonts/DynaPuff-Bold.woff';
-export const MONO_URL = '/fonts/AtkinsonMono-SemiBold.woff';
+export const FONT_SERIF = '/fonts/MarcellusSC.woff';
+export const FONT_MONO = '/fonts/CourierPrime.woff';
+export const FONT_HAND = '/fonts/Caveat.woff';
 
 const cache = new Map();
-/** Matte, clay-like standard material, cached per color + options. */
-export function clay(color, opts = {}) {
+/** Matte standard material, cached. */
+export function mat(color, opts = {}) {
   const key = `${color}|${JSON.stringify(opts)}`;
   if (!cache.has(key)) {
-    cache.set(
-      key,
-      new THREE.MeshStandardMaterial({ color, roughness: 0.78, metalness: 0, ...opts }),
-    );
+    cache.set(key, new THREE.MeshStandardMaterial({ color, roughness: 0.82, metalness: 0, ...opts }));
   }
   return cache.get(key);
 }
 
-/* ---------- layout of the booth (meters, booth floor at y = 0) ---------- */
+/* ---------- layout (meters, booth floor at y = 0) ---------- */
 
 export const BOOTH = {
-  halfW: 2.6, // outer half width (x)
-  halfD: 2.2, // outer half depth (z)
+  halfW: 2.6,
+  halfD: 2.2,
   wallH: 3.0,
-  wall: 0.2,
-  door: { halfW: 0.72, h: 2.36 },
+  wall: 0.16,
+  door: { halfW: 0.7, h: 2.3 },
 };
 
-export const CABINET = { x: -1.3, z: -1.72, w: 1.72, h: 2.02, d: 0.5 };
+/** Video rental rack against the back wall, left side. */
+export const CABINET = { x: -1.28, z: -1.74, w: 1.74, h: 2.0, d: 0.46 };
 
-export const MACHINE = {
-  x: 0.92,
-  z: -1.5,
-  w: 1.5,
-  h: 1.72,
-  d: 0.85,
-  base: 0.3,
-};
-MACHINE.front = MACHINE.z + MACHINE.d / 2; // -1.075
+/** Low wooden console holding the VCR, with a CRT television on top. */
+export const MACHINE = { x: 0.86, z: -1.5, w: 1.36, h: 0.74, d: 0.72 };
+MACHINE.front = MACHINE.z + MACHINE.d / 2;
 
-export const SCREEN = {
-  x: MACHINE.x,
-  y: 1.56,
-  z: MACHINE.front + 0.052,
-  w: 1.2,
-  h: 0.675,
-};
+export const TV = { x: MACHINE.x, z: -1.56, w: 1.12, h: 0.9, d: 0.66 };
+TV.y = MACHINE.h + TV.h / 2;
+TV.front = TV.z + TV.d / 2;
 
-export const SLOT = {
-  x: MACHINE.x,
-  y: 0.6,
-  z: MACHINE.front + 0.012,
-};
+/** 4:3 picture tube. */
+export const SCREEN = { x: TV.x, y: TV.y + 0.02, z: TV.front + 0.012, w: 0.8, h: 0.6 };
 
-export const PRINTER = {
-  x: MACHINE.x + MACHINE.w / 2 + 0.31,
-  z: -1.52,
-  w: 0.62,
-  h: 0.92,
-  d: 0.7,
-};
-PRINTER.front = PRINTER.z + PRINTER.d / 2;
-PRINTER.base = 0.12;
+export const VCR = { x: MACHINE.x, y: 0.5, z: MACHINE.front - 0.2, w: 0.66, h: 0.14, d: 0.38 };
+VCR.front = VCR.z + VCR.d / 2;
+
+export const SLOT = { x: VCR.x - 0.08, y: VCR.y + 0.025, z: VCR.front + 0.004 };
+
+/** Side table with the photo printer. */
+export const TABLE = { x: 2.0, z: -1.38, w: 0.72, h: 0.56, d: 0.66 };
+export const PRINTER = { x: TABLE.x, z: TABLE.z - 0.12, w: 0.48, h: 0.26, d: 0.38 };
+PRINTER.base = TABLE.h;
 PRINTER.y = PRINTER.base + PRINTER.h / 2;
-PRINTER.slotY = 0.86;
+PRINTER.front = PRINTER.z + PRINTER.d / 2;
+PRINTER.slotY = PRINTER.base + 0.17;
 
-export const TRAY = {
-  x: PRINTER.x,
-  y: 0.3, // top surface of the tray floor
-  z: PRINTER.front + 0.32,
-  w: 0.62,
-  d: 0.5,
-};
+export const TRAY = { x: TABLE.x, y: TABLE.h + 0.012, z: PRINTER.front + 0.2, w: 0.5, d: 0.32 };
 
-export const TAPE = { w: 0.38, h: 0.23, d: 0.07 };
+/** A VHS clamshell case, cover facing out. */
+export const TAPE = { w: 0.24, h: 0.4, d: 0.05 };
 
-/** Pose a tape takes just outside the slot: lying flat, label up. */
+/** Pose just outside the VCR slot: lying flat, cover up, short edge first. */
 export const SLOT_ENTRY = {
   position: new THREE.Vector3(SLOT.x, SLOT.y, SLOT.z + TAPE.h / 2 + 0.03),
   quaternion: new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0)),
 };
-export const SLOT_INSIDE = SLOT_ENTRY.position.clone().add(new THREE.Vector3(0, 0, -0.36));
+export const SLOT_INSIDE = SLOT_ENTRY.position.clone().add(new THREE.Vector3(0, 0, -0.5));
 
-/** Cubby centers in the cabinet, top row first. */
+/** Shelf positions in the rack, top row first. */
 export function cubbyCenters() {
   const { x, z, w, h, d } = CABINET;
-  const side = 0.07;
-  const top = 0.08;
-  const plinth = 0.14;
-  const shelf = 0.05;
+  const side = 0.06;
+  const top = 0.07;
+  const plinth = 0.16;
+  const shelf = 0.035;
   const innerW = w - side * 2;
   const colW = innerW / 3;
   const innerH = h - top - plinth - shelf * 2;
@@ -123,7 +113,7 @@ export function cubbyCenters() {
       out.push({
         x: x - innerW / 2 + colW * (col + 0.5),
         floorY,
-        z: z + d / 2 - 0.12,
+        z: z + d / 2 - 0.13,
         rowH,
         colW,
         index: row * 3 + col,
@@ -134,9 +124,12 @@ export function cubbyCenters() {
 }
 
 export const motion = {
-  /** Curtain openness 0..1, animated by the camera rig's timelines. */
+  /** Curtain openness 0..1, driven by the camera rig. */
   curtain: { open: 0 },
 };
+
+/** Set by 3D objects on pointerdown so a drag on them doesn't also turn the camera. */
+export const interaction = { grabbed: false };
 
 export function smoothstep(a, b, x) {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));

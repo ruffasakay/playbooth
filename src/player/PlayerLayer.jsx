@@ -3,7 +3,6 @@ import { Video } from '@videojs/react/video';
 import { MuxVideo } from '@videojs/react/media/mux-video';
 import { MuxData } from '@videojs/react/extensions/mux-data';
 import { useApp, movieById } from '../store.js';
-import { printPhotos } from '../lib/printFlow.js';
 import { Player, usePlayer } from './core.js';
 import { PlayboothSkin } from './Skin.jsx';
 
@@ -137,8 +136,11 @@ function DeckBridge() {
   // movie finished: off to the printer
   useEffect(() => {
     if (ended && useApp.getState().deck === 'playing' && !useApp.getState().printing) {
-      useApp.getState().announce('The movie ended. Printing your photos.');
-      printPhotos();
+      const st = useApp.getState();
+      if (st.snaps.length) {
+        st.announce('The film ended. Your snaps are ready to print.');
+        st.setCompilerOpen(true);
+      }
     }
   }, [ended]);
 

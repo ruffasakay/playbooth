@@ -29,16 +29,25 @@ export const useApp = create((set, get) => ({
   focusedTapeId: null, // keyboard focus on a tape's hotspot
   ejectToken: 0,
 
+  // inspecting a tape up close
+  inspectId: null,
+  // prompt card that follows the pointer over 3D objects
+  hover: null,
+
   // player
   deck: 'empty', // empty | reading | frame | playing
-  borderId: 'strip',
+  borderId: 'booth',
   frameLocked: false,
   videoEl: null,
   videoAspect: 16 / 9,
   ended: false,
 
   // photos
-  sessionPhotos: [], // captured during the current tape
+  sessionPhotos: [], // framed prints made during the current tape
+  sessionStrips: [],
+  snaps: [], // raw frames snapped this visit (the compiler), newest last
+  compilerOpen: false,
+  captionStyle: loadCaptionStyle(),
   collection: [], // everything saved on this device, newest first
   printBatch: [], // photos coming out of the printer right now
   printRun: 0,
@@ -86,15 +95,12 @@ export const useApp = create((set, get) => ({
     const s = get();
     if (s.insertedTapeId === id) return;
     set({ heldTapeId: id });
-    const movie = MOVIES.find((m) => m.id === id);
-    s.announce(`Holding ${movie?.title ?? 'a tape'}. Put it in the player’s slot.`);
   },
 
   returnTape() {
     const s = get();
     if (!s.heldTapeId) return;
     set({ heldTapeId: null, dragging: false, attraction: 0 });
-    s.announce('Tape back on the shelf.');
   },
 
   /** Start the insert animation; the tape calls insertTape() when it is in. */
@@ -103,6 +109,16 @@ export const useApp = create((set, get) => ({
     if (!id || s.insertingId) return;
     if (s.insertedTapeId && s.insertedTapeId !== id) s.ejectTape();
     set({ insertingId: id, heldTapeId: null, dragging: false, attraction: 0 });
+  },
+
+  openInspect(id) {
+    set({ inspectId: id, hover: null, heldTapeId: null });
+  },
+  closeInspect() {
+    set({ inspectId: null });
+  },
+  setHover(hover) {
+    set({ hover });
   },
 
   setFocusedTape(focusedTapeId) {
@@ -123,8 +139,9 @@ export const useApp = create((set, get) => ({
       frameLocked: false,
       ended: false,
       sessionPhotos: [],
+      sessionStrips: [],
     });
-    s.announce(`${movie.title} is in. The player is reading the tape.`);
+    s.announce(`${movie.title} is in the player.`);
   },
 
   ejectTape() {
@@ -163,7 +180,38 @@ export const useApp = create((set, get) => ({
     set((s) => ({
       sessionPhotos: [...s.sessionPhotos, photo],
       collection: [photo, ...s.collection],
-      flashToken: s.flashToken + 1,
+    }));
+  },
+
+  addSnap(snap) {
+    set((s) => ({ snaps: [...s.snaps, snap], flashToken: s.flashToken + 1 }));
+  },
+  removeSnaps(ids) {
+    const drop = new Set(ids);
+    set((s) => {
+      s.snaps.filter((p) => drop.has(p.id)).forEach((p) => URL.revokeObjectURL(p.url));
+      return { snaps: s.snaps.filter((p) => !drop.has(p.id)) };
+    });
+  },
+  setCompilerOpen(compilerOpen) {
+    set({ compilerOpen });
+  },
+  setCaptionStyle(patch) {
+    set((s) => {
+      const captionStyle = { ...s.captionStyle, ...patch };
+      try {
+        localStorage.setItem('playbooth.captions', JSON.stringify(captionStyle));
+      } catch {
+        /* private mode */
+      }
+      return { captionStyle };
+    });
+  },
+
+  addStrip(strip) {
+    set((s) => ({
+      sessionStrips: [...s.sessionStrips, strip],
+      collection: [strip, ...s.collection],
     }));
   },
 
@@ -171,6 +219,7 @@ export const useApp = create((set, get) => ({
     set((s) => ({
       collection: s.collection.filter((p) => p.id !== id),
       sessionPhotos: s.sessionPhotos.filter((p) => p.id !== id),
+      sessionStrips: s.sessionStrips.filter((p) => p.id !== id),
       printBatch: s.printBatch.filter((p) => p.id !== id),
       lightboxId: s.lightboxId === id ? null : s.lightboxId,
     }));
@@ -189,7 +238,7 @@ export const useApp = create((set, get) => ({
       station: 'prints',
     }));
     get().announce(
-      photos.length === 1 ? 'Printing 1 photo.' : `Printing ${photos.length} photos.`,
+      photos.length === 1 ? 'Printing 1 print.' : `Printing ${photos.length} prints.`,
     );
   },
 
@@ -197,9 +246,7 @@ export const useApp = create((set, get) => ({
     const n = get().printBatch.length;
     set({ printing: false });
     get().announce(
-      n === 1
-        ? 'Your print is in the tray. Select it to see it larger or download it.'
-        : `${n} prints are in the tray. Select one to see it larger or download it.`,
+      n === 1 ? 'Your print is in the tray.' : `${n} prints are in the tray.`,
     );
   },
 
@@ -213,5 +260,14 @@ export const useApp = create((set, get) => ({
     set({ albumOpen });
   },
 }));
+
+function loadCaptionStyle() {
+  const fallback = { color: '#ffffff', outline: true, font: 'sans' };
+  try {
+    return { ...fallback, ...JSON.parse(localStorage.getItem('playbooth.captions') || '{}') };
+  } catch {
+    return fallback;
+  }
+}
 
 export const movieById = (id) => MOVIES.find((m) => m.id === id) ?? null;
