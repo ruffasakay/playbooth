@@ -505,6 +505,7 @@ export function PlayboothSkin({ children }) {
       data-idle={(!shown && !locked) || undefined}
       data-locked={locked || undefined}
       data-calm={calm || undefined}
+      data-scrubbing={scrubbing || undefined}
       style={theme}
       aria-label={movie ? `PLAYBOOTH player, ${movie.title}` : 'PLAYBOOTH player'}
       onKeyDown={onKeyDown}
@@ -870,12 +871,13 @@ function useKeyAnchor() {
 
 /**
  * Mute on the key; with a mouse, a level slider slides out beside the dock,
- * level with the key and clear of the progress, with its own M key shown,
- * so no hint card has to cover it.
+ * level with the key and clear of the progress. The key's hint card leads
+ * the slider, in the same style as every other hint: "Mute M", then the level.
  */
 function VolumeKey({ v }) {
   const [ref, at, measure] = useKeyAnchor();
-  const style = v ? { top: at.top + at.h / 2, '--bridge': `${10 + at.left}px` } : { left: Math.max(0, at.left + at.w / 2 - 90), '--bridge': `${10 + at.top}px` };
+  const muted = usePlayer((s) => s.muted);
+  const style = v ? { top: at.top + at.h / 2, '--bridge': `${10 + at.left}px` } : { left: Math.max(0, at.left + at.w / 2 - 120), '--bridge': `${10 + at.top}px` };
   return (
     <div className="pb-volume" data-orient={v ? 'v' : 'h'} ref={ref} onPointerEnter={measure} onFocus={measure}>
       <MuteButton
@@ -888,15 +890,18 @@ function VolumeKey({ v }) {
         )}
       />
       <div className="pb-vol-pop" style={style}>
-        <VolumeSlider.Root className="pb-vol" label="Volume">
-          <VolumeSlider.Track className="pb-vol-track">
-            <VolumeSlider.Fill className="pb-vol-fill" />
-          </VolumeSlider.Track>
-          <VolumeSlider.Thumb className="pb-vol-thumb" />
-        </VolumeSlider.Root>
-        <kbd className="pb-vol-key" aria-hidden="true">
-          M
-        </kbd>
+        <span className="hint pb-vol-hint" aria-hidden="true">
+          <span>{muted ? 'Unmute' : 'Mute'}</span>
+          <kbd>M</kbd>
+        </span>
+        <span className="pb-vol-level">
+          <VolumeSlider.Root className="pb-vol" label="Volume">
+            <VolumeSlider.Track className="pb-vol-track">
+              <VolumeSlider.Fill className="pb-vol-fill" />
+            </VolumeSlider.Track>
+            <VolumeSlider.Thumb className="pb-vol-thumb" />
+          </VolumeSlider.Root>
+        </span>
       </div>
     </div>
   );
@@ -947,7 +952,7 @@ function Scrubber({ orient, movie, win, aspect, onScrub }) {
   const seekTo = (f, force) => {
     if (!duration) return;
     const now = performance.now();
-    if (!force && now - lastSeek.current < 160) return;
+    if (!force && now - lastSeek.current < 110) return;
     lastSeek.current = now;
     try {
       store.seek(f * duration);
@@ -1005,6 +1010,9 @@ function Scrubber({ orient, movie, win, aspect, onScrub }) {
   const bufEnd = buffered?.length ? Math.max(...buffered.map((b) => b[1])) : 0;
   const bf = duration ? clamp(bufEnd / duration, 0, 1) : 0;
   const reel = drag ? { ...drag, mode: 'drag' } : hover ? { ...hover, mode: 'hover' } : null;
+  useEffect(() => {
+    if (movie) loadBoard(movie);
+  }, [movie]);
   // once the reel has been opened it stays built (hidden), so its stills never load twice
   const [used, setUsed] = useState(false);
   if (reel && !used) setUsed(true);
@@ -1040,112 +1048,248 @@ function Scrubber({ orient, movie, win, aspect, onScrub }) {
   );
 }
 
-/**
- * A photostrip of the whole film laid along the progress: clip k sits at the
- * point of the bar its moment belongs to, so the strip never moves or reloads.
- * Hover or drag and the clip under the pointer lifts and gets its outline, its
- * neighbours stay quietly dimmed, and a notch glides with the pointer. Built
- * once on first use and kept, so every still is loaded only once.
+/*
+ * The reel: when you hover or drag the progress, real frames of the film at
+ * the pointer's moment. Like YouTube's previews, the frames come from one
+ * storyboard image (Mux serves it for every asset), so moving the pointer only
+ * shifts a sprite and never waits on the network. The clip at the pointer is
+ * the largest, outlined, with the exact time; the moments before and after
+ * get smaller and quieter the further they are, and the whole reel rides
+ * with the pointer along the bar.
  */
+const REEL = [
+  { k: 0, scale: 1, alpha: 1 },
+  { k: -1, scale: 0.72, alpha: 0.85 },
+  { k: 1, scale: 0.72, alpha: 0.85 },
+  { k: -2, scale: 0.52, alpha: 0.6 },
+  { k: 2, scale: 0.52, alpha: 0.6 },
+  { k: -3, scale: 0.38, alpha: 0.38 },
+  { k: 3, scale: 0.38, alpha: 0.38 },
+];
+
 function Reel({ orient, reel, duration, movie, win, aspect }) {
   const v = orient === 'v';
+  const sb = useStoryboard(movie);
   const [len, setLen] = useState(0);
   if (reel?.len && Math.abs(reel.len - len) > 1) setLen(reel.len);
   if (!len || !duration) return null;
-  const gap = 8;
-  let w;
-  let h;
-  if (v) {
-    w = clamp(win.w * 0.2, 96, 190);
-    h = w / aspect;
-  } else {
-    h = clamp(win.h * 0.2, 40, 76);
-    w = h * aspect;
-  }
-  const along = v ? h : w;
-  const n = Math.max(2, Math.floor((len + gap) / (along + gap)));
-  const pitch = n > 1 ? (len - along) / (n - 1) : 0;
-  const centers = Array.from({ length: n }, (_, k) => along / 2 + k * pitch);
   const on = !!reel;
-  const pos = on ? reel.f * len : 0;
-  const active = on ? clamp(Math.round((pos - along / 2) / (pitch || 1)), 0, n - 1) : -1;
+  const gap = 6;
+  // the active clip: a quarter of the picture's width, kept inside the bar
+  let w0 = v ? clamp(win.w * 0.24, 120, 240) : clamp(win.w * 0.36, 108, 200);
+  let h0 = w0 / aspect;
+  if (v && h0 > len * 0.42) {
+    h0 = len * 0.42;
+    w0 = h0 * aspect;
+  }
+  const along0 = v ? h0 : w0;
+  const f = on ? reel.f : 0;
+  const t = f * duration;
+  const step = duration / 24; // neighbours a few scenes apart, like flicking reels
+  const c0 = clamp(f * len, along0 / 2, len - along0 / 2);
+  // place the neighbours outwards from the active clip, each a little smaller
+  const place = {};
+  place[0] = c0;
+  for (const dir of [-1, 1]) {
+    let edge = c0 + (dir * along0) / 2;
+    for (let n = 1; n <= 3; n++) {
+      const sc = REEL[n * 2 - 1].scale;
+      const a = along0 * sc;
+      place[dir * n] = edge + dir * (gap + a / 2);
+      edge += dir * (gap + a);
+    }
+  }
   return (
-    <div className="pb-reel" data-on={on || undefined} data-mode={reel?.mode} data-orient={orient} aria-hidden="true" style={{ '--w': `${w}px`, '--h': `${h}px`, [v ? 'height' : 'width']: len }}>
-      {centers.map((c, k) => (
-        <div key={k} className="pb-clip" data-active={k === active || undefined} style={{ [v ? 'top' : 'left']: c - along / 2 }}>
-          <Thumb movie={movie} time={clamp((c / len) * duration, 0, Math.max(0, duration - 0.5))} />
-          {k === active && <span className="pb-clip-time">{formatTimecode(reel.f * duration)}</span>}
-        </div>
-      ))}
-      {on && <span className="pb-reel-notch" style={{ [v ? 'top' : 'left']: pos }} />}
+    <div className="pb-reel" data-on={on || undefined} data-mode={reel?.mode} data-orient={orient} aria-hidden="true" style={v ? { height: len, width: w0 } : { width: len, height: h0 }}>
+      {REEL.map(({ k, scale, alpha }) => {
+        const w = w0 * scale;
+        const h = h0 * scale;
+        const a = v ? h : w;
+        const time = t + k * step;
+        const c = place[k];
+        const fits = time >= 0 && time <= duration && c - a / 2 >= -2 && c + a / 2 <= len + 2;
+        const style = v
+          ? { width: w, height: h, top: c - a / 2, right: 0, opacity: on && fits ? alpha : 0 }
+          : { width: w, height: h, left: c - a / 2, bottom: 0, opacity: on && fits ? alpha : 0 };
+        return (
+          <div key={k} className="pb-clip" data-active={k === 0 || undefined} style={style}>
+            <Still sb={sb} movie={movie} time={clamp(time, 0, duration)} w={w} h={h} exact={k === 0 && on} />
+            {k === 0 && on && <span className="pb-clip-time">{formatTimecode(t)}</span>}
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-/* ---------- clip images: Mux serves any frame; local files get a quiet second video ---------- */
+/* ---------- storyboards: one sprite of frames per film ---------- */
 
-const local = { src: null, video: null, map: new Map(), queue: [], busy: false, subs: new Set() };
+const boards = new Map(); // key -> { status, tiles, url, sw, sh, subs }
 
-function localThumb(src, time) {
-  const key = time.toFixed(1);
-  if (local.src !== src) {
-    local.src = src;
-    local.map.clear();
-    local.queue = [];
-    local.busy = false;
-    const v = document.createElement('video');
-    v.muted = true;
-    v.preload = 'auto';
-    v.crossOrigin = 'anonymous';
-    v.src = src;
-    local.video = v;
-  }
-  if (local.map.has(key)) return local.map.get(key);
-  if (!local.queue.includes(key)) {
-    local.queue.push(key);
-    if (local.queue.length > 24) local.queue.shift();
-  }
-  pumpLocal();
-  return null;
-}
-
-function pumpLocal() {
-  const v = local.video;
-  if (!v || local.busy || !local.queue.length) return;
-  if (v.readyState < 1) {
-    v.addEventListener('loadedmetadata', pumpLocal, { once: true });
-    return;
-  }
-  local.busy = true;
-  const key = local.queue.pop(); // newest request first
-  const done = () => {
-    try {
-      const c = document.createElement('canvas');
-      c.width = 240;
-      c.height = Math.round((240 * (v.videoHeight || 9)) / (v.videoWidth || 16));
-      c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
-      local.map.set(key, c.toDataURL('image/jpeg', 0.72));
-    } catch {
-      local.map.set(key, '');
-    }
-    local.busy = false;
-    local.subs.forEach((fn) => fn());
-    pumpLocal();
+function parseVtt(text, base) {
+  const tiles = [];
+  const ts = (x) => {
+    const p = x.trim().split(':').map(Number);
+    return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : p[0] * 60 + p[1];
   };
-  v.addEventListener('seeked', done, { once: true });
-  v.currentTime = Math.min(Number(key), Math.max(0, (v.duration || Number(key)) - 0.1));
+  const blocks = text.replace(/\r/g, '').split('\n\n');
+  let url = null;
+  for (const bl of blocks) {
+    const lines = bl.split('\n').filter(Boolean);
+    const timing = lines.find((l) => l.includes('-->'));
+    const ref = lines.find((l) => l.includes('#xywh='));
+    if (!timing || !ref) continue;
+    const [a, b] = timing.split('-->').map(ts);
+    const [u, frag] = ref.trim().split('#xywh=');
+    const [x, y, w, h] = frag.split(',').map(Number);
+    url = new URL(u, base).href;
+    tiles.push({ start: a, end: b, x, y, w, h });
+  }
+  return { tiles, url };
 }
 
-function Thumb({ movie, time }) {
+function loadBoard(movie) {
+  const key = movie.playbackId || movie.src;
+  if (!key) return null;
+  let b = boards.get(key);
+  if (b) return b;
+  b = { status: 'loading', tiles: [], url: null, sw: 0, sh: 0, subs: new Set() };
+  boards.set(key, b);
+  const done = () => b.subs.forEach((fn) => fn());
+  const fail = () => {
+    b.status = 'failed';
+    done();
+  };
+  if (movie.playbackId) {
+    const vtt = `https://image.mux.com/${movie.playbackId}/storyboard.vtt`;
+    fetch(vtt)
+      .then((r) => (r.ok ? r.text() : Promise.reject(new Error(String(r.status)))))
+      .then((text) => {
+        const { tiles, url } = parseVtt(text, vtt);
+        if (!tiles.length || !url) return fail();
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          Object.assign(b, { status: 'ready', tiles, url, sw: img.naturalWidth, sh: img.naturalHeight });
+          done();
+        };
+        img.onerror = fail;
+        img.src = url;
+        return undefined;
+      })
+      .catch(fail);
+  } else buildLocalBoard(movie.src, b, done, fail);
+  return b;
+}
+
+/** Local files (dev): grab frames with a quiet second video into a sprite, the same shape Mux serves. */
+function buildLocalBoard(src, b, done, fail) {
+  const v = document.createElement('video');
+  v.muted = true;
+  v.preload = 'auto';
+  v.crossOrigin = 'anonymous';
+  v.src = src;
+  const N = 40;
+  const cols = 8;
+  const tw = 160;
+  v.addEventListener(
+    'loadedmetadata',
+    () => {
+      const th = Math.round((tw * (v.videoHeight || 9)) / (v.videoWidth || 16));
+      const c = document.createElement('canvas');
+      c.width = cols * tw;
+      c.height = Math.ceil(N / cols) * th;
+      const g = c.getContext('2d');
+      const span = v.duration / N;
+      let i = 0;
+      const next = () => {
+        if (i >= N) {
+          try {
+            Object.assign(b, { status: 'ready', url: c.toDataURL('image/jpeg', 0.7), sw: c.width, sh: c.height });
+            done();
+          } catch {
+            fail();
+          }
+          return;
+        }
+        v.currentTime = Math.min(v.duration - 0.05, (i + 0.5) * span);
+      };
+      v.addEventListener('seeked', () => {
+        const x = (i % cols) * tw;
+        const y = Math.floor(i / cols) * th;
+        g.drawImage(v, x, y, tw, th);
+        b.tiles.push({ start: i * span, end: (i + 1) * span, x, y, w: tw, h: th });
+        i += 1;
+        next();
+      });
+      next();
+    },
+    { once: true },
+  );
+  v.addEventListener('error', fail, { once: true });
+}
+
+function useStoryboard(movie) {
   const [, bump] = useState(0);
+  const b = movie ? loadBoard(movie) : null;
   useEffect(() => {
+    if (!b) return undefined;
     const fn = () => bump((n) => n + 1);
-    local.subs.add(fn);
-    return () => local.subs.delete(fn);
-  }, []);
-  const t = Math.round(time * 10) / 10;
-  const src = movie?.playbackId ? `https://image.mux.com/${movie.playbackId}/thumbnail.webp?time=${t}&width=320` : movie?.src ? localThumb(movie.src, t) : null;
-  return src ? <img className="pb-clip-img" src={src} alt="" draggable={false} /> : <span className="pb-clip-img pb-clip-img--wait" />;
+    b.subs.add(fn);
+    return () => b.subs.delete(fn);
+  }, [b]);
+  return b?.status === 'ready' ? b : b?.status === 'failed' ? 'failed' : null;
+}
+
+function tileAt(sb, t) {
+  const tiles = sb.tiles;
+  let lo = 0;
+  let hi = tiles.length - 1;
+  while (lo < hi) {
+    const mid = (lo + hi + 1) >> 1;
+    if (tiles[mid].start <= t) lo = mid;
+    else hi = mid - 1;
+  }
+  return tiles[lo];
+}
+
+/**
+ * One frame of the film at a moment: a window onto the storyboard sprite.
+ * The active clip also asks Mux for the exact frame once the pointer rests,
+ * and lays it over the sprite when it arrives, so a pause gives a sharp still.
+ */
+function Still({ sb, movie, time, w, h, exact }) {
+  const [sharp, setSharp] = useState(null);
+  const want = exact && movie?.playbackId ? Math.round(time * 2) / 2 : null;
+  useEffect(() => {
+    if (want == null) return undefined;
+    const id = setTimeout(() => {
+      const src = `https://image.mux.com/${movie.playbackId}/thumbnail.webp?time=${want}&width=${Math.round(Math.min(480, w * 2))}`;
+      const img = new Image();
+      img.onload = () => setSharp({ src, at: want });
+      img.src = src;
+    }, 140);
+    return () => clearTimeout(id);
+  }, [want, movie?.playbackId, w]);
+  if (sb && sb !== 'failed') {
+    const tile = tileAt(sb, time);
+    const kx = w / tile.w;
+    const ky = h / tile.h;
+    return (
+      <>
+        <span
+          className="pb-clip-img"
+          style={{ backgroundImage: `url("${sb.url}")`, backgroundSize: `${sb.sw * kx}px ${sb.sh * ky}px`, backgroundPosition: `${-tile.x * kx}px ${-tile.y * ky}px` }}
+        />
+        {sharp && sharp.at === want && <img className="pb-clip-img pb-clip-sharp" src={sharp.src} alt="" draggable={false} />}
+      </>
+    );
+  }
+  if (sb === 'failed' && movie?.playbackId) {
+    // no storyboard: fall back to single frames from Mux
+    return <img className="pb-clip-img" src={`https://image.mux.com/${movie.playbackId}/thumbnail.webp?time=${Math.round(time)}&width=320`} alt="" draggable={false} />;
+  }
+  return <span className="pb-clip-img pb-clip-img--wait" />;
 }
 
 /* ---------- settings: speed, subtitles, picture in picture ---------- */

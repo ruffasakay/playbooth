@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { MOVIES } from '../data/movies.js';
 import { useApp } from '../store.js';
-import { Logo, Wordmark } from './Logo.jsx';
+import { Logotype } from './Logo.jsx';
 import { useAboutKey } from './About.jsx';
 import * as I from '../player/icons.jsx';
 
@@ -33,8 +33,7 @@ export function Preloader() {
   return (
     <div className="preloader" data-done={done || undefined} role="status" aria-live="polite">
       <div className="preloader-inner">
-        <Logo size={56} />
-        <Wordmark className="preloader-mark" />
+        <Logotype className="preloader-mark" />
         <span className="preloader-line" aria-hidden="true"><span /></span>
         <span className="preloader-text">{done ? 'Open' : 'Warming up the booth'}</span>
       </div>
@@ -67,9 +66,9 @@ export function Hero() {
     <section className="hero" data-visible={visible || undefined} data-leaving={phase === 'entering' || undefined} aria-labelledby="hero-title" inert={!visible || undefined}>
       <div className="hero-copy">
         <p className="hero-kicker reveal" style={{ '--i': 0 }}>
-          <Logo size={26} /> a photobooth for films
+          a photobooth for films
         </p>
-        <Wordmark as="h1" id="hero-title" className="hero-title reveal reveal--1" />
+        <Logotype as="h1" id="hero-title" className="hero-title reveal reveal--1" />
         <p className="hero-hand reveal" style={{ '--i': 2 }}>
           play a film, keep the moment
         </p>
@@ -199,8 +198,7 @@ function RoomBrand() {
   useAboutKey(true);
   return (
     <button type="button" className="room-brand" onClick={() => useApp.getState().setAboutOpen(true)} aria-label="About PLAYBOOTH" data-tip="About" data-key="?" data-tip-side="right">
-      <Logo size={24} />
-      <Wordmark />
+      <Logotype />
     </button>
   );
 }

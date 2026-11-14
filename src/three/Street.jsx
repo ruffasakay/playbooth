@@ -423,12 +423,29 @@ function Bicycle({ position }) {
       <mesh position={[-0.26, 1.0, 0]} material={mat('#5c3d28')} castShadow>
         <boxGeometry args={[0.22, 0.05, 0.1]} />
       </mesh>
-      <mesh position={[0.56, 0.92, 0]} material={mat('#b48a5c', { roughness: 0.9 })} castShadow>
-        <boxGeometry args={[0.3, 0.2, 0.34]} />
-      </mesh>
-      <mesh position={[0.56, 1.0, 0]} material={mat('#efe4cf')}>
-        <boxGeometry args={[0.22, 0.04, 0.26]} />
-      </mesh>
+      {/* a wire basket with a parcel in it: walls, floor and parcel never share a face, so nothing flickers */}
+      <group position={[0.56, 0.93, 0]}>
+        {[-1, 1].map((sx) => (
+          <mesh key={`s${sx}`} position={[sx * 0.166, 0, 0]} material={frame} castShadow>
+            <boxGeometry args={[0.008, 0.18, 0.36]} />
+          </mesh>
+        ))}
+        {[-1, 1].map((sz) => (
+          <mesh key={`f${sz}`} position={[0, 0, sz * 0.176]} material={frame} castShadow>
+            <boxGeometry args={[0.322, 0.18, 0.008]} />
+          </mesh>
+        ))}
+        <mesh position={[0, -0.086, 0]} material={frame}>
+          <boxGeometry args={[0.322, 0.008, 0.342]} />
+        </mesh>
+        <mesh position={[0, 0.019, 0]} material={mat('#b48a5c', { roughness: 0.9 })} castShadow>
+          <boxGeometry args={[0.26, 0.19, 0.28]} />
+        </mesh>
+        {/* parcel tape, a few millimetres proud of the lid */}
+        <mesh position={[0, 0.1165, 0]} material={mat('#efe4cf')}>
+          <boxGeometry args={[0.06, 0.005, 0.284]} />
+        </mesh>
+      </group>
     </group>
   );
 }

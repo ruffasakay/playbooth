@@ -6,7 +6,7 @@ import { Player, usePlayer } from '../player/core.js';
 import { FrameThumb, PlayboothSkin } from '../player/Skin.jsx';
 import { Media } from '../player/PlayerLayer.jsx';
 import { Hint } from '../ui/Hint.jsx';
-import { Logo } from '../ui/Logo.jsx';
+import { Logotype } from '../ui/Logo.jsx';
 import { Credit, REPO } from '../ui/Credit.jsx';
 import { PlayTwice } from '../ui/PlayTwice.jsx';
 import { bindSounds } from '../lib/sfx.js';
@@ -134,8 +134,7 @@ export default function Showcase() {
         <div className="sc-brand">
           {/* the name takes you back to the booth itself */}
           <a className="sc-home" href="/" data-tip="Step into the booth" data-tip-side="bottom" aria-label="PLAYBOOTH, back to the booth">
-            <Logo size={30} />
-            <span className="wordmark sc-word">PLAYBOOTH</span>
+            <Logotype className="sc-word" />
           </a>
           <span className="sc-x" aria-hidden="true">×</span>
           <span className="sc-vjs">
@@ -589,12 +588,12 @@ const IDEAS = [
   },
   {
     badge: 'The reel',
-    title: 'A clip carousel, like a feed',
+    title: 'A reel that rides your pointer',
     text: (
       <>
-        Rest on the progress column or drag it and three stills slide out beside it: the moment you are on outlined and full
-        size, the moments either side smaller and quieter. Let go and the film jumps there. Stills come from Mux's thumbnail
-        service.
+        Hover the progress column and a reel of real frames rides beside your pointer: the moment you point at is the largest,
+        outlined, with its time; the moments before and after shrink and fade the further they are. Drag and the picture itself
+        scrubs too. The frames come from Mux's storyboard, loaded once, so it never waits on the network.
       </>
     ),
   },
@@ -836,9 +835,8 @@ function Credits() {
   return (
     <article className="about-card sc-credits">
       <header className="about-head">
-        <Logo size={46} className="about-logo" />
         <div className="about-names">
-          <p className="wordmark about-title">PLAYBOOTH</p>
+          <Logotype as="p" className="about-title" />
           <p className="about-tag">a photobooth for films</p>
         </div>
         <PlayTwice className="about-emblem" size={150} />

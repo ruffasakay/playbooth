@@ -16,6 +16,10 @@ button:focus-visible, .btn:focus-visible { outline: none; box-shadow: inset 0 0 
 /* ---------- shared pieces ---------- */
 
 .wordmark { font-family: var(--serif); font-weight: 600; font-variation-settings: var(--soft), 'opsz' 144; letter-spacing: 0.1em; line-height: 1; white-space: nowrap; }
+/* the logotype: mark and name as one unit, in em so it scales with its font-size */
+.logotype { display: inline-flex; align-items: center; gap: 0.32em; line-height: 1; white-space: nowrap; }
+.logotype .wordmark { font-size: 1em; margin-right: -0.1em; /* the last letter's tracking */ }
+.logotype-mark { display: block; flex: none; width: auto; height: 0.96em; overflow: visible; translate: 0 -0.04em; }
 
 .band {
   display: inline-block;
@@ -121,7 +125,7 @@ kbd {
 .preloader { position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; background: var(--paper); color: var(--ink); transition: opacity 0.8s var(--ease), visibility 0s 0.8s; }
 .preloader[data-done] { opacity: 0; visibility: hidden; }
 .preloader-inner { display: grid; justify-items: center; gap: 14px; }
-.preloader-mark { font-size: 1.6rem; margin-top: 4px; }
+.preloader-mark { font-size: 2rem; }
 .preloader-line { position: relative; width: 140px; height: 1px; background: rgb(51 38 28 / 0.2); overflow: hidden; }
 .preloader-line span { position: absolute; inset: 0 auto 0 0; width: 40%; background: var(--ink); animation: sweep 1.4s var(--ease) infinite; }
 .preloader-text { font-size: 0.8rem; letter-spacing: 0.08em; color: var(--ink-soft); }
@@ -146,10 +150,10 @@ kbd {
 .hero::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(90deg, rgb(var(--paper-rgb) / 0.94) 0%, rgb(var(--paper-rgb) / 0.8) 32%, rgb(var(--paper-rgb) / 0) 54%); }
 .hero[data-visible] { opacity: 1; }
 .hero[data-leaving] { opacity: 0; transition-duration: 0.4s; }
-.hero-copy { container-type: inline-size; width: min(40vw, 32rem); max-height: 100%; overflow-x: clip; overflow-y: auto; pointer-events: auto; scrollbar-width: none; }
-.hero-kicker { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--ink-soft); }
+.hero-copy { container-type: inline-size; box-sizing: content-box; width: min(40vw, 32rem); max-height: 100%; overflow-x: clip; overflow-y: auto; pointer-events: auto; scrollbar-width: none; /* room for shadows */ padding: 6px 24px 26px 14px; margin: -6px -24px -26px -14px; }
+.hero-kicker { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--ink-soft); }
 /* sized from its own column so the last letter can never clip */
-.hero-title { margin: 0; font-size: clamp(2rem, 11.6cqi, 4.6rem); color: var(--ink); }
+.hero-title { display: flex; width: max-content; max-width: 100%; margin: 0; font-size: clamp(1.8rem, 10.2cqi, 4.2rem); color: var(--ink); }
 .hero-hand { margin: 6px 0 0; font-family: var(--hand); font-weight: 600; font-size: clamp(1.5rem, 2vw, 1.9rem); line-height: 1.1; color: var(--terracotta); }
 .hero-lede { margin: clamp(14px, 2.2vh, 22px) 0 0; max-width: 28rem; font-family: var(--serif); font-variation-settings: var(--soft); font-size: 1.08rem; line-height: 1.55; }
 .hero-beats { list-style: none; margin: clamp(16px, 2.8vh, 28px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); }
@@ -170,7 +174,7 @@ kbd {
   .hero::before { background: linear-gradient(180deg, rgb(var(--paper-rgb) / 0.96) 0%, rgb(var(--paper-rgb) / 0.86) 40%, rgb(var(--paper-rgb) / 0) 58%); }
   .hero-copy { width: min(100%, 32rem); max-height: 62%; }
   .hero-kicker { margin-bottom: 8px; font-size: 0.78rem; }
-  .hero-title { font-size: clamp(2rem, 9.5vw, 3rem); }
+  .hero-title { font-size: clamp(1.8rem, 8.4vw, 2.7rem); }
   .hero-hand { font-size: 1.35rem; }
   .hero-lede { display: none; }
   .hero-actions { margin-top: 14px; gap: 6px 16px; }
@@ -184,7 +188,7 @@ kbd {
 @media (max-height: 520px) and (min-aspect-ratio: 21/20) {
   .hero-copy { width: min(46vw, 30rem); }
   .hero-kicker { margin-bottom: 6px; }
-  .hero-title { font-size: 2.2rem; }
+  .hero-title { font-size: 2rem; }
   .hero-hand { font-size: 1.3rem; }
   .hero-lede { margin-top: 4px; font-size: 0.85rem; line-height: 1.4; }
   .hero-beats { margin-top: 8px; }

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useApp } from '../store.js';
 import { BackKey, useModal } from './Dialogs.jsx';
-import { Logo } from './Logo.jsx';
+import { Logotype } from './Logo.jsx';
 import { Credit, REPO } from './Credit.jsx';
 import { PlayTwice } from './PlayTwice.jsx';
 
@@ -70,9 +70,8 @@ export function AboutDialog() {
           </div>
           <article className="about-card">
             <header className="about-head">
-              <Logo size={46} className="about-logo" />
               <div className="about-names">
-                <h2 id="about-title" className="wordmark about-title">PLAYBOOTH</h2>
+                <Logotype as="h2" id="about-title" className="about-title" />
                 <p className="about-tag">a photobooth for films</p>
               </div>
               <PlayTwice className="about-emblem" size={150} />
