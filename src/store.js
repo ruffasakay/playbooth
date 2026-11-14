@@ -14,6 +14,7 @@ export const useApp = create((set, get) => ({
   phase: 'loading',
   introDone: false, // the landing camera has finished its slow look around
   theme: initialTheme(), // 'day' | 'night', flipped by the booth's light switch
+  sound: initialSound(), // soft interface sounds on or off
   station: 'booth',
   webgl: true,
   reducedMotion: false,
@@ -75,6 +76,15 @@ export const useApp = create((set, get) => ({
     document.documentElement.dataset.theme = theme;
     set({ theme });
     get().announce(theme === 'night' ? 'Night. The lights are low.' : 'Day. The lights are up.');
+  },
+  toggleSound() {
+    const sound = !get().sound;
+    try {
+      localStorage.setItem('playbooth.sound', sound ? 'on' : 'off');
+    } catch {
+      /* private mode */
+    }
+    set({ sound });
   },
   toggleTheme() {
     get().setTheme(get().theme === 'night' ? 'day' : 'night');
@@ -276,6 +286,14 @@ export const useApp = create((set, get) => ({
     set({ albumOpen });
   },
 }));
+
+function initialSound() {
+  try {
+    return localStorage.getItem('playbooth.sound') !== 'off';
+  } catch {
+    return true;
+  }
+}
 
 function initialTheme() {
   let t = null;

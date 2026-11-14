@@ -2,6 +2,10 @@
  * Photo frames. One painter draws each frame everywhere it appears:
  * around the playing video, on the booth's television, in captured photos
  * and in photostrips. Sizes are fractions of the photo's width.
+ *
+ * In the player the frame's bottom edge grows to hold the controls; a layout
+ * passes that as L.Hd (the bottom of the decorated border) inside L.H.
+ * Each frame also carries `ui`, the look its controls inherit.
  */
 
 export const FONT_SERIF = '"Fraunces Variable", Fraunces, Georgia, serif';
@@ -23,15 +27,25 @@ const C = {
   terracotta: '#9e4330',
 };
 
+/*
+ * ui: surface/ink = pill fill and icon color; band = text on the frame itself;
+ * accent = progress fill; track = unplayed track; play = big key fill/icon;
+ * edge = pill edging (none, lace, perf, zigzag, stitch, ticket, airmail);
+ * bar = progress style (plain, lace, perf, stitch, dots, film, airmail, pin);
+ * thumb = handle (dot, star, button, bow, flower, sprocket).
+ */
+const ui = (o) => ({ edge: 'none', bar: 'plain', thumb: 'dot', thumbColor: null, ...o });
+
 export const BORDERS = [
   {
     id: 'none',
     name: 'No frame',
-    hint: 'Just the film, edge to edge.',
+    hint: 'Just the film, with a quiet dark bar for the controls.',
     pads: { t: 0, r: 0, b: 0, l: 0 },
     radius: 0,
     swatch: ['#1c140f', '#1c140f'],
     strip: { bg: '#f6f1e7', ink: '#33261c' },
+    ui: ui({ surface: '#2a211b', ink: '#f4ede0', band: '#f4ede0', accent: '#cf6a4c', track: 'rgb(244 237 224 / 0.22)', play: ['#f4ede0', '#1b1511'] }),
   },
   {
     id: 'booth',
@@ -41,15 +55,7 @@ export const BORDERS = [
     radius: 0,
     swatch: ['#f6f1e7', '#d8d0c3'],
     strip: { bg: '#f6f1e7', ink: C.ink },
-  },
-  {
-    id: 'instant',
-    name: 'Instant photo',
-    hint: 'A thick white bottom edge with the film written on it by hand.',
-    pads: { t: 0.055, r: 0.055, b: 0.24, l: 0.055 },
-    radius: 0,
-    swatch: ['#f7f4ee', '#33261c'],
-    strip: { bg: '#e9e0cf', ink: '#33261c' },
+    ui: ui({ surface: '#ece4d6', ink: '#33261c', band: '#33261c', accent: '#33261c', track: 'rgb(51 38 28 / 0.16)', play: ['#33261c', '#f6f1e7'] }),
   },
   {
     id: 'lace',
@@ -59,6 +65,7 @@ export const BORDERS = [
     radius: 0,
     swatch: ['#4a3125', '#f5ebe7'],
     strip: { bg: C.wood, ink: '#f5ebe7', wood: true },
+    ui: ui({ surface: '#fbf6f2', ink: '#4a3125', band: '#4a3125', accent: '#7a5340', track: 'rgb(74 49 37 / 0.22)', play: ['#fbf6f2', '#4a3125'], edge: 'lace', bar: 'lace', thumb: 'flower', thumbColor: '#7a5340' }),
   },
   {
     id: 'stamp',
@@ -68,6 +75,7 @@ export const BORDERS = [
     radius: 0,
     swatch: ['#8c2a22', '#f6f1e7'],
     strip: { bg: '#f1ebe0', ink: C.ink },
+    ui: ui({ surface: '#f6f1e7', ink: '#8c2a22', band: '#f6f1e7', accent: '#f6f1e7', track: 'rgb(246 241 231 / 0.3)', play: ['#f6f1e7', '#8c2a22'], edge: 'perf', bar: 'perf' }),
   },
   {
     id: 'ticket',
@@ -77,51 +85,67 @@ export const BORDERS = [
     radius: 0,
     swatch: ['#efe4cf', '#33261c'],
     strip: { bg: '#2e231b', ink: '#efe4cf' },
+    ui: ui({ surface: '#e3d4b9', ink: '#33261c', band: '#33261c', accent: '#9e4330', track: 'rgb(51 38 28 / 0.2)', play: ['#33261c', '#efe4cf'], edge: 'ticket', bar: 'stitch' }),
   },
   {
-    id: 'negative',
-    name: 'Film negative',
-    hint: 'Amber film base, sprocket holes and edge printing.',
-    pads: { t: 0.1, r: 0.03, b: 0.1, l: 0.03 },
-    radius: 0.006,
-    swatch: ['#3a2416', '#e08a3c'],
-    strip: { bg: '#2a1d14', ink: '#e8b27a' },
-  },
-  {
-    id: 'kraft',
-    name: 'Kraft stitch',
-    hint: 'Brown kraft paper with a cream thread stitched around the picture.',
-    pads: { t: 0.07, r: 0.07, b: 0.07, l: 0.07 },
+    id: 'denim',
+    name: 'Denim & lace',
+    hint: 'Blue denim edged in lace, with two gingham star patches.',
+    pads: { t: 0.08, r: 0.07, b: 0.08, l: 0.07 },
     radius: 0,
-    swatch: ['#b48a5c', '#f1e3c6'],
-    strip: { bg: '#b48a5c', ink: '#33261c' },
+    swatch: ['#4c6a96', '#f7f1ea'],
+    strip: { bg: '#4c6a96', ink: '#f7f1ea' },
+    ui: ui({ surface: '#f7f1ea', ink: '#2d4166', band: '#f7f1ea', accent: '#f2c6cf', track: 'rgb(247 241 234 / 0.3)', play: ['#f7f1ea', '#2d4166'], edge: 'lace', bar: 'stitch', thumb: 'star', thumbColor: '#ecd77c' }),
   },
   {
-    id: 'gingham',
-    name: 'Gingham',
-    hint: 'A terracotta and cream picnic check.',
-    pads: { t: 0.065, r: 0.065, b: 0.065, l: 0.065 },
-    radius: 0.018,
-    swatch: ['#c97a62', '#f4ede0'],
-    strip: { bg: '#f4ede0', ink: '#33261c' },
-  },
-  {
-    id: 'washi',
-    name: 'Washi tape',
-    hint: 'Pinned to paper with two strips of teal tape.',
-    pads: { t: 0.07, r: 0.07, b: 0.07, l: 0.07 },
+    id: 'knit',
+    name: 'Red knit',
+    hint: 'A burgundy knit with a stamp-cut mat, a ribbon bow, a pin and a button.',
+    pads: { t: 0.09, r: 0.08, b: 0.09, l: 0.08 },
     radius: 0,
-    swatch: ['#f4ede0', '#3c8a78'],
-    strip: { bg: '#e9e0cf', ink: '#33261c' },
+    swatch: ['#86232a', '#fbf7f0'],
+    strip: { bg: '#86232a', ink: '#fbf7f0' },
+    ui: ui({ surface: '#fbf7f0', ink: '#86232a', band: '#fbf7f0', accent: '#fbf7f0', track: 'rgb(251 247 240 / 0.28)', play: ['#fbf7f0', '#86232a'], edge: 'perf', bar: 'perf', thumb: 'button', thumbColor: '#efe8dc' }),
   },
   {
-    id: 'receipt',
-    name: 'Konbini receipt',
-    hint: 'Printed on a corner shop’s thermal paper, torn at both ends.',
-    pads: { t: 0.07, r: 0.05, b: 0.2, l: 0.05 },
+    id: 'cocoa',
+    name: 'Cocoa bow',
+    hint: 'Chocolate polka dots, a pinked cream mat and a little bow. Memories.',
+    pads: { t: 0.07, r: 0.07, b: 0.15, l: 0.07 },
     radius: 0,
-    swatch: ['#fbfaf6', '#6b6259'],
-    strip: { bg: '#e9e0cf', ink: '#33261c' },
+    swatch: ['#3a2822', '#efe6d7'],
+    strip: { bg: '#3a2822', ink: '#efe6d7' },
+    ui: ui({ surface: '#f4ecdd', ink: '#3a2822', band: '#efe6d7', accent: '#efe6d7', track: 'rgb(239 230 215 / 0.25)', play: ['#f4ecdd', '#3a2822'], edge: 'zigzag', bar: 'dots', thumb: 'bow', thumbColor: '#c79b7c' }),
+  },
+  {
+    id: 'reel',
+    name: 'Red film',
+    hint: 'A strip of red film with sprocket holes down both sides.',
+    pads: { t: 0.07, r: 0.085, b: 0.1, l: 0.085 },
+    radius: 0,
+    swatch: ['#8a2b2b', '#f5ede1'],
+    strip: { bg: '#8a2b2b', ink: '#f5ede1' },
+    ui: ui({ surface: '#6b1f1f', ink: '#f5ede1', band: '#f5ede1', accent: '#f5ede1', track: 'rgb(245 237 225 / 0.22)', play: ['#f5ede1', '#8a2b2b'], bar: 'film', thumb: 'sprocket' }),
+  },
+  {
+    id: 'airmail',
+    name: 'Airmail',
+    hint: 'Ledger paper, airmail stripes, a postmark and a paperclip.',
+    pads: { t: 0.075, r: 0.07, b: 0.08, l: 0.07 },
+    radius: 0,
+    swatch: ['#f2e9d6', '#b8433a'],
+    strip: { bg: '#f2e9d6', ink: '#2f4a86' },
+    ui: ui({ surface: '#f8f2e8', ink: '#2f4a86', band: '#2f4a86', accent: '#b8433a', track: 'rgb(47 74 134 / 0.18)', play: ['#2f4a86', '#f8f2e8'], edge: 'airmail', bar: 'airmail', thumb: 'star', thumbColor: '#b8433a' }),
+  },
+  {
+    id: 'matinee',
+    name: 'Matinee',
+    hint: 'Dark denim with a cream admission ticket above the picture.',
+    pads: { t: 0.16, r: 0.07, b: 0.07, l: 0.07 },
+    radius: 0,
+    swatch: ['#2f4672', '#f4e9d8'],
+    strip: { bg: '#2f4672', ink: '#f4e9d8' },
+    ui: ui({ surface: '#f4e9d8', ink: '#a3323a', band: '#f4e9d8', accent: '#f4e9d8', track: 'rgb(244 233 216 / 0.25)', play: ['#f4e9d8', '#a3323a'], edge: 'ticket', bar: 'stitch' }),
   },
   {
     id: 'polka',
@@ -131,6 +155,7 @@ export const BORDERS = [
     radius: 0.03,
     swatch: ['#6b2024', '#efe4cf'],
     strip: { bg: '#f1ebe0', ink: C.ink },
+    ui: ui({ surface: '#efe4cf', ink: '#6b2024', band: '#efe4cf', accent: '#efe4cf', track: 'rgb(239 228 207 / 0.28)', play: ['#efe4cf', '#6b2024'], bar: 'dots' }),
   },
   {
     id: 'stripe',
@@ -140,17 +165,17 @@ export const BORDERS = [
     radius: 0.022,
     swatch: ['#ece3d3', '#7b5a42'],
     strip: { bg: '#ece3d3', ink: C.ink, stripes: true },
+    ui: ui({ surface: '#f6efe3', ink: '#5a3f2c', band: '#33261c', accent: '#7b5a42', track: 'rgb(123 90 66 / 0.22)', play: ['#7b5a42', '#f6efe3'], edge: 'stitch', bar: 'pin' }),
   },
 ];
 
-export const borderById = (id) => BORDERS.find((b) => b.id === id) ?? BORDERS[0];
+export const borderById = (id) => BORDERS.find((b) => b.id === id) ?? BORDERS[1];
 
 export function frameUnits(border, aspect) {
   const { t, r, b, l } = border.pads;
   return { W: 1 + l + r, H: 1 / aspect + t + b, win: { x: l, y: t, w: 1, h: 1 / aspect } };
 }
 
-/** Window placement as percentages of the frame box, for CSS. */
 export function windowPercents(border, aspect) {
   const { W, H, win } = frameUnits(border, aspect);
   return {
@@ -231,7 +256,7 @@ function boothBack(ctx, L) {
 
 function boothFront(ctx, L, meta) {
   const { u, win } = L;
-  const y = win.y + win.h + (L.H - win.y - win.h) * 0.52;
+  const y = win.y + win.h + ((L.Hd ?? L.H) - win.y - win.h) * 0.52;
   ctx.textBaseline = 'middle';
   ctx.fillStyle = C.ink;
   ctx.textAlign = 'left';
@@ -245,6 +270,7 @@ function boothFront(ctx, L, meta) {
 
 function laceLayer(L) {
   const { u, win, W, H } = L;
+  const Hd = L.Hd ?? H; // below this, the controls sit on plain lace
   const c = document.createElement('canvas');
   c.width = W;
   c.height = H;
@@ -297,6 +323,7 @@ function laceLayer(L) {
   for (let y = bandOuter, row = 0; y < H - bandOuter; y += step * 0.87, row++) {
     for (let x = bandOuter + (row % 2 ? step / 2 : 0); x < W - bandOuter; x += step) {
       if (x > inner.x - holeR * 2 && x < inner.x + inner.w + holeR * 2 && y > inner.y - holeR * 2 && y < inner.y + inner.h + holeR * 2) continue;
+      if (y > Hd - bandOuter * 0.5 && Hd < H) continue;
       g.beginPath();
       g.arc(x, y, holeR, 0, Math.PI * 2);
       g.fill();
@@ -326,11 +353,11 @@ function laceLayer(L) {
   for (let i = 0; i <= count; i++) {
     const x = bandOuter + ((W - bandOuter * 2) * i) / count;
     flower(x, midY, fr);
-    flower(x, H - midY, fr);
+    flower(x, Hd - midY, fr);
   }
   const countY = Math.max(2, Math.round(H / (u * 0.17)));
   for (let i = 1; i < countY; i++) {
-    const y = bandOuter + ((H - bandOuter * 2) * i) / countY;
+    const y = bandOuter + ((Hd - bandOuter * 2) * i) / countY;
     flower(mid, y, fr);
     flower(W - mid, y, fr);
   }
@@ -412,7 +439,7 @@ function ticketFront(ctx, L, meta) {
   // perforation line
   ctx.fillStyle = 'rgb(51 38 28 / 0.55)';
   for (let x = u * 0.03; x < L.W - u * 0.02; x += u * 0.022) ctx.fillRect(x, stubTop, u * 0.011, Math.max(1, u * 0.003));
-  const y = stubTop + (L.H - stubTop) * 0.5;
+  const y = stubTop + ((L.Hd ?? L.H) - stubTop) * 0.5;
   ctx.textBaseline = 'middle';
   ctx.fillStyle = C.ink;
   ctx.textAlign = 'left';
@@ -477,7 +504,7 @@ function stripeBack(ctx, L) {
 function stripeFront(ctx, L) {
   const { u, win } = L;
   const cx = win.x + win.w - u * 0.1;
-  const cy = win.y + win.h + (L.H - win.y - win.h) / 2;
+  const cy = win.y + win.h + ((L.Hd ?? L.H) - win.y - win.h) / 2;
   ctx.save();
   ctx.fillStyle = C.linen;
   ctx.strokeStyle = C.stripe;
@@ -494,211 +521,537 @@ function stripeFront(ctx, L) {
   ctx.restore();
 }
 
+/* ---------- shared craft pieces for the newer frames ---------- */
 
-function instantBack(ctx, L) {
-  ctx.fillStyle = '#f7f4ee';
-  ctx.fillRect(0, 0, L.W, L.H);
-  const g = ctx.createLinearGradient(0, 0, 0, L.H);
-  g.addColorStop(0, 'rgb(255 255 255 / 0.25)');
-  g.addColorStop(1, 'rgb(51 38 28 / 0.05)');
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, L.W, L.H);
-  ctx.strokeStyle = 'rgb(51 38 28 / 0.12)';
-  ctx.lineWidth = Math.max(1, L.u * 0.002);
-  ctx.strokeRect(L.win.x, L.win.y, L.win.w, L.win.h);
-}
-
-function instantFront(ctx, L, meta) {
-  const { u, win } = L;
-  const y = win.y + win.h + (L.H - win.y - win.h) * 0.52;
-  ctx.fillStyle = '#2e3f6b';
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'left';
-  const text = fitText(ctx, meta.title || 'playbooth', win.w * 0.62, `600 {s} ${FONT_HAND}`, Math.round(u * 0.085), 10);
+function denimFill(ctx, x, y, w, h, u, base = '#4c6a96') {
   ctx.save();
-  ctx.translate(win.x + u * 0.02, y);
-  ctx.rotate(-0.025);
-  ctx.fillText(text, 0, 0);
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  ctx.clip();
+  ctx.fillStyle = base;
+  ctx.fillRect(x, y, w, h);
+  const step = Math.max(2, u * 0.006);
+  ctx.lineWidth = Math.max(1, u * 0.0024);
+  for (let i = -h; i < w + h; i += step) {
+    ctx.strokeStyle = (i / step) % 3 < 1 ? 'rgb(255 255 255 / 0.10)' : 'rgb(10 20 40 / 0.10)';
+    ctx.beginPath();
+    ctx.moveTo(x + i, y);
+    ctx.lineTo(x + i + h, y + h);
+    ctx.stroke();
+  }
+  for (let k = 0; k < 900; k++) {
+    ctx.fillStyle = k % 2 ? 'rgb(255 255 255 / 0.06)' : 'rgb(0 10 30 / 0.07)';
+    ctx.fillRect(x + ((k * 97.31) % w), y + ((k * 53.17) % h), u * 0.006, u * 0.0016);
+  }
   ctx.restore();
-  ctx.textAlign = 'right';
-  ctx.fillStyle = C.inkSoft;
-  ctx.font = `${Math.round(u * 0.022)}px ${FONT_MONO}`;
-  ctx.fillText(meta.date || '', win.x + win.w, y + u * 0.01);
 }
 
-function negativeBack(ctx, L) {
+/** A cotton lace trim running along a horizontal edge; dir 1 hangs down, -1 rises up. */
+function laceTrim(ctx, x0, x1, y, dir, u, color = '#f7f1ea') {
+  const band = u * 0.03;
+  const r = u * 0.011;
+  ctx.save();
+  ctx.fillStyle = color;
+  const top = dir > 0 ? y : y - band;
+  ctx.fillRect(x0, top, x1 - x0, band);
+  const n = Math.max(2, Math.round((x1 - x0) / (r * 2)));
+  for (let i = 0; i <= n; i++) {
+    ctx.beginPath();
+    ctx.arc(x0 + ((x1 - x0) * i) / n, dir > 0 ? y + band : y - band, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalCompositeOperation = 'destination-out';
+  for (let i = 0; i <= n; i++) {
+    ctx.beginPath();
+    ctx.arc(x0 + ((x1 - x0) * i) / n, dir > 0 ? y + band * 0.55 : y - band * 0.55, r * 0.38, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function starPath(ctx, cx, cy, R, r, rot = -Math.PI / 2) {
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const rad = i % 2 ? r : R;
+    const a = rot + (i * Math.PI) / 5;
+    ctx.lineTo(cx + Math.cos(a) * rad, cy + Math.sin(a) * rad);
+  }
+  ctx.closePath();
+}
+
+/** A fabric star patch: gingham fill, puffy edge, stitched outline. */
+function starPatch(ctx, cx, cy, R, u, a, b, rot) {
+  ctx.save();
+  ctx.shadowColor = 'rgb(0 0 0 / 0.28)';
+  ctx.shadowBlur = u * 0.01;
+  ctx.shadowOffsetY = u * 0.004;
+  starPath(ctx, cx, cy, R, R * 0.5, rot);
+  ctx.fillStyle = a;
+  ctx.fill();
+  ctx.restore();
+  ctx.save();
+  starPath(ctx, cx, cy, R, R * 0.5, rot);
+  ctx.clip();
+  const s = R * 0.22;
+  ctx.fillStyle = b;
+  for (let x = cx - R; x < cx + R; x += s * 2) ctx.fillRect(x, cy - R, s, R * 2);
+  for (let y = cy - R; y < cy + R; y += s * 2) ctx.fillRect(cx - R, y, R * 2, s);
+  ctx.restore();
+  ctx.save();
+  ctx.setLineDash([u * 0.006, u * 0.005]);
+  ctx.strokeStyle = 'rgb(255 255 255 / 0.85)';
+  ctx.lineWidth = Math.max(1, u * 0.0028);
+  starPath(ctx, cx, cy, R * 0.82, R * 0.41, rot);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/** A satin ribbon bow. */
+function bow(ctx, cx, cy, s, color, shade) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.shadowColor = 'rgb(0 0 0 / 0.3)';
+  ctx.shadowBlur = s * 0.12;
+  ctx.shadowOffsetY = s * 0.05;
+  ctx.fillStyle = color;
+  // tails
+  for (const sx of [-1, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(sx * s * 0.08, s * 0.05);
+    ctx.lineTo(sx * s * 0.42, s * 0.75);
+    ctx.lineTo(sx * s * 0.28, s * 0.68);
+    ctx.lineTo(sx * s * 0.2, s * 0.82);
+    ctx.lineTo(-sx * s * 0.02, s * 0.1);
+    ctx.closePath();
+    ctx.fill();
+  }
+  // loops
+  for (const sx of [-1, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.bezierCurveTo(sx * s * 0.25, -s * 0.55, sx * s * 0.75, -s * 0.45, sx * s * 0.62, s * 0.02);
+    ctx.bezierCurveTo(sx * s * 0.55, s * 0.32, sx * s * 0.2, s * 0.18, 0, 0);
+    ctx.fill();
+  }
+  ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = shade;
+  ctx.lineWidth = s * 0.04;
+  for (const sx of [-1, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(sx * s * 0.12, -s * 0.05);
+    ctx.quadraticCurveTo(sx * s * 0.38, -s * 0.28, sx * s * 0.5, -s * 0.05);
+    ctx.stroke();
+  }
+  ctx.fillStyle = shade;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(-s * 0.1, -s * 0.13, s * 0.2, s * 0.24, s * 0.06);
+  else ctx.rect(-s * 0.1, -s * 0.13, s * 0.2, s * 0.24);
+  ctx.fill();
+  ctx.restore();
+}
+
+function sewButton(ctx, cx, cy, r, color) {
+  ctx.save();
+  ctx.shadowColor = 'rgb(0 0 0 / 0.3)';
+  ctx.shadowBlur = r * 0.4;
+  ctx.shadowOffsetY = r * 0.15;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle = 'rgb(0 0 0 / 0.12)';
+  ctx.lineWidth = r * 0.12;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.72, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = 'rgb(60 40 30 / 0.55)';
+  for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+    ctx.beginPath();
+    ctx.arc(cx + dx * r * 0.22, cy + dy * r * 0.22, r * 0.11, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function safetyPin(ctx, x, y, len, angle, u) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.strokeStyle = '#c9c6c0';
+  ctx.lineWidth = Math.max(1, u * 0.005);
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(len, 0);
+  ctx.arc(len, len * 0.06, len * 0.06, -Math.PI / 2, Math.PI / 2);
+  ctx.lineTo(len * 0.12, len * 0.12);
+  ctx.stroke();
+  ctx.fillStyle = '#a9a59e';
+  ctx.fillRect(-len * 0.02, -len * 0.04, len * 0.16, len * 0.2);
+  ctx.restore();
+}
+
+/** A white photo mat with a postage-stamp perforated edge. */
+function perfMat(ctx, x, y, w, h, u, color = '#fbf7f0') {
+  ctx.save();
+  ctx.shadowColor = 'rgb(0 0 0 / 0.3)';
+  ctx.shadowBlur = u * 0.012;
+  ctx.shadowOffsetY = u * 0.004;
+  ctx.fillStyle = color;
+  ctx.fillRect(x, y, w, h);
+  ctx.restore();
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x - u * 0.03, y - u * 0.03, w + u * 0.06, h + u * 0.06);
+  ctx.clip();
+  ctx.globalCompositeOperation = 'destination-out';
+  const r = u * 0.009;
+  const step = r * 2.9;
+  for (let px = x; px <= x + w + 0.1; px += w / Math.round(w / step)) {
+    ctx.beginPath();
+    ctx.arc(px, y, r, 0, Math.PI * 2);
+    ctx.arc(px, y + h, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  for (let py = y; py <= y + h + 0.1; py += h / Math.round(h / step)) {
+    ctx.beginPath();
+    ctx.arc(x, py, r, 0, Math.PI * 2);
+    ctx.arc(x + w, py, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/** A cream mat cut with pinking shears. */
+function pinkedMat(ctx, x, y, w, h, u, color = '#f4ecdd') {
+  const t = u * 0.016;
+  const pts = [];
+  const nx = Math.round(w / t);
+  const ny = Math.round(h / t);
+  for (let i = 0; i <= nx; i++) pts.push([x + (w * i) / nx, y - (i % 2 ? t * 0.5 : 0)]);
+  for (let i = 0; i <= ny; i++) pts.push([x + w + (i % 2 ? t * 0.5 : 0), y + (h * i) / ny]);
+  for (let i = nx; i >= 0; i--) pts.push([x + (w * i) / nx, y + h + (i % 2 ? t * 0.5 : 0)]);
+  for (let i = ny; i >= 0; i--) pts.push([x - (i % 2 ? t * 0.5 : 0), y + (h * i) / ny]);
+  ctx.save();
+  ctx.shadowColor = 'rgb(0 0 0 / 0.35)';
+  ctx.shadowBlur = u * 0.012;
+  ctx.shadowOffsetY = u * 0.004;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  pts.forEach(([px, py], i) => (i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)));
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+/* ---------- Denim & lace ---------- */
+
+function denimBack(ctx, L) {
   const { u, win } = L;
-  const g = ctx.createLinearGradient(0, 0, L.W, L.H);
-  g.addColorStop(0, '#3d2617');
-  g.addColorStop(1, '#2a1a10');
-  ctx.fillStyle = g;
+  denimFill(ctx, 0, 0, L.W, L.H, u);
+  laceTrim(ctx, 0, L.W, 0, 1, u);
+  laceTrim(ctx, 0, L.W, L.H, -1, u);
+  // stitched line and a fine ivory rim around the picture
+  const g = u * 0.018;
+  ctx.fillStyle = '#f3ede4';
+  ctx.fillRect(win.x - u * 0.006, win.y - u * 0.006, win.w + u * 0.012, win.h + u * 0.012);
+  ctx.save();
+  ctx.setLineDash([u * 0.012, u * 0.008]);
+  ctx.strokeStyle = 'rgb(245 230 200 / 0.85)';
+  ctx.lineWidth = Math.max(1, u * 0.003);
+  ctx.strokeRect(win.x - g, win.y - g, win.w + g * 2, win.h + g * 2);
+  ctx.restore();
+}
+
+function denimFront(ctx, L) {
+  const { u, win } = L;
+  starPatch(ctx, win.x + u * 0.01, win.y + win.h * 0.62, u * 0.06, u, '#ecd77c', '#f6eab0', -1.9);
+  starPatch(ctx, win.x + win.w - u * 0.012, win.y + u * 0.03, u * 0.05, u, '#e9b8c2', '#f6dbe1', -1.2);
+}
+
+/* ---------- Red knit ---------- */
+
+function knitBack(ctx, L) {
+  const { u, win } = L;
+  ctx.fillStyle = '#86232a';
   ctx.fillRect(0, 0, L.W, L.H);
-  const holeW = u * 0.03;
-  const holeH = u * 0.042;
-  const gap = u * 0.066;
-  const count = Math.floor(L.W / gap);
-  const start = (L.W - (count - 1) * gap) / 2;
-  ctx.fillStyle = 'rgb(244 226 200 / 0.88)';
-  for (const bandY of [win.y * 0.42, win.y + win.h + (L.H - win.y - win.h) * 0.58]) {
-    for (let i = 0; i < count; i++) {
+  // rib stitches: little Vs in columns
+  const cw = u * 0.022;
+  const rh = u * 0.016;
+  ctx.lineWidth = Math.max(1, u * 0.004);
+  ctx.lineCap = 'round';
+  for (let x = cw / 2, c = 0; x < L.W; x += cw, c++) {
+    for (let y = 0; y < L.H; y += rh) {
+      ctx.strokeStyle = c % 2 ? 'rgb(255 200 190 / 0.1)' : 'rgb(40 0 5 / 0.16)';
       ctx.beginPath();
-      if (ctx.roundRect) ctx.roundRect(start + i * gap - holeW / 2, bandY - holeH / 2, holeW, holeH, holeW * 0.25);
-      else ctx.rect(start + i * gap - holeW / 2, bandY - holeH / 2, holeW, holeH);
+      ctx.moveTo(x - cw * 0.3, y);
+      ctx.lineTo(x, y + rh * 0.8);
+      ctx.lineTo(x + cw * 0.3, y);
+      ctx.stroke();
+    }
+  }
+  laceTrim(ctx, 0, L.W, 0, 1, u, '#f6f2ec');
+  laceTrim(ctx, 0, L.W, L.H, -1, u, '#f6f2ec');
+  const m = u * 0.03;
+  perfMat(ctx, win.x - m, win.y - m, win.w + m * 2, win.h + m * 2, u);
+}
+
+function knitFront(ctx, L) {
+  const { u, win } = L;
+  bow(ctx, win.x + win.w - u * 0.01, win.y - u * 0.005, u * 0.11, '#d9d6d1', '#a8a49d');
+  safetyPin(ctx, win.x - u * 0.015, win.y + u * 0.02, u * 0.11, -0.7, u);
+  sewButton(ctx, win.x + u * 0.01, win.y + win.h - u * 0.005, u * 0.035, '#efe8dc');
+}
+
+/* ---------- Cocoa bow ---------- */
+
+function cocoaBack(ctx, L) {
+  const { u, win } = L;
+  ctx.fillStyle = '#3a2822';
+  ctx.fillRect(0, 0, L.W, L.H);
+  ctx.fillStyle = 'rgb(255 240 220 / 0.04)';
+  for (let x = 0; x < L.W; x += u * 0.012) ctx.fillRect(x, 0, Math.max(1, u * 0.002), L.H);
+  ctx.fillStyle = '#efe6d7';
+  const step = u * 0.16;
+  for (let y = step * 0.3, r = 0; y < L.H + step; y += step, r++) {
+    for (let x = (r % 2 ? step * 0.5 : 0) + step * 0.15; x < L.W + step; x += step) {
+      ctx.beginPath();
+      ctx.arc(x, y, u * 0.022, 0, Math.PI * 2);
       ctx.fill();
     }
   }
+  const m = u * 0.03;
+  const Hd = L.Hd ?? L.H;
+  const below = Math.min(u * 0.075, Hd - (win.y + win.h) - m);
+  pinkedMat(ctx, win.x - m, win.y - m, win.w + m * 2, win.h + m + below, u);
 }
 
-function negativeFront(ctx, L, meta) {
+function cocoaFront(ctx, L) {
   const { u, win } = L;
-  ctx.fillStyle = '#e08a3c';
-  ctx.font = `500 ${Math.round(u * 0.019)}px ${FONT_MONO}`;
-  ctx.textBaseline = 'middle';
-  const y = win.y * 0.86;
-  ctx.textAlign = 'left';
-  ctx.fillText('PLAYBOOTH 400', win.x + u * 0.01, y);
-  ctx.textAlign = 'right';
-  ctx.fillText(`▸ ${meta.timecode || '12'}`, win.x + win.w - u * 0.01, y);
+  const Hd = L.Hd ?? L.H;
+  const m = u * 0.03;
+  const below = Math.min(u * 0.075, Hd - (win.y + win.h) - m);
+  ctx.fillStyle = '#4a3328';
   ctx.textAlign = 'center';
-  ctx.fillText('13A', L.W / 2, win.y + win.h + (L.H - win.y - win.h) * 0.16);
+  ctx.textBaseline = 'middle';
+  ctx.font = `600 ${Math.round(u * 0.05)}px ${FONT_HAND}`;
+  ctx.fillText('Memories', win.x + win.w / 2, win.y + win.h + below * 0.55);
+  bow(ctx, win.x + u * 0.005, win.y + win.h + below * 0.35, u * 0.08, '#6b4632', '#4a2f22');
 }
 
-function kraftBack(ctx, L) {
+/* ---------- Red film ---------- */
+
+function reelBack(ctx, L) {
   const { u, win } = L;
-  ctx.fillStyle = '#b48a5c';
+  ctx.fillStyle = '#8a2b2b';
   ctx.fillRect(0, 0, L.W, L.H);
-  for (let i = 0; i < 1400; i++) {
-    ctx.fillStyle = i % 3 ? 'rgb(90 60 30 / 0.12)' : 'rgb(255 240 210 / 0.12)';
-    ctx.fillRect((i * 97.13) % L.W, (i * 53.71) % L.H, u * 0.004 * (1 + (i % 3)), u * 0.0012);
+  const holeW = u * 0.024;
+  const holeH = u * 0.032;
+  const gap = u * 0.055;
+  ctx.fillStyle = '#f5ede1';
+  for (const cx of [win.x * 0.5, L.W - win.x * 0.5]) {
+    for (let y = gap * 0.5; y < L.H; y += gap) {
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(cx - holeW / 2, y, holeW, holeH, holeW * 0.25);
+      else ctx.rect(cx - holeW / 2, y, holeW, holeH);
+      ctx.fill();
+    }
   }
-  const inset = u * 0.03;
-  ctx.strokeStyle = '#f1e3c6';
-  ctx.lineWidth = Math.max(1, u * 0.004);
-  ctx.setLineDash([u * 0.016, u * 0.011]);
-  ctx.strokeRect(win.x - inset, win.y - inset, win.w + inset * 2, win.h + inset * 2);
-  ctx.setLineDash([]);
+  ctx.strokeStyle = 'rgb(245 237 225 / 0.7)';
+  ctx.lineWidth = Math.max(1, u * 0.003);
+  const g = u * 0.012;
+  ctx.strokeRect(win.x - g, win.y - g, win.w + g * 2, win.h + g * 2);
 }
 
-function ginghamBack(ctx, L) {
+function reelFront(ctx, L, meta) {
   const { u, win } = L;
-  ctx.fillStyle = '#f4ede0';
-  ctx.fillRect(0, 0, L.W, L.H);
-  const step = u * 0.032;
-  ctx.fillStyle = 'rgb(176 82 58 / 0.42)';
-  for (let x = 0; x < L.W; x += step * 2) ctx.fillRect(x, 0, step, L.H);
-  for (let y = 0; y < L.H; y += step * 2) ctx.fillRect(0, y, L.W, step);
-  ctx.fillStyle = '#f4ede0';
-  const rim = u * 0.008;
-  ctx.beginPath();
-  if (ctx.roundRect) ctx.roundRect(win.x - rim, win.y - rim, win.w + rim * 2, win.h + rim * 2, win.r + rim);
-  else ctx.rect(win.x - rim, win.y - rim, win.w + rim * 2, win.h + rim * 2);
-  ctx.fill();
+  const Hd = L.Hd ?? L.H;
+  ctx.fillStyle = '#f5ede1';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+  ctx.font = `${Math.round(u * 0.03)}px ${FONT_SERIF}`;
+  ctx.fillText('Own the moment', win.x + win.w / 2, win.y + win.h + (Hd - win.y - win.h) * 0.55);
+  ctx.textAlign = 'right';
+  ctx.font = `${Math.round(u * 0.018)}px ${FONT_MONO}`;
+  ctx.fillText(meta.timecode ? `▸ ${meta.timecode}` : '', win.x + win.w, win.y - u * 0.028);
 }
 
-function washiBack(ctx, L) {
-  ctx.fillStyle = '#f4ede0';
-  ctx.fillRect(0, 0, L.W, L.H);
-  for (let i = 0; i < 600; i++) {
-    ctx.fillStyle = 'rgb(120 90 60 / 0.05)';
-    ctx.fillRect((i * 71.3) % L.W, (i * 37.9) % L.H, L.u * 0.006, L.u * 0.006);
-  }
-}
+/* ---------- Airmail ---------- */
 
-function tape(ctx, cx, cy, w, h, angle, u) {
+function airmailStripes(ctx, x, y, w, h, band, u) {
   ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(angle);
-  ctx.fillStyle = 'rgb(60 138 120 / 0.78)';
   ctx.beginPath();
-  const teeth = 7;
-  ctx.moveTo(-w / 2, -h / 2);
-  ctx.lineTo(w / 2, -h / 2);
-  for (let i = 0; i <= teeth; i++) ctx.lineTo(w / 2 + (i % 2 ? u * 0.006 : 0), -h / 2 + (h * i) / teeth);
-  ctx.lineTo(-w / 2, h / 2);
-  for (let i = teeth; i >= 0; i--) ctx.lineTo(-w / 2 - (i % 2 ? u * 0.006 : 0), -h / 2 + (h * i) / teeth);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = 'rgb(244 237 224 / 0.55)';
-  for (let x = -w / 2 + u * 0.015; x < w / 2; x += u * 0.03) {
+  ctx.rect(x, y, w, h);
+  ctx.rect(x + band, y + band, w - band * 2, h - band * 2);
+  ctx.clip('evenodd');
+  const s = u * 0.028;
+  for (let i = -h, k = 0; i < w + h; i += s, k++) {
+    ctx.fillStyle = ['#b8433a', '#f6efe3', '#2f4a86', '#f6efe3'][k % 4];
     ctx.beginPath();
-    ctx.arc(x, 0, u * 0.005, 0, Math.PI * 2);
+    ctx.moveTo(x + i, y);
+    ctx.lineTo(x + i + s, y);
+    ctx.lineTo(x + i + s - h, y + h);
+    ctx.lineTo(x + i - h, y + h);
+    ctx.closePath();
     ctx.fill();
   }
   ctx.restore();
 }
 
-function washiFront(ctx, L) {
+function airmailBack(ctx, L) {
   const { u, win } = L;
-  tape(ctx, win.x + u * 0.03, win.y + u * 0.01, u * 0.22, u * 0.055, -0.62, u);
-  tape(ctx, win.x + win.w - u * 0.03, win.y + win.h - u * 0.01, u * 0.22, u * 0.055, -0.62, u);
-}
-
-function receiptBack(ctx, L) {
-  ctx.fillStyle = '#fbfaf6';
+  ctx.fillStyle = '#f2e9d6';
   ctx.fillRect(0, 0, L.W, L.H);
-  ctx.strokeStyle = 'rgb(51 38 28 / 0.18)';
-  ctx.lineWidth = Math.max(1, L.u * 0.002);
-  ctx.strokeRect(L.win.x, L.win.y, L.win.w, L.win.h);
+  ctx.fillStyle = 'rgb(80 110 170 / 0.16)';
+  for (let y = u * 0.03; y < L.H; y += u * 0.03) ctx.fillRect(0, y, L.W, Math.max(1, u * 0.0018));
+  ctx.fillStyle = 'rgb(180 60 50 / 0.28)';
+  ctx.fillRect(u * 0.05, 0, Math.max(1, u * 0.002), L.H);
+  const m = u * 0.022;
+  airmailStripes(ctx, win.x - m, win.y - m, win.w + m * 2, win.h + m * 2, u * 0.012, u);
 }
 
-function receiptFront(ctx, L, meta) {
+function airmailFront(ctx, L) {
   const { u, win } = L;
-  const left = win.x;
-  const right = win.x + win.w;
-  ctx.fillStyle = '#4a433c';
-  ctx.textBaseline = 'middle';
-  ctx.font = `500 ${Math.round(u * 0.024)}px ${FONT_MONO}`;
-  ctx.textAlign = 'center';
-  ctx.fillText('PLAYBOOTH  CORNER STORE', L.W / 2, win.y * 0.55);
-  const base = win.y + win.h + u * 0.04;
-  ctx.textAlign = 'left';
-  const line = fitText(ctx, `1 x ${meta.title || 'FILM'}`.toUpperCase(), win.w * 0.7, `{s} ${FONT_MONO}`, Math.round(u * 0.022), 8);
-  ctx.fillText(line, left, base);
-  ctx.textAlign = 'right';
-  ctx.fillText(meta.timecode || '', right, base);
-  ctx.fillStyle = 'rgb(74 67 60 / 0.5)';
-  for (let x = left; x < right; x += u * 0.014) ctx.fillRect(x, base + u * 0.026, u * 0.007, Math.max(1, u * 0.0015));
-  ctx.fillStyle = '#4a433c';
-  ctx.textAlign = 'left';
-  ctx.fillText(meta.date || '', left, base + u * 0.06);
-  ctx.textAlign = 'right';
-  ctx.fillText('THANK YOU', right, base + u * 0.06);
-  let bx = L.W / 2 - u * 0.12;
-  for (let i = 0; i < 40; i++) {
-    const bw = u * (i % 3 === 0 ? 0.004 : 0.002);
-    ctx.fillRect(bx, base + u * 0.09, bw, u * 0.035);
-    bx += bw + u * 0.0022;
+  // postmark over the top right corner
+  const cx = win.x + win.w - u * 0.06;
+  const cy = win.y + u * 0.05;
+  ctx.save();
+  ctx.strokeStyle = 'rgb(60 50 70 / 0.55)';
+  ctx.lineWidth = Math.max(1, u * 0.003);
+  ctx.beginPath();
+  ctx.arc(cx, cy, u * 0.045, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, u * 0.034, 0, Math.PI * 2);
+  ctx.stroke();
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    for (let x = 0; x <= u * 0.12; x += u * 0.004) ctx.lineTo(cx - u * 0.14 + x, cy - u * 0.02 + i * u * 0.012 + Math.sin(x / (u * 0.012)) * u * 0.003);
+    ctx.stroke();
   }
+  ctx.fillStyle = 'rgb(60 50 70 / 0.6)';
+  ctx.font = `${Math.round(u * 0.012)}px ${FONT_MONO}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('PLAYBOOTH', cx, cy - u * 0.005);
+  ctx.fillText('POST', cx, cy + u * 0.01);
+  ctx.restore();
+  // paperclip on the left edge
+  ctx.save();
+  ctx.translate(win.x + u * 0.04, win.y - u * 0.035);
+  ctx.strokeStyle = '#9d9a94';
+  ctx.lineWidth = Math.max(1, u * 0.004);
+  ctx.beginPath();
+  ctx.moveTo(0, u * 0.08);
+  ctx.lineTo(0, u * 0.012);
+  ctx.arc(u * 0.012, u * 0.012, u * 0.012, Math.PI, 0);
+  ctx.lineTo(u * 0.024, u * 0.07);
+  ctx.arc(u * 0.016, u * 0.07, u * 0.008, 0, Math.PI);
+  ctx.lineTo(u * 0.008, u * 0.03);
+  ctx.stroke();
+  ctx.restore();
+  starPath(ctx, win.x + win.w + u * 0.004, win.y + win.h - u * 0.02, u * 0.03, u * 0.014, -1.5);
+  ctx.fillStyle = '#a8342e';
+  ctx.fill();
+}
+
+/* ---------- Matinee ---------- */
+
+function ticketPanel(ctx, x, y, w, h, u) {
+  ctx.save();
+  ctx.shadowColor = 'rgb(0 0 0 / 0.3)';
+  ctx.shadowBlur = u * 0.01;
+  ctx.shadowOffsetY = u * 0.003;
+  ctx.fillStyle = '#f4e9d8';
+  ctx.fillRect(x, y, w, h);
+  ctx.restore();
   ctx.save();
   ctx.globalCompositeOperation = 'destination-out';
-  const tooth = u * 0.016;
-  for (const y of [0, L.H]) {
+  for (const cx of [x, x + w]) {
     ctx.beginPath();
-    for (let x = 0; x <= L.W + tooth; x += tooth) {
-      ctx.moveTo(x - tooth / 2, y);
-      ctx.lineTo(x, y + (y ? -tooth * 0.55 : tooth * 0.55));
-      ctx.lineTo(x + tooth / 2, y);
-    }
+    ctx.arc(cx, y + h / 2, h * 0.16, 0, Math.PI * 2);
     ctx.fill();
   }
   ctx.restore();
+  ctx.strokeStyle = 'rgb(163 50 58 / 0.6)';
+  ctx.lineWidth = Math.max(1, u * 0.002);
+  ctx.strokeRect(x + u * 0.008, y + u * 0.008, w - u * 0.016, h - u * 0.016);
 }
 
+function matineeBack(ctx, L) {
+  const { u, win } = L;
+  denimFill(ctx, 0, 0, L.W, L.H, u, '#2f4672');
+  const m = u * 0.022;
+  ticketPanel(ctx, win.x, u * 0.025, win.w, win.y - u * 0.05, u);
+  ctx.fillStyle = '#f4e9d8';
+  ctx.fillRect(win.x - m, win.y - m * 0.6, win.w + m * 2, win.h + m * 1.2);
+  ctx.strokeStyle = '#a3323a';
+  ctx.lineWidth = Math.max(1, u * 0.003);
+  ctx.strokeRect(win.x - u * 0.006, win.y - u * 0.006, win.w + u * 0.012, win.h + u * 0.012);
+}
+
+function matineeFront(ctx, L, meta) {
+  const { u, win } = L;
+  const top = u * 0.025;
+  const h = win.y - u * 0.05;
+  const cy = top + h / 2;
+  ctx.fillStyle = '#a3323a';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+  ctx.font = `600 ${Math.round(Math.min(h * 0.46, u * 0.05))}px ${FONT_HAND}`;
+  ctx.fillText('Movie matinee', win.x + u * 0.03, cy);
+  ctx.textAlign = 'right';
+  ctx.font = `500 ${Math.round(Math.min(h * 0.24, u * 0.022))}px ${FONT_MONO}`;
+  ctx.fillText('ADMIT ONE', win.x + win.w - u * 0.03, cy - h * 0.13);
+  ctx.fillText(fitText(ctx, (meta.title || 'ONE DAY').toUpperCase(), win.w * 0.3, `500 {s} ${FONT_MONO}`, Math.round(Math.min(h * 0.24, u * 0.022)), 7), win.x + win.w - u * 0.03, cy + h * 0.16);
+}
+
+/** Photostrip backings for frames whose texture should carry onto the strip. */
+const STRIP_PAINT = {
+  denim: (ctx, w, h) => {
+    denimFill(ctx, 0, 0, w, h, w);
+    laceTrim(ctx, 0, w, 0, 1, w);
+    laceTrim(ctx, 0, w, h, -1, w);
+  },
+  knit: (ctx, w, h) => knitBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  cocoa: (ctx, w, h) => {
+    ctx.fillStyle = '#3a2822';
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#efe6d7';
+    for (let y = w * 0.05, r = 0; y < h; y += w * 0.16, r++) for (let x = (r % 2 ? w * 0.08 : 0) + w * 0.03; x < w; x += w * 0.16) { ctx.beginPath(); ctx.arc(x, y, w * 0.022, 0, Math.PI * 2); ctx.fill(); }
+  },
+  reel: (ctx, w, h) => reelBack(ctx, { W: w, H: h, u: w, win: { x: w * 0.07, y: -1e5, w: w * 0.86, h: 0 } }),
+  airmail: (ctx, w, h) => {
+    ctx.fillStyle = '#f2e9d6';
+    ctx.fillRect(0, 0, w, h);
+    airmailStripes(ctx, 0, 0, w, h, w * 0.025, w);
+  },
+  matinee: (ctx, w, h) => denimFill(ctx, 0, 0, w, h, w, '#2f4672'),
+};
+
 const PAINTERS = {
-  none: [() => {}, () => {}],
-  instant: [instantBack, instantFront],
-  negative: [negativeBack, negativeFront],
-  kraft: [kraftBack, () => {}],
-  gingham: [ginghamBack, () => {}],
-  washi: [washiBack, washiFront],
-  receipt: [receiptBack, receiptFront],
+  none: [noneBack, () => {}],
   booth: [boothBack, boothFront],
   lace: [laceBack, () => {}],
   stamp: [stampBack, stampFront],
   ticket: [ticketBack, ticketFront],
+  denim: [denimBack, denimFront],
+  knit: [knitBack, knitFront],
+  cocoa: [cocoaBack, cocoaFront],
+  reel: [reelBack, reelFront],
+  airmail: [airmailBack, airmailFront],
+  matinee: [matineeBack, matineeFront],
   polka: [polkaBack, () => {}],
   stripe: [stripeBack, stripeFront],
 };
+
+/** No frame: nothing around the picture, a dark bar under it for the controls. */
+function noneBack(ctx, L) {
+  if (L.Hd != null && L.Hd < L.H) {
+    ctx.fillStyle = '#16110d';
+    ctx.fillRect(0, L.Hd, L.W, L.H - L.Hd);
+  }
+}
 
 export function paintBack(ctx, border, L, meta = {}) {
   ctx.save();
@@ -712,7 +1065,6 @@ export function paintFront(ctx, border, L, meta = {}) {
   ctx.restore();
 }
 
-/** Frame with a transparent window, laid over live video. */
 export function paintOverlay(ctx, border, L, meta) {
   ctx.clearRect(0, 0, L.W, L.H);
   paintBack(ctx, border, L, meta);
@@ -724,7 +1076,6 @@ export function paintOverlay(ctx, border, L, meta) {
   paintFront(ctx, border, L, meta);
 }
 
-/** Frame with a picture inside the window. */
 export function paintComposite(ctx, border, L, meta, drawPicture) {
   ctx.clearRect(0, 0, L.W, L.H);
   paintBack(ctx, border, L, meta);
@@ -738,10 +1089,6 @@ export function paintComposite(ctx, border, L, meta, drawPicture) {
   paintFront(ctx, border, L, meta);
 }
 
-/**
- * Three framed photos stacked into a classic photobooth strip,
- * on a backing that matches the frame.
- */
 export function paintStrip(ctx, border, images, meta, width = 900) {
   const pad = width * 0.07;
   const gap = width * 0.045;
@@ -752,7 +1099,8 @@ export function paintStrip(ctx, border, images, meta, width = 900) {
   ctx.canvas.width = width;
   ctx.canvas.height = H;
   const s = border.strip;
-  if (s.wood) woodGrain(ctx, 0, 0, width, H, width);
+  if (STRIP_PAINT[border.id]) STRIP_PAINT[border.id](ctx, width, H);
+  else if (s.wood) woodGrain(ctx, 0, 0, width, H, width);
   else {
     ctx.fillStyle = s.bg;
     ctx.fillRect(0, 0, width, H);

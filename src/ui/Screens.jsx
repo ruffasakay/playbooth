@@ -53,6 +53,7 @@ export function Hero() {
     if (!visible) return undefined;
     const onKey = (e) => {
       if (e.key === 'Enter' && document.activeElement === document.body) enter();
+      if ((e.key === 'l' || e.key === 'L') && !e.metaKey && !e.ctrlKey) useApp.getState().toggleTheme();
     };
     window.addEventListener('keydown', onKey);
     if (document.activeElement === document.body) cta.current?.focus({ preventScroll: true });
@@ -125,23 +126,51 @@ const NAV = [
   { id: 'booth', key: '4', label: 'Room' },
 ];
 
-/** Day and night for the whole booth; the same thing the wall switch does. */
-function ThemeToggle() {
+/**
+ * A wall switch plate: flick it for day or night. It follows you from the
+ * street into the booth, and does what the switch on the booth's wall does.
+ */
+function LightSwitchPlate() {
   const night = useApp((s) => s.theme === 'night');
+  const sound = useApp((s) => s.sound);
   return (
-    <button type="button" className="theme-toggle" onClick={() => useApp.getState().toggleTheme()} aria-label={night ? 'Switch to day' : 'Switch to night'} aria-keyshortcuts="L">
-      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-        {night ? (
-          <path d="M19.5 14.6A7.8 7.8 0 0 1 9.4 4.5a7.8 7.8 0 1 0 10.1 10.1Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
-        ) : (
-          <g fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7" />
-          </g>
-        )}
-      </svg>
-      <span>{night ? 'Night' : 'Day'}</span>
-    </button>
+    <div className="switches">
+      <button
+        type="button"
+        role="switch"
+        aria-checked={night}
+        className="switch-plate"
+        data-sfx="none"
+        onClick={() => useApp.getState().toggleTheme()}
+        aria-label="Lights: night"
+        aria-keyshortcuts="L"
+      >
+        <span className="switch-screw" aria-hidden="true" />
+        <span className="switch-slot" aria-hidden="true">
+          <span className="switch-lever" />
+        </span>
+        <span className="switch-screw" aria-hidden="true" />
+        <span className="switch-label" aria-hidden="true">{night ? 'Night' : 'Day'}</span>
+      </button>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={sound}
+        className="sound-knob"
+        onClick={() => useApp.getState().toggleSound()}
+        aria-label="Sound"
+        data-on={sound || undefined}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 9.6c0-.5.4-.9.9-.9h2.6l4-3.2c.6-.5 1.5-.1 1.5.7v11.6c0 .8-.9 1.2-1.5.7l-4-3.2H4.9c-.5 0-.9-.4-.9-.9V9.6Z" fill="currentColor" />
+          {sound ? (
+            <path d="M16.2 9.4a3.7 3.7 0 0 1 0 5.2M18.7 6.9a7.3 7.3 0 0 1 0 10.2" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+          ) : (
+            <path d="m16.4 9.6 4.4 4.8m0-4.8-4.4 4.8" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+          )}
+        </svg>
+      </button>
+    </div>
   );
 }
 
@@ -161,7 +190,7 @@ export function RoomUI() {
           <RoomNav station={station} />
         </>
       )}
-      {((phase === 'outside' && intro) || (phase === 'inside' && station !== 'watch' && !inspect)) && <ThemeToggle />}
+      {((phase === 'outside' && intro) || phase === 'entering' || phase === 'leaving' || (phase === 'inside' && station !== 'watch' && !inspect)) && <LightSwitchPlate />}
       <PromptCard />
       <div className="veil" data-on={veil || undefined} aria-hidden="true" />
     </>

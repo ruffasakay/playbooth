@@ -1,12 +1,9 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   BufferingIndicator,
-  CaptionsButton,
   Container,
-  Controls,
   ErrorDialog,
   FullscreenButton,
-  Gesture,
   Hotkey,
   MuteButton,
   PiPButton,
@@ -14,20 +11,54 @@ import {
   PlaybackRateButton,
   Poster,
   SeekButton,
-  SeekIndicator,
-  Slider,
   StatusAnnouncer,
-  StatusIndicator,
   Time,
   TimeSlider,
-  VolumeIndicator,
   VolumeSlider,
   useHotkey,
 } from '@videojs/react';
 import { useApp, movieById } from '../store.js';
-import { BORDERS, borderById, ensureFrameFonts, formatDate, frameLayout, paintComposite, paintOverlay, windowPercents } from '../data/borders.js';
+import { BORDERS, borderById, ensureFrameFonts, formatDate, formatTimecode, frameLayout, paintComposite, paintOverlay } from '../data/borders.js';
 import { snapPhoto } from '../lib/printFlow.js';
+import { sfx } from '../lib/sfx.js';
+import { usePlayer } from './core.js';
 import * as I from './icons.jsx';
+
+/** Height of the frame's lower edge that holds the controls, in CSS px. */
+const BAND = 100;
+
+/**
+ * Where everything sits. The frame hugs the film normally; in fullscreen it
+ * fills the screen and the film sits letterboxed inside the window.
+ */
+function computeGeo(border, aspect, sw, sh, fullscreen) {
+  const { t, r, b, l } = border.pads;
+  const Wu = 1 + l + r;
+  if (fullscreen) {
+    let u = sw / Wu;
+    const minWin = sh * 0.45;
+    if (t + b > 0 && sh - BAND - (t + b) * u < minWin) u = Math.max(8, (sh - BAND - minWin) / (t + b));
+    const winH = Math.max(40, sh - BAND - (t + b) * u);
+    return { W: sw, H: sh, u, Hd: sh - BAND, win: { x: l * u, y: t * u, w: sw - (l + r) * u, h: winH, r: (border.radius || 0) * u } };
+  }
+  const Hu = 1 / aspect + t + b;
+  const u = Math.max(40, Math.min(sw / Wu, (sh - BAND) / Hu));
+  const W = u * Wu;
+  const Hd = u * Hu;
+  return { W, H: Hd + BAND, u, Hd, win: { x: l * u, y: t * u, w: u, h: u / aspect, r: (border.radius || 0) * u } };
+}
+
+function useSize(ref) {
+  const [size, setSize] = useState({ w: 0, h: 0 });
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const ro = new ResizeObserver(([e]) => setSize({ w: Math.floor(e.contentRect.width), h: Math.floor(e.contentRect.height) }));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref]);
+  return size;
+}
 
 export function PlayboothSkin({ children }) {
   const deck = useApp((s) => s.deck);
@@ -35,10 +66,24 @@ export function PlayboothSkin({ children }) {
   const aspect = useApp((s) => s.videoAspect);
   const movie = useApp((s) => movieById(s.insertedTapeId));
   const station = useApp((s) => s.station);
+  const fullscreen = usePlayer((s) => s.isFullscreen);
+  const store = usePlayer();
   const playing = deck === 'playing';
-  const [styleOpen, setStyleOpen] = useState(false);
   const border = borderById(borderId);
-  const p = windowPercents(border, aspect);
+  const stageRef = useRef(null);
+  const size = useSize(stageRef);
+  const geo = useMemo(() => (size.w ? computeGeo(border, aspect, size.w, size.h, fullscreen) : null), [border, aspect, size.w, size.h, fullscreen]);
+  const k = border.ui;
+  const theme = {
+    '--k-surface': k.surface,
+    '--k-ink': k.ink,
+    '--k-band': k.band,
+    '--k-accent': k.accent,
+    '--k-track': k.track,
+    '--k-play-bg': k.play[0],
+    '--k-play-ink': k.play[1],
+    '--k-thumb': k.thumbColor ?? k.accent,
+  };
 
   const onKeyDown = (e) => {
     if (e.key !== 'Escape' || e.defaultPrevented || document.fullscreenElement) return;
@@ -48,71 +93,80 @@ export function PlayboothSkin({ children }) {
     }
   };
 
+  const togglePlay = () => {
+    if (useApp.getState().deck !== 'playing') return;
+    try {
+      if (store.paused) store.play()?.catch?.(() => {});
+      else store.pause();
+      sfx('tap');
+    } catch {
+      /* no media yet */
+    }
+  };
+
   return (
-    <Container className="pb-skin" data-deck={deck} data-frame={borderId} aria-label={movie ? `PLAYBOOTH player, ${movie.title}` : 'PLAYBOOTH player'} onKeyDown={onKeyDown}>
-      <div className="pb-stage">
-        <div className="pb-frame" style={{ '--frame-ar': p.aspectRatio }}>
-          <FrameArt border={border} aspect={aspect} movie={movie} />
-          <div
-            className="pb-window"
-            style={{
-              left: `${p.left}%`,
-              top: `${p.top}%`,
-              width: `${p.width}%`,
-              height: `${p.height}%`,
-              borderRadius: p.radiusPct ? `${p.radiusPct}% / ${p.radiusPct * aspect}%` : undefined,
-            }}
-          >
-            {children}
-            <Poster.Root className="pb-poster">
-              <Poster.Image className="pb-poster-img" alt="" />
-            </Poster.Root>
-            <BufferingIndicator className="pb-buffering" render={(props) => <div {...props}><span className="pb-spinner" /></div>} />
-            <Flash />
-            <StatusIndicator.Root className="pb-bubble"><StatusIndicator.Value /></StatusIndicator.Root>
-            <SeekIndicator.Root className="pb-bubble"><SeekIndicator.Value /></SeekIndicator.Root>
-            <VolumeIndicator.Root className="pb-bubble"><VolumeIndicator.Value /></VolumeIndicator.Root>
-            <ErrorDialog.Root>
-              <ErrorDialog.Popup className="pb-error">
-                <ErrorDialog.Title className="pb-error-title" />
-                <ErrorDialog.Description className="pb-error-text" />
-                <ErrorDialog.Close className="btn btn--primary" />
-              </ErrorDialog.Popup>
-            </ErrorDialog.Root>
-            {playing && (
-              <Controls.Root visibility={styleOpen ? 'always' : 'auto'}>
-                <Controls.Backdrop className="pb-backdrop" />
-                <Controls.Content className="pb-controls-content">
-                  <TopBar movie={movie} />
-                  <BottomBar styleOpen={styleOpen} onStyle={() => setStyleOpen((o) => !o)} />
-                </Controls.Content>
-              </Controls.Root>
-            )}
+    <Container
+      className="pb-skin"
+      data-deck={deck}
+      data-frame={borderId}
+      data-edge={k.edge}
+      data-bar={k.bar}
+      data-thumb={k.thumb}
+      data-fs={fullscreen || undefined}
+      style={theme}
+      aria-label={movie ? `PLAYBOOTH player, ${movie.title}` : 'PLAYBOOTH player'}
+      onKeyDown={onKeyDown}
+    >
+      {!fullscreen && <ChromeBar movie={movie} />}
+      <div className="pb-stage" ref={stageRef}>
+        {geo && (
+          <div className="pb-frame" style={{ width: geo.W, height: geo.H }}>
+            <div
+              className="pb-window"
+              style={{ left: geo.win.x, top: geo.win.y, width: geo.win.w, height: geo.win.h, borderRadius: geo.win.r || undefined }}
+              onClick={togglePlay}
+              onDoubleClick={() => playing && (fullscreen ? store.exitFullscreen() : store.requestFullscreen())?.catch?.(() => {})}
+            >
+              {children}
+              <Poster.Root className="pb-poster">
+                <Poster.Image className="pb-poster-img" alt="" />
+              </Poster.Root>
+              <CaptionLayer />
+              <BufferingIndicator className="pb-buffering" render={(props) => <div {...props}><span className="pb-spinner" /></div>} />
+              <Flash />
+              <ErrorDialog.Root>
+                <ErrorDialog.Popup className="pb-error">
+                  <ErrorDialog.Title className="pb-error-title" />
+                  <ErrorDialog.Description className="pb-error-text" />
+                  <ErrorDialog.Close className="btn btn--primary" />
+                </ErrorDialog.Popup>
+              </ErrorDialog.Root>
+            </div>
+            <FrameArt border={border} geo={geo} movie={movie} />
+            <div
+              className="pb-band"
+              style={{ left: border.pads.l ? geo.win.x : 0, width: border.pads.l ? geo.win.w : geo.W, top: geo.Hd, height: BAND }}
+              inert={!playing || undefined}
+            >
+              <ControlBand movie={movie} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {deck === 'frame' && <FramePicker active={station === 'watch'} />}
-      {playing && styleOpen && <CaptionPanel onClose={() => setStyleOpen(false)} />}
       <CaptionCss />
-
-      {playing && (
-        <>
-          <Gesture type="tap" action="togglePaused" pointer="mouse" />
-          <Gesture type="tap" action="toggleControls" pointer="touch" />
-          <Gesture type="doubletap" action="seekStep" value={-10} region="left" />
-          <Gesture type="doubletap" action="toggleFullscreen" region="center" />
-          <Gesture type="doubletap" action="seekStep" value={10} region="right" />
-        </>
-      )}
       <PlayboothHotkeys enabled={playing} />
-      <StatusAnnouncer />
+      <div className="sr-only">
+        <StatusAnnouncer />
+      </div>
     </Container>
   );
 }
 
-/** The frame is drawn on a canvas sized to the player, with a hole for the video. */
-function FrameArt({ border, aspect, movie }) {
+/* ---------- the frame, painted to the exact size of the player ---------- */
+
+function FrameArt({ border, geo, movie }) {
   const canvas = useRef(null);
   const [tick, setTick] = useState(0);
   useEffect(() => {
@@ -120,21 +174,19 @@ function FrameArt({ border, aspect, movie }) {
   }, []);
   useLayoutEffect(() => {
     const el = canvas.current;
-    if (!el) return undefined;
-    const paint = () => {
-      const w = el.clientWidth;
-      if (!w) return;
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-      const L = frameLayout(border, aspect, Math.round(w * dpr));
-      el.width = L.W;
-      el.height = L.H;
-      paintOverlay(el.getContext('2d'), border, L, { title: movie?.title, date: formatDate() });
+    if (!el) return;
+    const d = Math.min(2, window.devicePixelRatio || 1);
+    const L = {
+      W: Math.round(geo.W * d),
+      H: Math.round(geo.H * d),
+      u: geo.u * d,
+      Hd: geo.Hd * d,
+      win: { x: geo.win.x * d, y: geo.win.y * d, w: geo.win.w * d, h: geo.win.h * d, r: geo.win.r * d },
     };
-    paint();
-    const ro = new ResizeObserver(paint);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [border, aspect, movie, tick]);
+    el.width = L.W;
+    el.height = L.H;
+    paintOverlay(el.getContext('2d'), border, L, { title: movie?.title, date: formatDate() });
+  }, [border, geo, movie, tick]);
   return <canvas ref={canvas} className="pb-frame-art" aria-hidden="true" />;
 }
 
@@ -151,92 +203,78 @@ function Flash() {
   return <div ref={ref} className="pb-flash" aria-hidden="true" />;
 }
 
-/* ---------- controls ---------- */
+/* ---------- outside the frame: back, snaps, album, eject ---------- */
 
-function TopBar({ movie }) {
-  const total = useApp((s) => s.collection.length);
+function ChromeBar({ movie }) {
   const snaps = useApp((s) => s.snaps.length);
+  const total = useApp((s) => s.collection.length);
   return (
-    <div className="pb-bar pb-bar--top">
-      <button type="button" className="pb-btn" onClick={() => useApp.getState().goStation('player')} aria-label="Back to the booth">
+    <div className="pb-chrome">
+      <button type="button" className="pb-chip" onClick={() => useApp.getState().goStation('player')}>
         <I.Back />
+        <span>Booth</span>
       </button>
-      <div className="pb-title">
-        <span className="pb-title-name">{movie?.title}</span>
-        <span className="pb-title-credit">{movie ? `${movie.credit}, ${movie.license}` : ''}</span>
-      </div>
-      <div className="pb-group">
-        <button type="button" className="pb-btn pb-btn--snaps" onClick={() => useApp.getState().setCompilerOpen(true)} aria-label={`Snaps, ${snaps} this visit`}>
+      <p className="pb-chrome-title">
+        <span className="pb-chrome-name">{movie?.title}</span>
+        <span className="pb-chrome-credit">{movie ? `${movie.credit}, ${movie.license}` : ''}</span>
+      </p>
+      <div className="pb-chrome-group">
+        <button type="button" className="pb-chip" onClick={() => useApp.getState().setCompilerOpen(true)}>
           <I.Stack />
-          {snaps > 0 && <span className="pb-count" aria-hidden="true">{snaps}</span>}
+          <span>Snaps</span>
+          {snaps > 0 && <span className="pb-chip-count">{snaps}</span>}
         </button>
-        <button type="button" className="pb-btn" onClick={() => useApp.getState().setAlbumOpen(true)} aria-label={`Album, ${total} prints`}>
+        <button type="button" className="pb-chip" onClick={() => useApp.getState().setAlbumOpen(true)} aria-label={`Album, ${total} prints`}>
           <I.Album />
+          <span>Album</span>
         </button>
-        <button type="button" className="pb-btn" onClick={() => useApp.getState().ejectTape()} aria-label={`Eject ${movie?.title ?? 'tape'}`}>
+        <button type="button" className="pb-chip" onClick={() => useApp.getState().ejectTape()} aria-label={`Eject ${movie?.title ?? 'tape'}`}>
           <I.Eject />
+          <span>Eject</span>
         </button>
       </div>
     </div>
   );
 }
 
-function BottomBar({ styleOpen, onStyle }) {
+/* ---------- the controls, living in the frame's lower edge ---------- */
+
+function ControlBand({ movie }) {
   const [busy, setBusy] = useState(false);
+  const [ccOpen, setCcOpen] = useState(false);
   const snap = async () => {
     if (busy) return;
     setBusy(true);
+    sfx('shutter');
     await snapPhoto();
     setBusy(false);
   };
   return (
-    <div className="pb-bar pb-bar--bottom">
-      <TimeSlider.Root className="pb-seek">
-        <TimeSlider.Track className="pb-seek-track">
-          <TimeSlider.Buffer className="pb-seek-buffer" />
-          <TimeSlider.Fill className="pb-seek-fill" />
-        </TimeSlider.Track>
-        <TimeSlider.Thumb className="pb-seek-thumb" />
-        <TimeSlider.Preview className="pb-seek-preview" overflow="clamp">
-          <Slider.Thumbnail.Root className="pb-seek-shot">
-            <Slider.Thumbnail.Image className="pb-seek-shot-img" alt="" />
-          </Slider.Thumbnail.Root>
-          <TimeSlider.Value type="pointer" className="pb-seek-time" />
-        </TimeSlider.Preview>
-      </TimeSlider.Root>
+    <div className="pb-controls">
+      <SeekRow movie={movie} />
       <div className="pb-row">
-        <div className="pb-group">
-          <PlayButton className="pb-btn pb-btn--play" render={(props, state) => <button {...props}>{state.ended ? <I.Replay /> : state.paused ? <I.Play /> : <I.Pause />}</button>} />
-          <SeekButton seconds={-10} className="pb-btn pb-seek-step" label="Back 10 seconds" render={(props) => <button {...props}><I.Seek back /></button>} />
-          <SeekButton seconds={10} className="pb-btn pb-seek-step" label="Forward 10 seconds" render={(props) => <button {...props}><I.Seek /></button>} />
+        <div className="pb-pill" role="group" aria-label="Playback">
+          <PlayButton className="pb-play" render={(props, s) => <button {...props}>{s.ended ? <I.Replay /> : s.paused ? <I.Play /> : <I.Pause />}</button>} />
+          <SeekButton seconds={-10} className="pb-btn pb-step" label="Back 10 seconds" render={(props) => <button {...props}><I.Seek back /></button>} />
+          <SeekButton seconds={10} className="pb-btn pb-step" label="Forward 10 seconds" render={(props) => <button {...props}><I.Seek /></button>} />
           <div className="pb-volume">
-            <MuteButton
-              className="pb-btn"
-              label={(s) => (s.muted ? 'Unmute' : 'Mute')}
-              render={(props, s) => <button {...props}><I.Volume level={s.muted || s.volumeLevel === 'off' ? 'off' : s.volumeLevel === 'low' ? 'low' : 'high'} /></button>}
-            />
-            <VolumeSlider.Root className="pb-vol">
+            <MuteButton className="pb-btn" label={(s) => (s.muted ? 'Unmute' : 'Mute')} render={(props, s) => <button {...props}><I.Volume level={s.muted || s.volumeLevel === 'off' ? 'off' : s.volumeLevel === 'low' ? 'low' : 'high'} /></button>} />
+            <VolumeSlider.Root className="pb-vol" label="Volume">
               <VolumeSlider.Track className="pb-vol-track">
                 <VolumeSlider.Fill className="pb-vol-fill" />
               </VolumeSlider.Track>
               <VolumeSlider.Thumb className="pb-vol-thumb" />
             </VolumeSlider.Root>
           </div>
-          <Time.Group className="pb-time">
-            <Time.Value type="current" />
-            <Time.Separator className="pb-time-sep">/</Time.Separator>
-            <Time.Value type="duration" className="pb-time-total" />
-          </Time.Group>
         </div>
-        <div className="pb-group">
-          <CaptionsButton className="pb-btn" label={(s) => (s.subtitlesShowing ? 'Captions off' : 'Captions on')} render={(props, s) => <button {...props}><I.Captions on={s.subtitlesShowing} /></button>} />
-          <button type="button" className="pb-btn pb-opt" onClick={onStyle} aria-label="Caption style" aria-expanded={styleOpen} aria-controls="pb-caption-panel" data-active={styleOpen || undefined}>
-            <I.TextStyle />
-          </button>
-          <PlaybackRateButton className="pb-btn pb-opt pb-btn--rate" label={(s) => `Speed ${s.rate}×`} render={(props, s) => <button {...props}><span className="pb-rate">{s.rate}×</span></button>} />
-          <PiPButton className="pb-btn pb-opt pb-pip" label={(s) => (s.pip ? 'Exit picture in picture' : 'Picture in picture')} render={(props) => <button {...props}><I.Pip /></button>} />
-          <FullscreenButton className="pb-btn pb-btn--fs" label={(s) => (s.fullscreen ? 'Exit full screen' : 'Full screen')} render={(props, s) => <button {...props}><I.Fullscreen exit={s.fullscreen} /></button>} />
-          <button type="button" className="pb-snap" onClick={snap} aria-label="Snap this frame" aria-keyshortcuts="S" data-busy={busy || undefined}>
+        <div className="pb-row-end">
+          <div className="pb-pill" role="group" aria-label="Picture and sound">
+            <CaptionsControl open={ccOpen} setOpen={setCcOpen} />
+            <PlaybackRateButton className="pb-btn pb-rate-btn pb-extra" label={(s) => `Speed ${s.rate} times`} render={(props, s) => <button {...props}><span className="pb-rate">{s.rate}×</span></button>} />
+            <PiPButton className="pb-btn pb-extra" label={(s) => (s.pip ? 'Exit picture in picture' : 'Picture in picture')} render={(props) => <button {...props}><I.Pip /></button>} />
+            <FullscreenButton className="pb-btn" label={(s) => (s.fullscreen ? 'Exit full screen' : 'Full screen')} render={(props, s) => <button {...props}><I.Fullscreen exit={s.fullscreen} /></button>} />
+          </div>
+          <button type="button" className="pb-pill pb-snap" onClick={snap} aria-label="Snap this frame" aria-keyshortcuts="S" data-busy={busy || undefined}>
             <I.Camera />
             <span className="pb-snap-text" aria-hidden="true">Snap</span>
           </button>
@@ -246,7 +284,84 @@ function BottomBar({ styleOpen, onStyle }) {
   );
 }
 
-/* ---------- caption style ---------- */
+/** Progress with a peek: hovering shows that moment in a card; the film keeps going. */
+function SeekRow({ movie }) {
+  const duration = usePlayer((s) => s.duration);
+  const wrap = useRef(null);
+  const [peek, setPeek] = useState(null);
+  const onMove = (e) => {
+    const el = wrap.current?.querySelector('.pb-seek');
+    if (!el || !duration) return;
+    const r = el.getBoundingClientRect();
+    const f = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+    setPeek({ f, x: e.clientX - wrap.current.getBoundingClientRect().left, t: f * duration });
+  };
+  return (
+    <div className="pb-seek-row" ref={wrap} onPointerMove={onMove} onPointerLeave={() => setPeek(null)}>
+      <Time.Value type="current" className="pb-time" />
+      <TimeSlider.Root className="pb-seek" label="Seek">
+        <TimeSlider.Track className="pb-seek-track">
+          <TimeSlider.Buffer className="pb-seek-buffer" />
+          <TimeSlider.Fill className="pb-seek-fill" />
+        </TimeSlider.Track>
+        <TimeSlider.Thumb className="pb-seek-thumb" />
+      </TimeSlider.Root>
+      <Time.Value type="duration" className="pb-time pb-time--total" />
+      {peek && <PeekCard movie={movie} peek={peek} width={wrap.current?.clientWidth ?? 0} />}
+    </div>
+  );
+}
+
+const PEEK_W = 176;
+
+function PeekCard({ movie, peek, width }) {
+  const t = Math.round(peek.t / 2) * 2;
+  const left = Math.min(Math.max(peek.x - PEEK_W / 2, 0), Math.max(0, width - PEEK_W));
+  return (
+    <div className="pb-peek" style={{ left }} aria-hidden="true">
+      <PeekImage movie={movie} time={t} />
+      <span className="pb-peek-time">{formatTimecode(peek.t)}</span>
+    </div>
+  );
+}
+
+/** Mux serves any frame as an image; local files get a quiet second <video>. */
+function PeekImage({ movie, time }) {
+  const canvas = useRef(null);
+  const shadow = useRef(null);
+  const src = movie?.playbackId ? `https://image.mux.com/${movie.playbackId}/thumbnail.webp?time=${time}&width=320` : null;
+  useEffect(() => {
+    if (src || !movie?.src) return undefined;
+    let v = shadow.current;
+    if (!v || v.dataset.src !== movie.src) {
+      v = document.createElement('video');
+      v.muted = true;
+      v.preload = 'auto';
+      v.crossOrigin = 'anonymous';
+      v.src = movie.src;
+      v.dataset.src = movie.src;
+      shadow.current = v;
+    }
+    const draw = () => {
+      const c = canvas.current;
+      if (!c || !v.videoWidth) return;
+      c.width = 320;
+      c.height = Math.round((320 * v.videoHeight) / v.videoWidth);
+      c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+    };
+    v.addEventListener('seeked', draw);
+    const go = () => {
+      v.currentTime = Math.min(time, (v.duration || time) - 0.1);
+    };
+    if (v.readyState >= 1) go();
+    else v.addEventListener('loadedmetadata', go, { once: true });
+    return () => v.removeEventListener('seeked', draw);
+  }, [src, movie, time]);
+  if (src) return <img className="pb-peek-img" src={src} alt="" />;
+  return <canvas ref={canvas} className="pb-peek-img" />;
+}
+
+/* ---------- captions ---------- */
 
 export const CAPTION_COLORS = [
   { id: 'white', name: 'White', value: '#ffffff' },
@@ -259,72 +374,155 @@ const CAPTION_FONTS = {
   serif: "'Literata Variable', Literata, Georgia, serif",
 };
 
-/** Native cues can only be styled through ::cue, so the choice is written as a rule. */
+/** The browser's own cue box is hidden; this layer draws captions so they can be styled and placed. */
 function CaptionCss() {
-  const { color, outline, font } = useApp((s) => s.captionStyle);
-  const shadow = outline ? '0 0 2px #000, 0 0 3px #000, 1px 1px 2px #000, -1px -1px 2px #000' : 'none';
-  const bg = outline ? 'transparent' : 'rgb(10 7 5 / 0.72)';
+  return <style>{`.pb-window video::cue{color:transparent;background:transparent;text-shadow:none}.pb-window video::-webkit-media-text-track-display{opacity:0}`}</style>;
+}
+
+function CaptionLayer() {
+  const video = useApp((s) => s.videoEl);
+  const showing = usePlayer((s) => s.subtitlesShowing);
+  const style = useApp((s) => s.captionStyle);
+  const [lines, setLines] = useState([]);
+  useEffect(() => {
+    if (!video || !showing) {
+      setLines([]);
+      return undefined;
+    }
+    const tracks = video.textTracks;
+    let track = null;
+    const update = () => {
+      const cues = track?.activeCues ? Array.from(track.activeCues) : [];
+      setLines(cues.map((c) => c.text.replace(/<[^>]+>/g, '')));
+    };
+    const pick = () => {
+      if (track) track.removeEventListener('cuechange', update);
+      track = Array.from(tracks).find((t) => t.mode === 'showing' && (t.kind === 'captions' || t.kind === 'subtitles')) ?? null;
+      if (track) track.addEventListener('cuechange', update);
+      update();
+    };
+    pick();
+    tracks.addEventListener('change', pick);
+    tracks.addEventListener('addtrack', pick);
+    return () => {
+      tracks.removeEventListener('change', pick);
+      tracks.removeEventListener('addtrack', pick);
+      if (track) track.removeEventListener('cuechange', update);
+    };
+  }, [video, showing]);
+  if (!lines.length) return null;
+  const outline = style.outline;
   return (
-    <style>{`.pb-window video::cue{color:${color};font-family:${CAPTION_FONTS[font] ?? CAPTION_FONTS.sans};text-shadow:${shadow};background:${bg};}`}</style>
+    <div className="pb-captions" aria-hidden="true">
+      {lines.map((text, i) => (
+        <p
+          key={i}
+          className="pb-cue"
+          data-box={!outline || undefined}
+          style={{ color: style.color, fontFamily: CAPTION_FONTS[style.font] ?? CAPTION_FONTS.sans }}
+        >
+          {text.split('\n').map((l, j) => (
+            <span key={j}>{l}</span>
+          ))}
+        </p>
+      ))}
+    </div>
   );
 }
 
-function CaptionPanel({ onClose }) {
+function CaptionsControl({ open, setOpen }) {
+  const store = usePlayer();
+  const showing = usePlayer((s) => s.subtitlesShowing);
   const style = useApp((s) => s.captionStyle);
   const set = useApp((s) => s.setCaptionStyle);
-  const ref = useRef(null);
+  const wrap = useRef(null);
   const custom = !CAPTION_COLORS.some((c) => c.value === style.color);
+
   useEffect(() => {
-    ref.current?.querySelector('[aria-checked="true"]')?.focus({ preventScroll: true, focusVisible: false });
+    if (!open) return undefined;
+    const onDown = (e) => {
+      if (!wrap.current?.contains(e.target)) setOpen(false);
+    };
     const onKey = (e) => {
       if (e.key === 'Escape') {
         e.preventDefault();
         e.stopPropagation();
-        onClose();
-        document.querySelector('[aria-controls="pb-caption-panel"]')?.focus();
+        setOpen(false);
+        wrap.current?.querySelector('.pb-cc')?.focus();
       }
     };
-    const onDown = (e) => {
-      if (!ref.current?.contains(e.target) && !e.target.closest?.('[aria-controls="pb-caption-panel"]')) onClose();
-    };
-    window.addEventListener('keydown', onKey, true);
     window.addEventListener('pointerdown', onDown);
+    window.addEventListener('keydown', onKey, true);
+    requestAnimationFrame(() => wrap.current?.querySelector('.pb-pop [role="switch"]')?.focus({ preventScroll: true, focusVisible: false }));
     return () => {
-      window.removeEventListener('keydown', onKey, true);
       window.removeEventListener('pointerdown', onDown);
+      window.removeEventListener('keydown', onKey, true);
     };
-  }, [onClose]);
+  }, [open, setOpen]);
+
+  const pick = (patch) => {
+    set(patch);
+    sfx('tick');
+  };
+
   return (
-    <div ref={ref} className="pb-panel" id="pb-caption-panel" role="dialog" aria-label="Caption style">
-      <p className="pb-panel-sample" style={{ color: style.color, fontFamily: CAPTION_FONTS[style.font], textShadow: style.outline ? '0 0 2px #000, 0 0 3px #000, 1px 1px 2px #000' : 'none', background: style.outline ? 'transparent' : 'rgb(10 7 5 / 0.72)' }}>
-        The quick fox, at dusk.
-      </p>
-      <fieldset className="pb-field">
-        <legend>Color</legend>
-        <div className="pb-swatches" role="radiogroup" aria-label="Caption color">
-          {CAPTION_COLORS.map((c) => (
-            <button key={c.id} type="button" role="radio" aria-checked={style.color === c.value} aria-label={c.name} className="pb-swatch" style={{ '--c': c.value }} onClick={() => set({ color: c.value })} />
-          ))}
-          <label className="pb-swatch pb-swatch--custom" data-checked={custom || undefined} style={{ '--c': custom ? style.color : 'conic-gradient(#ff6b6b, #ffe14d, #8ee8f0, #b48cff, #ff6b6b)' }}>
-            <span className="sr-only">Custom color</span>
-            <input type="color" value={custom ? style.color : '#ffffff'} onChange={(e) => set({ color: e.target.value })} />
-          </label>
+    <div className="pb-cc-wrap" ref={wrap}>
+      <button
+        type="button"
+        className="pb-btn pb-cc"
+        aria-label="Captions"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        data-on={showing || undefined}
+        onClick={() => setOpen(!open)}
+      >
+        <I.Captions on={showing} />
+      </button>
+      {open && (
+        <div className="pb-pop" role="dialog" aria-label="Captions">
+          <div className="pb-pop-row">
+            <span className="pb-pop-label">Captions</span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={showing}
+              className="pb-switch"
+              onClick={() => {
+                store.toggleSubtitles?.();
+                sfx('switch');
+              }}
+            >
+              <span className="sr-only">Captions</span>
+            </button>
+          </div>
+          <div className="pb-pop-row pb-pop-row--stack">
+            <span className="pb-pop-label">Color</span>
+            <div className="pb-swatches" role="radiogroup" aria-label="Caption color">
+              {CAPTION_COLORS.map((c) => (
+                <button key={c.id} type="button" role="radio" aria-checked={style.color === c.value} aria-label={c.name} className="pb-swatch" style={{ '--c': c.value }} onClick={() => pick({ color: c.value })} />
+              ))}
+              <label className="pb-swatch pb-swatch--custom" data-checked={custom || undefined} style={{ '--c': custom ? style.color : 'conic-gradient(#ff6b6b, #ffe14d, #8ee8f0, #b48cff, #ff6b6b)' }}>
+                <span className="sr-only">Custom color</span>
+                <input type="color" value={custom ? style.color : '#ffffff'} onChange={(e) => set({ color: e.target.value })} />
+              </label>
+            </div>
+          </div>
+          <div className="pb-pop-row">
+            <span className="pb-pop-label">Edge</span>
+            <div className="pb-seg" role="radiogroup" aria-label="Caption edge">
+              <button type="button" role="radio" aria-checked={style.outline} onClick={() => pick({ outline: true })}>Outline</button>
+              <button type="button" role="radio" aria-checked={!style.outline} onClick={() => pick({ outline: false })}>Box</button>
+            </div>
+          </div>
+          <div className="pb-pop-row">
+            <span className="pb-pop-label">Font</span>
+            <div className="pb-seg" role="radiogroup" aria-label="Caption font">
+              <button type="button" role="radio" aria-checked={style.font === 'sans'} onClick={() => pick({ font: 'sans' })} style={{ fontFamily: CAPTION_FONTS.sans }}>Sans</button>
+              <button type="button" role="radio" aria-checked={style.font === 'serif'} onClick={() => pick({ font: 'serif' })} style={{ fontFamily: CAPTION_FONTS.serif }}>Serif</button>
+            </div>
+          </div>
         </div>
-      </fieldset>
-      <fieldset className="pb-field">
-        <legend>Outline</legend>
-        <div className="pb-seg" role="radiogroup" aria-label="Caption outline">
-          <button type="button" role="radio" aria-checked={style.outline} onClick={() => set({ outline: true })}>Outline</button>
-          <button type="button" role="radio" aria-checked={!style.outline} onClick={() => set({ outline: false })}>Box</button>
-        </div>
-      </fieldset>
-      <fieldset className="pb-field">
-        <legend>Font</legend>
-        <div className="pb-seg" role="radiogroup" aria-label="Caption font">
-          <button type="button" role="radio" aria-checked={style.font === 'sans'} onClick={() => set({ font: 'sans' })} style={{ fontFamily: CAPTION_FONTS.sans }}>Sans</button>
-          <button type="button" role="radio" aria-checked={style.font === 'serif'} onClick={() => set({ font: 'serif' })} style={{ fontFamily: CAPTION_FONTS.serif }}>Serif</button>
-        </div>
-      </fieldset>
+      )}
     </div>
   );
 }
@@ -338,10 +536,10 @@ function FrameThumb({ border }) {
     ensureFrameFonts().then(() => {
       const el = ref.current;
       if (!alive || !el) return;
-      const L = frameLayout(border, 16 / 9, 160);
+      const L = frameLayout(border, 16 / 9, 220);
       el.width = L.W;
       el.height = L.H;
-      paintComposite(el.getContext('2d'), border, L, { title: '', date: '' }, (g, win) => {
+      paintComposite(el.getContext('2d'), border, L, { title: 'Film', date: '' }, (g, win) => {
         const grad = g.createLinearGradient(0, win.y, 0, win.y + win.h);
         grad.addColorStop(0, '#d9b98f');
         grad.addColorStop(1, '#6d5444');
@@ -368,10 +566,15 @@ function FramePicker({ active }) {
     return () => clearTimeout(id);
   }, [active]);
 
+  const choose = (id) => {
+    if (id === useApp.getState().borderId) return;
+    setBorder(id);
+    sfx('paper');
+  };
   const move = (dir) => {
     const i = BORDERS.findIndex((b) => b.id === borderId);
     const next = BORDERS[(i + dir + BORDERS.length) % BORDERS.length];
-    setBorder(next.id);
+    choose(next.id);
     requestAnimationFrame(() => group.current?.querySelector(`[data-id="${next.id}"]`)?.focus());
   };
 
@@ -398,7 +601,7 @@ function FramePicker({ active }) {
         {BORDERS.map((b) => {
           const on = b.id === borderId;
           return (
-            <button key={b.id} type="button" role="radio" aria-checked={on} tabIndex={on ? 0 : -1} data-id={b.id} className="frame-opt" onClick={(e) => { setBorder(b.id); e.currentTarget.focus(); }}>
+            <button key={b.id} type="button" role="radio" aria-checked={on} tabIndex={on ? 0 : -1} data-id={b.id} className="frame-opt" onClick={() => choose(b.id)}>
               <FrameThumb border={b} />
               <span className="frame-name">{b.name}</span>
             </button>
@@ -413,8 +616,8 @@ function FramePicker({ active }) {
             const s = useApp.getState();
             s.confirmFrame();
             s.announce(`${selected.name} frame. Playing.`);
-            // the picker is about to unmount: keep keyboard focus inside the player
-            requestAnimationFrame(() => document.querySelector('.pb-skin')?.focus({ preventScroll: true, focusVisible: false }));
+            sfx('start');
+            requestAnimationFrame(() => document.querySelector('.pb-play')?.focus({ preventScroll: true, focusVisible: false }));
           }}
         >
           Start the film
@@ -427,9 +630,15 @@ function FramePicker({ active }) {
   );
 }
 
+/* ---------- keys ---------- */
+
 function PlayboothHotkeys({ enabled }) {
   const off = !enabled;
-  useHotkey({ keys: 's', action: 'snapshot', disabled: off, onActivate: () => snapPhoto() });
+  const snap = useCallback(() => {
+    sfx('shutter');
+    snapPhoto();
+  }, []);
+  useHotkey({ keys: 's', action: 'snapshot', disabled: off, onActivate: snap });
   return (
     <>
       <Hotkey keys="Space" action="togglePaused" disabled={off} />
@@ -452,3 +661,4 @@ function PlayboothHotkeys({ enabled }) {
     </>
   );
 }
+

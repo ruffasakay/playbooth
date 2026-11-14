@@ -329,7 +329,7 @@ function WallShelf() {
 
 /** Photostrips pinned along a string on the side wall. */
 function StripGallery() {
-  const strips = useMemo(() => makeSampleStrips(['instant', 'kraft', 'washi', 'gingham']), []);
+  const strips = useMemo(() => makeSampleStrips(['denim', 'knit', 'cocoa', 'airmail']), []);
   return (
     <group position={[innerX - 0.012, 1.55, -0.85]} rotation={[0, -Math.PI / 2, 0]}>
       <mesh position={[0, 0.42, 0]} rotation={[0, 0, Math.PI / 2]} material={mat('#6a5a4a')}>
@@ -381,7 +381,7 @@ function FloorLamp() {
 
 /** On the wall by the door: hooks, a tote bag, a scarf, a small framed receipt. */
 function CoatHooks() {
-  const receipt = useMemo(() => makeSampleStrips(['receipt'])[0], []);
+  const receipt = useMemo(() => makeSampleStrips(['reel'])[0], []);
   return (
     <group position={[-1.45, 1.72, innerZ - 0.02]} rotation={[0, Math.PI, 0]}>
       <mesh material={mat(PAL.woodDark)}>

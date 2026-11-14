@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect } from 'react';
 import { useApp } from './store.js';
 import { loadPhotos } from './lib/photos.js';
+import { bindSounds } from './lib/sfx.js';
 import { PlayerLayer } from './player/PlayerLayer.jsx';
 import { Announcer, Hero, Preloader, RoomUI, deepLinkToPlayer } from './ui/Screens.jsx';
 import { AlbumDialog, CompilerDialog, FlatShelf, PhotoDialog } from './ui/Dialogs.jsx';
@@ -31,9 +32,11 @@ function useEnvironment() {
     rm.addEventListener('change', sync);
     coarse.addEventListener('change', sync);
     loadPhotos().then((photos) => useApp.getState().setCollection(photos));
+    const unbindSounds = bindSounds();
     return () => {
       rm.removeEventListener('change', sync);
       coarse.removeEventListener('change', sync);
+      unbindSounds();
     };
   }, []);
 

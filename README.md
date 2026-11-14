@@ -6,7 +6,7 @@ Built for the Video.js v10 Skins Design Challenge with **Video.js 10.4.0 (`@vide
 
 ## Design thinking (for the submission form)
 
-> PLAYBOOTH is a photobooth for films. You step into a little white booth on a quiet street, pick a tape from the rack and watch it on an old television. The Video.js skin is the photo frame itself: the frame you choose becomes the player's border, and the controls float over the picture and fade away while you watch. Press Snap on any frame, playing or paused, and it downloads at once and waits in the booth's tray, ready to be printed one by one in its frame or stacked into a photostrip. Warm paper, brown ink and late-afternoon light, inspired by the quiet of a corner shop at golden hour.
+> PLAYBOOTH is a photobooth for films. You step into a little white booth on a quiet street, pick a tape from the rack and watch it on an old television. The Video.js skin is the photo frame itself: the frame you choose becomes the player's border, and its lower edge widens into a band that holds the controls, so nothing ever covers the picture. Each frame dresses its own controls: lace edging on the lace frame, stitched denim pills and a star handle on the denim frame, sprocket holes on the film reel. Press Snap on any frame, playing or paused, and it downloads at once and waits in the booth's tray, ready to be printed one by one in its frame or stacked into a photostrip. Warm paper, brown ink and late-afternoon light, inspired by the quiet of a corner shop at golden hour.
 
 ## Run it
 
@@ -39,9 +39,10 @@ Playback uses Video.js's `MuxVideo` with `preferPlayback: 'mse'` and `crossOrigi
 
 | Where | What |
 | --- | --- |
-| `src/player/Skin.jsx` | **The skin.** The chosen frame is the border; floating, auto-hiding controls (Video.js `Controls.Content`/`Backdrop`); Snap key; caption style panel (color presets + custom picker, outline or box, sans or serif); picture-in-picture. Video.js `Container`, `Controls`, `PlayButton`, `SeekButton`, `TimeSlider` (with Mux storyboard thumbnails), `Time`, `MuteButton`, `VolumeSlider`, `CaptionsButton`, `PlaybackRateButton`, `FullscreenButton`, `Poster`, `BufferingIndicator`, status, seek and volume indicators, `ErrorDialog`, `Hotkey`s and `StatusAnnouncer`, plus the photo keys |
-| `src/styles/skin.css` | Skin styles. Container queries size the deck to the player, not the window |
-| `src/data/borders.js` | The five photo frames and the single painter used everywhere |
+| `src/player/Skin.jsx` | **The skin.** The chosen frame is the border, and its widened lower edge is the control band, so controls never sit on the picture. Pill islands: play, ±10 s, mute and volume on the left; captions (with a style popover above the button), speed, picture-in-picture and fullscreen on the right; Snap on its own. The seek bar shows a live preview card of the film on hover. Custom caption layer placed above the band. Video.js `Container`, `PlayButton`, `SeekButton`, `TimeSlider`, `Time`, `MuteButton`, `VolumeSlider`, `PlaybackRateButton`, `PiPButton`, `FullscreenButton`, `Poster`, `BufferingIndicator`, `ErrorDialog`, `Hotkey`s and `StatusAnnouncer` |
+| `src/styles/skin.css` | Skin styles. Each frame sets theme tokens (`--k-surface`, `--k-ink`, `--k-accent`, `--k-track`, `--k-play-bg`…) plus `data-edge`, `data-bar` and `data-thumb` for its edging, progress track and handle. Container queries size the band to the player, not the window |
+| `src/data/borders.js` | The 13 photo frames, their control themes, and the single painter used for the player, prints and photostrips |
+| `src/lib/sfx.js` | Every sound, synthesized with WebAudio (no audio files). The speaker knob next to the light switch mutes them |
 | `src/three/*` | The booth: exterior, curtains, interior, cabinet, tapes with magnetic snapping, machine, printer, prints, camera rig, keyboard hotspots |
 | `src/lib/photos.js` | Capture, IndexedDB storage, download and share |
 
@@ -50,13 +51,14 @@ The skin supports the same public CSS properties as the Video.js skins: `--media
 ## Checklist against the brief
 
 - **Works**: Video.js v10 player, Mux streams, real playback.
-- **Essential controls**: play/pause, seek bar with film-frame preview, current time and duration, mute and volume, fullscreen (frame included). Also ±10 s, captions with style panel, speed, picture-in-picture, Snap, Snaps compiler, album, eject.
-- **Day and night**: the light switch on the booth's back wall (or the Day/Night button, or L) turns the whole booth to night: street lamps, shop windows and string lights come on, the room dims to lamp light, and the interface switches to its dark palette.
-- **Frames**: 13, including No frame, Instant photo, Film negative, Kraft stitch, Gingham, Washi tape and Konbini receipt.
-- **Snap flow**: each snap downloads the clean frame immediately and joins the Snaps compiler; print singles in any frame, or 2 to 6 as a framed photostrip. Seven frames, including No frame.
+- **Essential controls**: play/pause, seek bar with a live preview card, current time and duration, mute and volume, fullscreen (the frame scales to fill the whole screen). Also ±10 s, captions with style panel, speed, picture-in-picture, Snap, Snaps compiler, album, eject.
+- **Sound**: soft synthesized clicks, a shutter, paper, tape clunk and eject, curtain and light switch sounds. One knob mutes them all.
+- **Day and night**: the light switch plate in the corner of the screen (from the street to inside the booth), the switch on the booth's back wall, or L turns the whole booth to night: street lamps, shop windows and string lights come on, the room dims to lamp light, and the interface switches to its dark palette.
+- **Frames**: 13: No frame, Booth white, Lace, Postage stamp, Cinema ticket, Denim & lace, Red knit, Cocoa bow, Red film, Airmail, Matinee, Red polka and Linen stripe. Each one themes its own controls.
+- **Snap flow**: each snap downloads the clean frame immediately and joins the Snaps compiler; print singles in any frame, or 2 to 6 as a framed photostrip.
 - **Responsive**: tested at 1440×900, 1200×750, 1000×640, 390×844 and 844×390. On tall phones the walk in ends facing the tapes.
 - **Keyboard**: every 3D object has a focusable hotspot (tapes, slot, screen, eject, prints, album). Escape puts a tape back, steps back out of a view, or stands up from the deck. Player shortcuts: Space/K, M, F, C, ←/→, J/L, ↑/↓, 0–9, Home/End, `<`/`>`, and S for a photo.
-- **Readable over any video**: controls are on the deck, not over the picture. Indicators and the error dialog use solid surfaces.
+- **Readable over any video**: controls live in the frame's band, not over the picture. Captions sit on the picture's lower edge with an outline or box. No pop-up status text stretches the player; state changes are announced to screen readers only.
 - **Touch targets**: controls are 44×44 px, 38–40 px only inside very small players; nothing is clipped at the tested sizes.
 - **Reduced motion**: the walk in becomes a quick fade, the camera cuts instead of flying, tapes and prints move instantly, idle animations stop.
 - Also handles `prefers-reduced-transparency`, `prefers-contrast: more`, `forced-colors`, RTL arrow keys in the frame picker, and a no-WebGL fallback (tapes become buttons; force it with `?flat`).

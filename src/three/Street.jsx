@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import { RoundedBox, Text } from '@react-three/drei';
-import { FONT_HAND, FONT_SERIF, PAL, dayNight, mat } from './world.js';
+import { FONT_SERIF, PAL, dayNight, mat } from './world.js';
 import { canvasTexture } from './canvasTexture.js';
 
 const G = -0.12;
@@ -24,7 +24,6 @@ export function Street() {
       <StreetLamp position={[-5.4, G, 4.4]} withLight />
       <Bench position={[4.3, G, -0.6]} rotation={[0, -Math.PI / 2, 0]} />
       <Bicycle position={[-1.75, G, 2.44]} />
-      <ChalkSign position={[-1.05, G, 3.15]} rotation={[0, 0.5, 0]} />
       <PostBox position={[3.25, G, 3.05]} />
       <PlantCrate position={[1.45, G, 2.62]} />
       <PottedPlant position={[2.55, G, 2.7]} scale={1.05} />
@@ -429,34 +428,6 @@ function Bicycle({ position }) {
       <mesh position={[0.56, 1.0, 0]} material={mat('#efe4cf')}>
         <boxGeometry args={[0.22, 0.04, 0.26]} />
       </mesh>
-    </group>
-  );
-}
-
-/** A chalkboard A-frame by the door. */
-function ChalkSign(props) {
-  return (
-    <group {...props}>
-      {[-1, 1].map((s) => (
-        <mesh key={s} position={[0, 0.48, s * 0.13]} rotation={[s * 0.24, 0, 0]} castShadow material={mat(PAL.wood)}>
-          <boxGeometry args={[0.66, 0.96, 0.035]} />
-        </mesh>
-      ))}
-      <mesh position={[0, 0.5, 0.155]} rotation={[0.24, 0, 0]}>
-        <planeGeometry args={[0.56, 0.8]} />
-        <meshStandardMaterial color="#2b2f2c" roughness={0.95} />
-      </mesh>
-      <group position={[0, 0.5, 0.162]} rotation={[0.24, 0, 0]}>
-        <Text font={FONT_HAND} fontSize={0.11} color="#f1ece2" position={[0, 0.2, 0.002]} anchorX="center">
-          photos
-        </Text>
-        <Text font={FONT_HAND} fontSize={0.11} color="#f1ece2" position={[0, 0.06, 0.002]} anchorX="center">
-          &amp; films
-        </Text>
-        <Text font={FONT_HAND} fontSize={0.075} color="#e8b27a" position={[0, -0.14, 0.002]} anchorX="center">
-          step inside
-        </Text>
-      </group>
     </group>
   );
 }

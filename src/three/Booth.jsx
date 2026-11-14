@@ -224,7 +224,7 @@ function Curtains() {
 export function makeSampleStrips(ids = ['lace', 'stamp', 'polka']) {
   return ids.map((id, k) =>
         canvasTexture(240, 720, (ctx, w, h) => {
-          const border = BORDERS.find((b) => b.id === id);
+          const border = BORDERS.find((b) => b.id === id) ?? BORDERS[1];
           const bg = border.strip.wood ? '#4a3125' : border.strip.bg;
           ctx.fillStyle = bg;
           ctx.fillRect(0, 0, w, h);

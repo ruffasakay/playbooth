@@ -152,7 +152,7 @@ kbd {
 
 @media (max-aspect-ratio: 21/20) {
   .hero { justify-content: flex-start; padding-left: calc(var(--safe-left) + 22px); }
-  .hero::before { background: linear-gradient(180deg, rgb(244 237 224 / 0.96) 0%, rgb(244 237 224 / 0.86) 40%, rgb(244 237 224 / 0) 58%); }
+  .hero::before { background: linear-gradient(180deg, rgb(var(--paper-rgb) / 0.96) 0%, rgb(var(--paper-rgb) / 0.86) 40%, rgb(var(--paper-rgb) / 0) 58%); }
   .hero-copy { width: min(100%, 32rem); max-height: 62%; }
   .hero-kicker { margin-bottom: 8px; font-size: 0.78rem; }
   .hero-title { font-size: clamp(2rem, 9.5vw, 3rem); }
@@ -326,10 +326,34 @@ dialog::backdrop { background: rgb(28 20 14 / 0.6); backdrop-filter: blur(6px); 
 }
 
 /* ---------- day and night ---------- */
-.theme-toggle { position: fixed; top: calc(var(--safe-top) + 14px); right: calc(var(--safe-right) + 14px); z-index: 13; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px 0 11px; border: 0; border-radius: 20px; background: var(--bar-bg); color: var(--bar-ink); font-family: var(--mono); font-size: 0.85rem; cursor: pointer; backdrop-filter: blur(10px); }
-.theme-toggle:hover { background: rgb(28 20 14 / 0.9); }
-.theme-toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
-.app[data-phase='outside'] .theme-toggle { animation: fade-in 0.8s var(--ease) both 0.9s; }
+/* the light switch plate and the sound knob, top right from the street to the booth */
+.switches { position: fixed; top: calc(var(--safe-top) + 14px); right: calc(var(--safe-right) + 14px); z-index: 13; display: flex; align-items: center; gap: 10px; animation: fade-in 0.8s var(--ease) both 0.4s; }
+.switch-plate {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto auto;
+  align-items: center;
+  gap: 7px;
+  height: 46px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 9px;
+  background: linear-gradient(160deg, #fbf6ec, #e7dcc8);
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.22), inset 0 1px 0 rgb(255 255 255 / 0.9), inset 0 -2px 0 rgb(120 95 70 / 0.18);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.switch-screw { width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #ddd4c4, #a89c88); box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.2); position: relative; }
+.switch-screw::after { content: ''; position: absolute; left: 1px; right: 1px; top: 3px; height: 1px; background: rgb(60 45 30 / 0.5); rotate: 35deg; }
+.switch-slot { position: relative; width: 16px; height: 28px; border-radius: 4px; background: #d8ccb6; box-shadow: inset 0 2px 3px rgb(80 60 40 / 0.35); overflow: hidden; }
+.switch-lever { position: absolute; left: 2px; right: 2px; top: 2px; height: 14px; border-radius: 3px; background: linear-gradient(#fffaf2, #ece2d0); box-shadow: 0 2px 2px rgb(60 45 30 / 0.35); transition: top 0.18s var(--ease), box-shadow 0.18s ease; }
+.switch-plate[aria-checked='true'] .switch-lever { top: 12px; box-shadow: 0 -2px 2px rgb(60 45 30 / 0.35); }
+.switch-label { position: absolute; top: calc(100% + 6px); left: 50%; translate: -50% 0; font: 500 0.72rem var(--mono); color: var(--ink); text-shadow: 0 1px 2px rgb(var(--paper-rgb) / 0.8); white-space: nowrap; pointer-events: none; }
+.app[data-phase='inside'] .switch-label, :root[data-theme='night'] .switch-label { color: #f4ede0; text-shadow: 0 1px 3px rgb(0 0 0 / 0.6); }
+.switch-plate:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.switch-plate:active .switch-lever { filter: brightness(0.96); }
+.sound-knob { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: linear-gradient(160deg, #fbf6ec, #e7dcc8); color: #4a3a2d; box-shadow: 0 6px 16px rgb(0 0 0 / 0.22), inset 0 1px 0 rgb(255 255 255 / 0.9); cursor: pointer; }
+.sound-knob:not([data-on]) { color: #a08f7c; }
+.sound-knob:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .sheet, .viewer, .pb-picker, .prompt-card, .hotspot-label { transition: background-color 0.6s ease, color 0.6s ease; }
 :root[data-theme='night'] .room-brand { color: #efe4cf; }
-@media (prefers-reduced-transparency: reduce) { .theme-toggle { backdrop-filter: none; background: var(--night); } }
