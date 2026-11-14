@@ -22,6 +22,7 @@ export function Street() {
       <VendingMachine position={[-4.1, G, -1.2]} />
       <UtilityPole position={[-7.6, G, -3.3]} />
       <StreetLamp position={[-5.4, G, 4.4]} withLight />
+      <StreetLamp position={[6.2, G, 4.4]} withLight />
       <Bench position={[4.3, G, -0.6]} rotation={[0, -Math.PI / 2, 0]} />
       <Bicycle position={[-1.75, G, 2.44]} />
       <PostBox position={[3.25, G, 3.05]} />
@@ -170,7 +171,7 @@ function Shopfront() {
           </mesh>
           <mesh position={[0, 0, 0.035]}>
             <planeGeometry args={[1.1, 1.3]} />
-            <meshStandardMaterial color="#6f7478" emissive="#ffc782" emissiveIntensity={0} roughness={0.2} ref={dayNight('emissiveIntensity', 0, i % 3 === 1 ? 0 : 0.9)} />
+            <meshStandardMaterial color="#6f7478" emissive="#ffc782" emissiveIntensity={0} roughness={0.2} ref={dayNight('emissiveIntensity', 0, i % 4 === 1 ? 0.25 : 1.35)} />
           </mesh>
           <mesh position={[0, -0.82, 0.12]} material={mat('#8d877e')}>
             <boxGeometry args={[1.4, 0.05, 0.24]} />
@@ -207,7 +208,7 @@ function BackBlocks() {
             Array.from({ length: Math.floor(w / 1.6) }, (_, k) => (
               <mesh key={`${r}-${k}`} position={[x - w / 2 + 1 + k * 1.6, y + h / 2 - 1.3 - r * 1.8, z + 2.01]}>
                 <planeGeometry args={[0.8, 1]} />
-                <meshStandardMaterial color="#8a8f92" emissive="#ffc782" emissiveIntensity={0} roughness={0.3} ref={dayNight('emissiveIntensity', 0, (k + r + i) % 3 ? 0.7 : 0)} />
+                <meshStandardMaterial color="#8a8f92" emissive="#ffc782" emissiveIntensity={0} roughness={0.3} ref={dayNight('emissiveIntensity', 0, (k + r + i) % 4 ? 1.15 : 0.2)} />
               </mesh>
             )),
           )}
@@ -339,7 +340,7 @@ function StreetLamp({ position, withLight }) {
         <cylinderGeometry args={[0.18, 0.12, 0.16, 16]} />
         <meshStandardMaterial color="#fff1d6" emissive="#ffd8a0" emissiveIntensity={0.25} ref={dayNight('emissiveIntensity', 0.25, 3.2)} />
       </mesh>
-      {withLight && <pointLight position={[-0.7, 4.0, 0]} intensity={0} distance={11} decay={1.5} color="#ffcf98" ref={dayNight('intensity', 0, 14)} />}
+      {withLight && <pointLight position={[-0.7, 4.0, 0]} intensity={0} distance={11} decay={1.5} color="#ffcf98" ref={dayNight('intensity', 0, 16)} />}
     </group>
   );
 }

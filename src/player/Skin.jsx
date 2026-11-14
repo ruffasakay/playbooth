@@ -38,9 +38,8 @@ import * as I from './icons.jsx';
 /* ---------- layout ---------- */
 
 const SCRUB_W = 40;
-const DOCK_PAD = 10;
+const SCRUB_GAP = 14;
 const H_DOCK = 196; // portrait dock height
-const RAIL_KEY = 46;
 
 /** How the vertical dock arranges its keys for a given height. */
 function dockSpec(h) {
@@ -49,7 +48,10 @@ function dockSpec(h) {
   if (h >= 320) return { cols: 2, key: 40, play: 50, min: 320 };
   return { cols: 3, key: 38, play: 46, min: 214 };
 }
-const dockWidth = (s) => DOCK_PAD * 2 + SCRUB_W + 10 + s.cols * s.key + (s.cols - 1) * 8;
+const keysWidth = (s) => (s.cols === 1 ? Math.max(s.key, s.play) : s.cols === 2 ? s.key * 2 + 8 : s.key * 2 + s.play + 12);
+const dockWidth = (s) => SCRUB_W + SCRUB_GAP + keysWidth(s);
+/** From the dock's left edge to the middle of its keys: the booth rail mirrors this on the other side. */
+const keysCenter = (s) => SCRUB_W + SCRUB_GAP + keysWidth(s) / 2;
 
 /** The frame hugging a picture as large as fits in aw × ah. */
 function fitFrame(border, aspect, aw, ah) {
@@ -77,6 +79,14 @@ function computeLayout({ border, aspect, sw, sh, fs, picker, shown }) {
   const m = fs ? 0 : Math.round(Math.min(22, Math.max(10, Math.min(sw, sh) * 0.025)));
   const gap = fs ? 0 : Math.round(Math.min(18, Math.max(10, sw * 0.012)));
 
+  // choosing a frame is about the frame: show the picture in it, the controls come with the film
+  if (picker) {
+    const titleH = sh >= 420 ? 40 : 0;
+    const f = fitFrame(border, aspect, sw - m * 2, sh - m * 2 - titleH);
+    const y = titleH + m + (sh - m * 2 - titleH - f.H) / 2;
+    return { portrait, frame: { ...f, x: (sw - f.W) / 2, y }, title: titleH ? { x: (sw - f.W) / 2, y: m, w: f.W, h: titleH - 8 } : null };
+  }
+
   if (portrait) {
     const top = !fs && !picker ? 60 : m;
     const avW = sw - m * 2;
@@ -98,44 +108,55 @@ function computeLayout({ border, aspect, sw, sh, fs, picker, shown }) {
   }
 
   const titleH = !fs && sh >= 540 ? 40 : 0;
-  const railW = picker ? 0 : fs ? 70 : RAIL_KEY + 12;
+  const rail = !picker;
   if (!shown) {
     const f = fs ? fillFrame(border, aspect, sw, sh) : fitFrame(border, aspect, sw - m * 2, sh - m * 2);
     return { portrait, frame: { ...f, x: (sw - f.W) / 2, y: (sh - f.H) / 2 } };
   }
-  const top = m + titleH;
-  const avH = sh - top - m;
+
+  // the keys stand on their own either side of the frame: dock on the right,
+  // the booth rail mirrored on the left, so the frame sits in the middle
   if (fs) {
-    const spec = dockSpec(sh - 16);
+    const mv = 16;
+    const g = 16;
+    const edge = 12;
+    const spec = dockSpec(sh - mv * 2);
     const dw = dockWidth(spec);
-    const f = fillFrame(border, aspect, sw - railW - dw, sh);
+    const side = edge + dw + g;
+    const f = fillFrame(border, aspect, sw - side * 2, sh);
+    const dockX = side + f.W + g;
+    const railC = side - g - keysCenter(spec);
     return {
       portrait,
-      frame: { ...f, x: railW, y: 0 },
-      dock: { orient: 'v', x: sw - dw, y: 0, w: dw, h: sh, spec, flush: true },
-      rail: railW ? { orient: 'v', x: 0, y: 0, w: railW, h: sh, flush: true } : null,
+      frame: { ...f, x: side, y: 0 },
+      dock: { orient: 'v', x: dockX, y: mv, w: dw, h: sh - mv * 2, spec },
+      rail: rail ? { orient: 'v', x: railC - spec.key / 2, y: mv, w: spec.key, h: sh - mv * 2, key: spec.key, top: spec.cols === 1 ? 44 : 26 } : null,
     };
   }
-  const left = railW ? m + railW : m;
+  const top = m + titleH;
+  const avH = sh - top - m;
   let spec = dockSpec(avH);
   let f;
   for (let i = 0; i < 4; i++) {
     const dw = dockWidth(spec);
-    f = fitFrame(border, aspect, sw - left - m - gap - dw, avH);
+    // the rail mirrors the dock, so both sides keep the same room; in the picker only the dock is there
+    const reserve = rail ? (gap + dw) * 2 : gap + dw;
+    f = fitFrame(border, aspect, sw - m * 2 - reserve, avH);
     const next = dockSpec(f.H);
     if (next.cols === spec.cols && next.key === spec.key) break;
     spec = next;
   }
   const dw = dockWidth(spec);
   const dh = Math.max(f.H, spec.min);
-  const groupW = f.W + gap + dw;
-  const x0 = left + Math.max(0, (sw - left - m - groupW) / 2);
+  const x0 = rail ? (sw - f.W) / 2 : m + Math.max(0, (sw - m * 2 - f.W - gap - dw) / 2);
   const fy = top + (avH - f.H) / 2;
+  const dy = fy + (f.H - dh) / 2;
+  const railC = x0 - gap - keysCenter(spec);
   return {
     portrait,
     frame: { ...f, x: x0, y: fy },
-    dock: { orient: 'v', x: x0 + f.W + gap, y: fy + (f.H - dh) / 2, w: dw, h: dh, spec },
-    rail: railW ? { orient: 'v', x: m, y: top, w: RAIL_KEY, h: avH } : null,
+    dock: { orient: 'v', x: x0 + f.W + gap, y: dy, w: dw, h: dh, spec },
+    rail: rail ? { orient: 'v', x: railC - spec.key / 2, y: dy, w: spec.key, h: dh, key: spec.key, top: spec.cols === 1 ? 44 : 26 } : null,
     title: titleH ? { x: x0, y: m, w: f.W, h: titleH - 8 } : null,
   };
 }
@@ -376,8 +397,9 @@ export function PlayboothSkin({ children }) {
     '--k-accent': k.accent,
     '--k-track': k.track,
     '--k-dock': k.dock ?? border.swatch[0],
-    '--k-play-bg': k.play?.[0] ?? k.ink,
-    '--k-play-ink': k.play?.[1] ?? k.surface,
+    '--k-play-bg': k.playKey?.[0] ?? k.ink,
+    '--k-play-ink': k.playKey?.[1] ?? k.surface,
+    '--k-glow': luminance(k.accent) >= 0.25 ? k.accent : k.surface,
     '--bar-bg': k.surface,
   };
 
@@ -485,7 +507,6 @@ export function PlayboothSkin({ children }) {
             <div ref={frameRef} className="pb-frame" style={{ left: geo.frame.x, top: geo.frame.y, width: geo.frame.W, height: geo.frame.H }}>
               <div
                 className="pb-window"
-                data-cursor={locked ? 'Locked' : playing ? (paused ? 'Play' : 'Pause') : undefined}
                 style={{ left: geo.frame.win.x, top: geo.frame.win.y, width: geo.frame.win.w, height: geo.frame.win.h, borderRadius: geo.frame.win.r || undefined }}
                 onPointerDown={(e) => {
                   pointerKind.current = e.pointerType || 'mouse';
@@ -531,8 +552,8 @@ export function PlayboothSkin({ children }) {
                 type="button"
                 className="pb-btn pb-unlock"
                 data-shown={unlockShown || undefined}
-                data-cursor="Unlock"
                 aria-label="Unlock controls"
+                data-tip="Unlock the controls"
                 onClick={unlock}
                 onFocus={() => setUnlockShown(true)}
               >
@@ -592,23 +613,30 @@ function Flash() {
 function Rail({ geo, movie, hidden, portrait, fs, hover }) {
   const snaps = useApp((s) => s.snaps.length);
   const total = useApp((s) => s.collection.length);
+  const v = geo.orient === 'v';
   const back = () => {
     if (useApp.getState().pseudoFs) useApp.setState({ pseudoFs: false });
     if (document.fullscreenElement) document.exitFullscreen?.().catch?.(() => {});
     useApp.getState().goStation('player');
   };
+  const eject = (
+    <button type="button" className="pb-btn pb-rail-key" aria-label={`Eject ${movie?.title ?? 'tape'}`} data-tip="Eject the tape" onClick={() => useApp.getState().ejectTape()}>
+      <I.Eject />
+    </button>
+  );
+  // top, middle, bottom: the same rhythm as the dock across the frame
   return (
     <nav
       className="pb-rail"
       data-orient={geo.orient}
-      data-flush={geo.flush || undefined}
+      data-tip-side={geo.orient === 'v' ? 'right' : 'bottom'}
       data-hidden={hidden || undefined}
       aria-label="Booth"
-      style={{ left: geo.x, top: geo.y, width: geo.w, height: geo.h }}
+      style={{ left: geo.x, top: geo.y, width: geo.w, height: geo.h, '--key': geo.key ? `${geo.key}px` : undefined, '--rail-top': geo.top ? `${geo.top}px` : undefined }}
       inert={hidden || undefined}
       {...hover}
     >
-      <button type="button" className="pb-btn pb-rail-key" aria-label="Back to the booth" data-cursor="Booth" onClick={back}>
+      <button type="button" className="pb-btn pb-rail-key" aria-label="Back to the booth" data-tip="Back to the booth" data-key="Esc" onClick={back}>
         <I.Back />
       </button>
       {portrait && !fs && (
@@ -617,17 +645,16 @@ function Rail({ geo, movie, hidden, portrait, fs, hover }) {
         </p>
       )}
       <div className="pb-rail-group">
-        <button type="button" className="pb-btn pb-rail-key" aria-label={`Snaps, ${snaps}`} data-cursor="Snaps" onClick={() => useApp.getState().setCompilerOpen(true)}>
+        <button type="button" className="pb-btn pb-rail-key" aria-label={`Snaps, ${snaps}`} data-tip="Your snaps" onClick={() => useApp.getState().setCompilerOpen(true)}>
           <I.Stack />
           {snaps > 0 && <span className="pb-badge" aria-hidden="true">{snaps}</span>}
         </button>
-        <button type="button" className="pb-btn pb-rail-key" aria-label={`Album, ${total} prints`} data-cursor="Album" onClick={() => useApp.getState().setAlbumOpen(true)}>
+        <button type="button" className="pb-btn pb-rail-key" aria-label={`Album, ${total} prints`} data-tip="Album" onClick={() => useApp.getState().setAlbumOpen(true)}>
           <I.Album />
         </button>
-        <button type="button" className="pb-btn pb-rail-key" aria-label={`Eject ${movie?.title ?? 'tape'}`} data-cursor="Eject" onClick={() => useApp.getState().ejectTape()}>
-          <I.Eject />
-        </button>
+        {!v && eject}
       </div>
+      {v && eject}
     </nav>
   );
 }
@@ -666,14 +693,14 @@ function Dock({ geo, win, aspect, movie, hidden, inert, pop, setPop, onScrub, on
         className="pb-btn pb-play"
         label={(s) => (s.ended ? 'Replay' : s.paused ? 'Play' : 'Pause')}
         render={(props, s) => (
-          <button {...props} data-cursor={s.ended ? 'Replay' : s.paused ? 'Play' : 'Pause'}>
+          <button {...props} data-tip={s.ended ? 'Replay' : s.paused ? 'Play' : 'Pause'} data-key="K">
             {s.ended ? <I.Replay /> : s.paused ? <I.Play /> : <I.Pause />}
           </button>
         )}
       />
     ),
-    back: <SeekButton key="back" seconds={-10} className="pb-btn pb-step" label="Back 10 seconds" render={(props) => <button {...props} data-cursor="−10s"><I.Seek back /></button>} />,
-    fwd: <SeekButton key="fwd" seconds={10} className="pb-btn pb-step" label="Forward 10 seconds" render={(props) => <button {...props} data-cursor="+10s"><I.Seek /></button>} />,
+    back: <SeekButton key="back" seconds={-10} className="pb-btn pb-step" label="Back 10 seconds" render={(props) => <button {...props} data-tip="Back 10 seconds" data-key="J"><I.Seek back /></button>} />,
+    fwd: <SeekButton key="fwd" seconds={10} className="pb-btn pb-step" label="Forward 10 seconds" render={(props) => <button {...props} data-tip="Forward 10 seconds" data-key="L"><I.Seek /></button>} />,
     vol: <VolumeKey key="vol" v={v} />,
     cc: (
       <button
@@ -682,7 +709,8 @@ function Dock({ geo, win, aspect, movie, hidden, inert, pop, setPop, onScrub, on
         className="pb-btn pb-cc"
         aria-label="Captions"
         aria-pressed={showing}
-        data-cursor={showing ? 'CC off' : 'CC on'}
+        data-tip={showing ? 'Captions off' : 'Captions on'}
+        data-key="C"
         disabled={!hasText}
         onClick={() => {
           store.toggleSubtitles?.();
@@ -694,17 +722,17 @@ function Dock({ geo, win, aspect, movie, hidden, inert, pop, setPop, onScrub, on
     ),
     settings: <SettingsKey key="settings" open={pop === 'settings'} setOpen={(o) => setPop(o ? 'settings' : null)} />,
     lock: (
-      <button key="lock" type="button" className="pb-btn pb-lock" aria-label="Lock controls" data-cursor="Lock" onClick={onLock}>
+      <button key="lock" type="button" className="pb-btn pb-lock" aria-label="Lock controls" data-tip="Lock the controls" onClick={onLock}>
         <I.Unlock />
       </button>
     ),
     snap: (
-      <button key="snap" type="button" className="pb-btn pb-snap" aria-label="Snap this frame" data-cursor="Snap" data-flash={flash || undefined} onClick={snap}>
+      <button key="snap" type="button" className="pb-btn pb-snap" aria-label="Snap this frame" data-tip="Snap this frame" data-key="S" data-flash={flash || undefined} onClick={snap}>
         {flash ? <I.Check /> : <I.Camera />}
       </button>
     ),
     fs: (
-      <button key="fs" type="button" className="pb-btn pb-fs" aria-label={fs.active ? 'Exit full screen' : 'Full screen'} data-cursor={fs.active ? 'Exit' : 'Full'} onClick={fs.toggle}>
+      <button key="fs" type="button" className="pb-btn pb-fs" aria-label={fs.active ? 'Exit full screen' : 'Full screen'} data-tip={fs.active ? 'Exit full screen' : 'Full screen'} data-key="F" onClick={fs.toggle}>
         <I.Fullscreen exit={fs.active} />
       </button>
     ),
@@ -723,6 +751,7 @@ function Dock({ geo, win, aspect, movie, hidden, inert, pop, setPop, onScrub, on
     <div
       className="pb-dock"
       data-orient={geo.orient}
+      data-tip-side={geo.orient === 'v' ? 'left' : 'top'}
       data-cols={spec.cols}
       data-flush={geo.flush || undefined}
       data-hidden={hidden || undefined}
@@ -751,13 +780,13 @@ function VolumeKey({ v }) {
         className="pb-btn"
         label={(s) => (s.muted ? 'Unmute' : 'Mute')}
         render={(props, s) => (
-          <button {...props} data-cursor={s.muted ? 'Sound' : 'Mute'}>
+          <button {...props} data-tip={s.muted ? 'Unmute' : 'Mute'} data-key="M">
             <I.Volume level={s.muted || s.volumeLevel === 'off' ? 'off' : s.volumeLevel === 'low' ? 'low' : 'high'} />
           </button>
         )}
       />
       <div className="pb-vol-pop">
-        <VolumeSlider.Root className="pb-vol" label="Volume" data-cursor="Drag">
+        <VolumeSlider.Root className="pb-vol" label="Volume">
           <VolumeSlider.Track className="pb-vol-track">
             <VolumeSlider.Fill className="pb-vol-fill" />
           </VolumeSlider.Track>
@@ -771,6 +800,18 @@ function VolumeKey({ v }) {
 /* ---------- progress: a groove you drag along, with a reel of clips ---------- */
 
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+
+/** Relative luminance of a #rrggbb color, 0 (black) to 1 (white). */
+function luminance(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
+  if (!m) return 0;
+  const n = parseInt(m[1], 16);
+  const ch = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) => {
+    const x = c / 255;
+    return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+}
 
 function Scrubber({ orient, movie, win, aspect, onScrub }) {
   const store = usePlayer();
@@ -858,17 +899,18 @@ function Scrubber({ orient, movie, win, aspect, onScrub }) {
   const f = drag ? drag.f : duration ? time / duration : 0;
   const bufEnd = buffered?.length ? Math.max(...buffered.map((b) => b[1])) : 0;
   const bf = duration ? clamp(bufEnd / duration, 0, 1) : 0;
-  const reel = drag ? { ...drag, mode: 'drag' } : hover ? { ...hover, mode: 'hover' } : null;
+  const reel = !drag && hover ? { ...hover, mode: 'hover' } : null;
 
   return (
     <div
       className="pb-scrub"
       data-orient={orient}
       data-dragging={drag ? '' : undefined}
-      data-cursor={drag ? 'Drag' : 'Seek'}
       role="slider"
       tabIndex={0}
       aria-label="Seek"
+      data-tip="Drag to scroll through the film"
+      data-key="↑ ↓"
       aria-orientation={v ? 'vertical' : 'horizontal'}
       aria-valuemin={0}
       aria-valuemax={Math.round(duration || 0)}
@@ -887,6 +929,7 @@ function Scrubber({ orient, movie, win, aspect, onScrub }) {
         <div className="pb-scrub-fill" />
       </div>
       <div className="pb-scrub-thumb" />
+      {drag && <span className="pb-scrub-time">{formatTimecode(f * (duration || 0))}</span>}
       {reel && duration > 0 && <Reel orient={orient} reel={reel} duration={duration} movie={movie} win={win} aspect={aspect} />}
     </div>
   );
@@ -1086,7 +1129,7 @@ function SettingsKey({ open, setOpen }) {
   }, [page, open]);
   return (
     <div className="pb-pop-wrap" ref={wrap}>
-      <button type="button" className="pb-btn pb-settings" aria-label="Settings" aria-haspopup="dialog" aria-expanded={open} data-cursor="Setup" onClick={() => setOpen(!open)}>
+      <button type="button" className="pb-btn pb-settings" aria-label="Settings" data-tip="Settings" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(!open)}>
         <I.Settings />
       </button>
       {open && (
@@ -1109,12 +1152,12 @@ function SettingsMain({ go }) {
   return (
     <div className="pb-menu">
       <p className="pb-menu-title">Settings</p>
-      <button type="button" className="pb-row" onClick={() => go('speed')} data-cursor="Open">
+      <button type="button" className="pb-row" onClick={() => go('speed')}>
         <span>Playback speed</span>
         <span className="pb-row-value">{rateName(rate)}</span>
         <I.Chevron />
       </button>
-      <button type="button" className="pb-row" onClick={() => go('subs')} data-cursor="Open">
+      <button type="button" className="pb-row" onClick={() => go('subs')}>
         <span>Subtitle style</span>
         <span className="pb-row-value">{`${CAPTION_FONTS[style.font]?.name ?? 'Sans'}, ${(CAPTION_SIZES[style.size] ?? CAPTION_SIZES.m).name.toLowerCase()}`}</span>
         <I.Chevron />
@@ -1125,7 +1168,6 @@ function SettingsMain({ go }) {
           className="pb-row"
           role="switch"
           aria-checked={pip}
-          data-cursor={pip ? 'Off' : 'On'}
           onClick={() => (pip ? store.exitPictureInPicture() : store.requestPictureInPicture())?.catch?.(() => {})}
         >
           <span>Picture in picture</span>
@@ -1141,7 +1183,7 @@ function SpeedPage({ back }) {
   const rate = usePlayer((s) => s.playbackRate);
   return (
     <div className="pb-menu">
-      <button type="button" className="pb-menu-back" onClick={back} data-cursor="Back">
+      <button type="button" className="pb-menu-back" onClick={back}>
         <I.Chevron back />
         Playback speed
       </button>
@@ -1179,7 +1221,7 @@ function SubtitlesPage({ back }) {
   );
   return (
     <div className="pb-menu">
-      <button type="button" className="pb-menu-back" onClick={back} data-cursor="Back">
+      <button type="button" className="pb-menu-back" onClick={back}>
         <I.Chevron back />
         Subtitle style
       </button>
@@ -1369,20 +1411,19 @@ function FramePicker({ active }) {
         {BORDERS.map((b) => {
           const on = b.id === borderId;
           return (
-            <button key={b.id} type="button" role="radio" aria-checked={on} aria-label={b.name} tabIndex={on ? 0 : -1} data-id={b.id} data-cursor="Pick" className="frame-opt" onClick={() => choose(b.id)}>
+            <button key={b.id} type="button" role="radio" aria-checked={on} aria-label={b.name} tabIndex={on ? 0 : -1} data-id={b.id} className="frame-opt" onClick={() => choose(b.id)}>
               <FrameThumb border={b} />
             </button>
           );
         })}
       </div>
       <div className="pb-picker-actions">
-        <button type="button" className="btn" data-cursor="Back" onClick={() => useApp.getState().goStation('player')}>
+        <button type="button" className="btn" onClick={() => useApp.getState().goStation('player')}>
           Back
         </button>
         <button
           type="button"
           className="btn btn--primary"
-          data-cursor="Start"
           onClick={() => {
             const s = useApp.getState();
             s.confirmFrame();

@@ -99,3 +99,12 @@ export const Screen = () => (
 export const Exit = () => (
   <svg {...base}><path {...line} d="M13.5 4.5H6.2c-.7 0-1.2.5-1.2 1.2v12.6c0 .7.5 1.2 1.2 1.2h7.3" /><path {...line} d="M10.5 12h9.5M16.8 8.6 20.2 12l-3.4 3.4" /></svg>
 );
+export const Download = () => (
+  <svg {...base}><path {...line} d="M12 4v11M7.5 10.8 12 15.2l4.5-4.4" /><path {...line} d="M5 19.5h14" /></svg>
+);
+export const Share = () => (
+  <svg {...base}><path {...line} d="M12 14.5V3.8M8.2 7.4 12 3.6l3.8 3.8" /><path {...line} d="M8 10.5H6.6c-.9 0-1.6.7-1.6 1.6v6.8c0 .9.7 1.6 1.6 1.6h10.8c.9 0 1.6-.7 1.6-1.6v-6.8c0-.9-.7-1.6-1.6-1.6H16" /></svg>
+);
+export const Trash = () => (
+  <svg {...base}><path {...line} d="M4.5 7h15M9.5 7V5.2c0-.7.5-1.2 1.2-1.2h2.6c.7 0 1.2.5 1.2 1.2V7M6.5 7l.8 11.6c.1.8.7 1.4 1.5 1.4h6.4c.8 0 1.4-.6 1.5-1.4L17.5 7" /></svg>
+);

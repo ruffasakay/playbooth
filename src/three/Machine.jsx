@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber';
 import { RoundedBox, Text } from '@react-three/drei';
 import { useApp, movieById } from '../store.js';
 import { FONT_MONO, FONT_SERIF, MACHINE, PAL, PRINTER, SCREEN, SLOT, TABLE, TRAY, TV, VCR, damp, interaction, mat } from './world.js';
-import { FONT_MONO as CSS_MONO, borderById, formatDate, frameLayout, paintOverlay } from '../data/borders.js';
+import { FONT_MONO as CSS_MONO, FONT_SERIF as CSS_SERIF, borderById, frameLayout, paintOverlay } from '../data/borders.js';
 
 export function Machine() {
   return (
@@ -78,6 +78,8 @@ function Console() {
 
 /* ---------- picture tube ---------- */
 
+const IDLE_COLORS = ['#cf6a4c', '#4fa592', '#e8c56a', '#f4ede0', '#d98cb0', '#8fb0c6'];
+
 class ScreenPainter {
   constructor(width = 1024, height = 768) {
     this.width = width;
@@ -121,32 +123,101 @@ class ScreenPainter {
     ctx.fillRect(0, 0, w, h);
   }
 
-  paintOff() {
+  /** No tape: the PLAYBOOTH mark drifts and bounces, changing color at each wall, like an old player waiting. */
+  paintIdle(dt) {
     const { ctx, width: w, height: h } = this;
-    const g = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w * 0.7);
-    g.addColorStop(0, '#2b2d2a');
-    g.addColorStop(1, '#121312');
-    ctx.fillStyle = g;
+    ctx.fillStyle = '#101320';
     ctx.fillRect(0, 0, w, h);
+    const lw = 360;
+    const lh = 120;
+    if (!this.bounce) this.bounce = { x: w * 0.2, y: h * 0.3, vx: 150, vy: 110, c: 0 };
+    const b = this.bounce;
+    const step = Math.min(dt, 0.1);
+    b.x += b.vx * step;
+    b.y += b.vy * step;
+    let hit = false;
+    if (b.x < 30 || b.x + lw > w - 30) {
+      b.vx *= -1;
+      b.x = Math.min(Math.max(b.x, 30), w - 30 - lw);
+      hit = true;
+    }
+    if (b.y < 30 || b.y + lh > h - 30) {
+      b.vy *= -1;
+      b.y = Math.min(Math.max(b.y, 30), h - 30 - lh);
+      hit = true;
+    }
+    if (hit) b.c = (b.c + 1) % IDLE_COLORS.length;
+    const col = IDLE_COLORS[b.c];
+    // the mark: a three-frame strip
+    const mx = b.x;
+    const my = b.y + 6;
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 6;
+    ctx.strokeRect(mx, my, 48, 108);
+    [0.1, 0.395, 0.69].forEach((f, i) => {
+      ctx.fillStyle = i === 1 ? '#f4ede0' : col;
+      ctx.fillRect(mx + 10, my + 108 * f, 28, 22);
+    });
+    ctx.fillStyle = col;
+    ctx.font = `600 64px ${CSS_SERIF}`;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+    ctx.fillText('PLAYBOOTH', mx + 74, b.y + lh / 2 - 8);
+    ctx.font = `24px ${CSS_MONO}`;
+    ctx.globalAlpha = 0.8;
+    ctx.fillText('insert a tape', mx + 78, b.y + lh / 2 + 40);
+    ctx.globalAlpha = 1;
     this.tube();
   }
 
-  /** The VCR's blue screen with its on-screen display. */
-  paintReading(time, movie) {
+  /** A tape going in: the VCR's blue screen, two reels turning and a bar filling up. */
+  paintReading(time, movie, progress) {
     const { ctx, width: w, height: h } = this;
     ctx.fillStyle = '#2f4a8c';
     ctx.fillRect(0, 0, w, h);
     ctx.fillStyle = '#eef2ff';
-    ctx.font = `bold 54px ${CSS_MONO}`;
+    ctx.font = `bold 50px ${CSS_MONO}`;
     ctx.textBaseline = 'top';
     ctx.textAlign = 'left';
-    ctx.fillText(Math.floor(time * 2) % 2 ? 'PLAY ▶' : 'PLAY', 64, 56);
-    ctx.font = `40px ${CSS_MONO}`;
+    ctx.fillText(Math.floor(time * 2) % 2 ? 'PLAY ▶' : 'PLAY', 64, 52);
+    ctx.font = `38px ${CSS_MONO}`;
     ctx.textAlign = 'right';
-    ctx.fillText('SP', w - 64, 56);
+    ctx.fillText('SP', w - 64, 52);
+    // two reels turning
+    const cy = h * 0.42;
+    for (const cx of [w / 2 - 120, w / 2 + 120]) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(time * 3.2);
+      ctx.strokeStyle = '#eef2ff';
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.arc(0, 0, 66, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = '#eef2ff';
+      for (let i = 0; i < 3; i++) {
+        ctx.rotate((Math.PI * 2) / 3);
+        ctx.fillRect(-7, 18, 14, 40);
+      }
+      ctx.beginPath();
+      ctx.arc(0, 0, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.fillRect(w / 2 - 54, cy - 4, 108, 8);
+    // progress
+    const bw = w * 0.56;
+    const bx = (w - bw) / 2;
+    const by = h * 0.68;
+    ctx.strokeStyle = '#eef2ff';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(bx, by, bw, 34);
+    ctx.fillRect(bx + 7, by + 7, (bw - 14) * progress, 20);
     ctx.textAlign = 'center';
-    ctx.font = `44px ${CSS_MONO}`;
-    ctx.fillText((movie?.title ?? '').toUpperCase(), w / 2, h - 140);
+    ctx.font = `34px ${CSS_MONO}`;
+    ctx.fillText(progress >= 0.99 ? 'READY' : 'LOADING', w / 2, by + 52);
+    ctx.font = `40px ${CSS_MONO}`;
+    ctx.fillText((movie?.title ?? '').toUpperCase(), w / 2, h - 110);
     this.tube();
   }
 
@@ -164,7 +235,7 @@ class ScreenPainter {
       const c = document.createElement('canvas');
       c.width = L.W;
       c.height = L.H;
-      paintOverlay(c.getContext('2d'), border, L, { title: movie?.title, date: formatDate() });
+      paintOverlay(c.getContext('2d'), border, L);
       this.overlay = { canvas: c, L };
       this.overlayKey = key;
     }
@@ -195,17 +266,25 @@ function Television() {
   const last = useRef(0);
   useEffect(() => () => painter.texture.dispose(), [painter]);
 
+  const readStart = useRef(0);
   useFrame(({ clock }) => {
     const s = useApp.getState();
     if (s.phase === 'inside' && s.station === 'watch') return;
     const t = clock.elapsedTime;
     const playing = s.videoEl && !s.videoEl.paused;
-    if (t - last.current < (playing ? 1 / 30 : 1 / 8)) return;
-    last.current = t;
     const movie = movieById(s.insertedTapeId);
-    if (!movie) painter.paintOff();
-    else if (s.deck === 'reading') painter.paintReading(s.reducedMotion ? 1 : t, movie);
-    else painter.paintShow({ video: s.videoEl, borderId: s.borderId, aspect: s.videoAspect, movie });
+    // the screen moves smoothly whenever something is moving on it
+    const animated = playing || !movie || s.deck === 'reading';
+    if (t - last.current < (animated ? 1 / 30 : 1 / 8)) return;
+    const dt = t - last.current;
+    last.current = t;
+    if (s.deck !== 'reading') readStart.current = 0;
+    if (!movie) painter.paintIdle(s.reducedMotion ? 0 : dt);
+    else if (s.deck === 'reading') {
+      if (!readStart.current) readStart.current = t;
+      const p = Math.min(0.96, (t - readStart.current) / 2.3);
+      painter.paintReading(s.reducedMotion ? 1 : t, movie, p);
+    } else painter.paintShow({ video: s.videoEl, borderId: s.borderId, aspect: s.videoAspect, movie });
     painter.texture.needsUpdate = true;
   });
 

@@ -119,7 +119,7 @@ function Lantern() {
           <torusGeometry args={[Math.sqrt(0.24 ** 2 - (y / 0.86) ** 2) + 0.002, 0.0025, 4, 40]} />
         </mesh>
       ))}
-      <pointLight position={[0, -0.62, 0]} intensity={6} distance={7.5} decay={1.6} color="#ffcf98" castShadow={false} ref={dayNight('intensity', 5.5, 5)} />
+      <pointLight position={[0, -0.62, 0]} intensity={6} distance={7.5} decay={1.6} color="#ffcf98" castShadow={false} ref={dayNight('intensity', 5.5, 6.5)} />
     </group>
   );
 }
@@ -374,7 +374,7 @@ function FloorLamp() {
         <cylinderGeometry args={[0.15, 0.22, 0.3, 28, 1, true]} />
         <meshStandardMaterial color="#efe2c8" emissive="#ffcf8c" emissiveIntensity={0.25} side={THREE.DoubleSide} roughness={0.9} ref={dayNight('emissiveIntensity', 0.25, 1.8)} />
       </mesh>
-      <pointLight position={[0, 1.5, 0]} intensity={0} distance={3.2} decay={1.6} color="#ffc488" ref={dayNight('intensity', 0, 3.2)} />
+      <pointLight position={[0, 1.5, 0]} intensity={0} distance={3.2} decay={1.6} color="#ffc488" ref={dayNight('intensity', 0, 4.2)} />
     </group>
   );
 }

@@ -5,7 +5,7 @@ import { bindSounds } from './lib/sfx.js';
 import { PlayerLayer } from './player/PlayerLayer.jsx';
 import { Announcer, Hero, Preloader, RoomUI, deepLinkToPlayer } from './ui/Screens.jsx';
 import { AlbumDialog, CompilerDialog, FlatShelf, PhotoDialog } from './ui/Dialogs.jsx';
-import { Cursor } from './ui/Cursor.jsx';
+import { Hint } from './ui/Hint.jsx';
 import { hotspotPortal } from './three/portal.js';
 
 const Stage = lazy(() => import('./three/Stage.jsx'));
@@ -115,7 +115,7 @@ export default function App() {
       <PhotoDialog />
       <Announcer />
       <Preloader />
-      <Cursor />
+      <Hint />
     </div>
   );
 }

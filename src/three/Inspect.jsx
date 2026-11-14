@@ -43,7 +43,7 @@ export default function Inspect() {
 
   return (
     <section className="inspect" role="dialog" aria-modal="true" aria-labelledby="inspect-title">
-      <div className="inspect-veil" data-cursor="Close" onClick={() => useApp.getState().closeInspect()} />
+      <div className="inspect-veil" onClick={() => useApp.getState().closeInspect()} />
       <div className="inspect-copy">
         <h2 id="inspect-title" className="band band--teal">{movie.title}</h2>
         <p className="inspect-meta">
@@ -56,15 +56,20 @@ export default function Inspect() {
           {movie.license}
         </p>
         <div className="inspect-actions">
-          <button ref={primary} type="button" className="btn btn--primary" onClick={play} data-cursor={inserted ? 'Watch' : 'Play'}>
+          <button ref={primary} type="button" className="btn btn--primary" onClick={play} data-tip={inserted ? 'Watch' : 'Put in the player'} data-key="Enter">
             {inserted ? 'Watch' : 'Put in player'}
           </button>
-          <button type="button" className="btn" onClick={() => useApp.getState().closeInspect()} data-cursor="Back">
+          <button type="button" className="btn" onClick={() => useApp.getState().closeInspect()} data-tip="Back" data-key="Esc">
             Back
           </button>
         </div>
       </div>
-      <div className="inspect-object" aria-hidden="true" data-cursor="Spin">
+      <p className="inspect-prompts" aria-hidden="true">
+        <span><kbd>Drag</kbd> Turn</span>
+        <span><kbd>Scroll</kbd> Zoom</span>
+        <span><kbd>Esc</kbd> Back</span>
+      </p>
+      <div className="inspect-object" aria-hidden="true">
         <Canvas dpr={[1, 2]} camera={{ fov: 30, position: [0, 0, 1.45] }} gl={{ alpha: true, antialias: true }}>
           <ambientLight intensity={0.9} />
           <directionalLight position={[-1.5, 2, 2.5]} intensity={2.2} color="#ffe0bd" />

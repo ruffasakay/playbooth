@@ -96,7 +96,7 @@ function DeckBridge() {
     if (deck !== 'reading') return undefined;
     readingSince.current = performance.now();
     const reduced = useApp.getState().reducedMotion;
-    const minWait = reduced ? 200 : 1500;
+    const minWait = reduced ? 200 : 2500;
     let done = false;
     const finish = () => {
       if (done) return;

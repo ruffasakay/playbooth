@@ -68,7 +68,7 @@ TV.y = MACHINE.h + TV.h / 2;
 TV.front = TV.z + TV.d / 2;
 
 /** 4:3 picture tube. */
-export const SCREEN = { x: TV.x, y: TV.y + 0.02, z: TV.front + 0.012, w: 0.8, h: 0.6 };
+export const SCREEN = { x: TV.x, y: TV.y + 0.02, z: TV.front + 0.019, w: 0.8, h: 0.6 };
 
 export const VCR = { x: MACHINE.x, y: 0.5, z: MACHINE.front - 0.2, w: 0.66, h: 0.14, d: 0.38 };
 VCR.front = VCR.z + VCR.d / 2;

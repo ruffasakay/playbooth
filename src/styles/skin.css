@@ -20,13 +20,17 @@
   position: fixed;
   inset: 0;
   z-index: 30;
-  background: rgb(24 17 12 / 0.78);
-  backdrop-filter: blur(14px) saturate(0.85);
+  /* sitting down to watch: the room dims around the television like a small cinema */
+  background: radial-gradient(130% 110% at 50% 45%, rgb(20 14 10 / 0.9), rgb(6 4 3 / 0.97));
+  backdrop-filter: blur(16px) saturate(0.7) brightness(0.6);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
 }
 .faceplate[data-open] { opacity: 1; pointer-events: auto; transition: opacity 0.5s ease 0.55s; }
+/* the picture grows out of the television the camera just leaned into */
+.faceplate[data-open] .pb-stage { animation: pb-from-tv 0.7s var(--ease) 0.5s both; }
+@keyframes pb-from-tv { from { opacity: 0; scale: 0.82; translate: 0 2%; } }
 
 .pb-skin {
   --k-accent-final: var(--media-accent-color, var(--k-accent));
@@ -52,7 +56,6 @@
 .pb-skin[data-rotate] { position: fixed; inset: auto; top: 0; left: 100vw; width: 100dvh; height: 100vw; transform-origin: 0 0; rotate: 90deg; padding: 0; }
 
 .pb-stage { grid-area: stage; position: relative; min-width: 0; min-height: 0; }
-.pb-skin[data-idle] .pb-stage { cursor: none; }
 
 /* ---------- title over the frame ---------- */
 
@@ -135,7 +138,8 @@
 /* the captions glyph cuts its letters out of the key's own fill */
 .pb-cc { --bar-bg: var(--k-surface); }
 .pb-cc[aria-pressed='true'] { --bar-bg: var(--k-ink); }
-.pb-play { width: var(--play, 56px); height: var(--play, 56px); background: var(--k-play-bg); color: var(--k-play-ink); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 2px 2px rgb(0 0 0 / 0.16), 0 6px 14px rgb(0 0 0 / 0.26); }
+/* the play key: the frame's ink inside a paper rim, so it leads on any backdrop */
+.pb-play { width: var(--play, 56px); height: var(--play, 56px); background: var(--k-play-bg); color: var(--k-play-ink); box-shadow: inset 0 0 0 3px var(--k-surface), inset 0 4px 6px rgb(255 255 255 / 0.12), 0 2px 2px rgb(0 0 0 / 0.2), 0 6px 16px rgb(0 0 0 / 0.32); }
 .pb-play .icon { width: 42%; height: 42%; }
 .pb-play:focus-visible { box-shadow: inset 0 0 0 2.5px var(--k-play-ink), inset 0 0 0 5px var(--k-play-bg), 0 6px 14px rgb(0 0 0 / 0.26); }
 .pb-badge { position: absolute; top: -3px; right: -3px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: var(--terracotta-light, #cf6a4c); color: #fff; font: 600 0.7rem/20px var(--mono); text-align: center; box-shadow: 0 1px 3px rgb(0 0 0 / 0.3); }
@@ -153,16 +157,14 @@
   gap: 10px;
   transition: opacity 0.35s ease, translate 0.45s var(--ease);
 }
-.pb-rail[data-orient='v'] { flex-direction: column; justify-content: center; }
+.pb-rail[data-orient='v'] { flex-direction: column; justify-content: space-between; padding: var(--rail-top, 4px) 0 4px; }
 .pb-rail[data-orient='v'] .pb-rail-group { display: flex; flex-direction: column; gap: 10px; }
-.pb-rail[data-orient='v'] > .pb-rail-key { margin-bottom: 18px; }
 .pb-rail[data-orient='h'] { justify-content: space-between; }
 .pb-rail[data-orient='h'] .pb-rail-group { display: flex; gap: 8px; }
 .pb-rail-title { flex: 1; min-width: 0; margin: 0; display: grid; text-align: center; }
 .pb-rail[data-hidden] { opacity: 0; pointer-events: none; }
 .pb-rail[data-orient='v'][data-hidden] { translate: -24px 0; }
 .pb-rail[data-orient='h'][data-hidden] { translate: 0 -16px; }
-.pb-rail[data-flush] { background: rgb(14 10 8 / 0.92); }
 
 /* ---------- the dock ---------- */
 
@@ -170,16 +172,11 @@
   position: absolute;
   z-index: 4;
   display: grid;
-  padding: 10px;
-  border-radius: 22px;
-  background: var(--k-dock);
-  color: var(--k-band);
-  box-shadow: 0 22px 60px rgb(0 0 0 / 0.5), 0 2px 6px rgb(0 0 0 / 0.28), inset 0 1px 0 rgb(255 255 255 / 0.16);
+  color: #f4ede0;
   transition: opacity 0.35s ease, translate 0.45s var(--ease);
 }
-.pb-dock[data-orient='v'] { grid-template-columns: 40px minmax(0, 1fr); column-gap: 10px; }
-.pb-dock[data-orient='h'] { grid-template-rows: 46px minmax(0, 1fr); row-gap: 4px; padding: 6px 12px 12px; }
-.pb-dock[data-flush] { border-radius: 24px 0 0 24px; box-shadow: none; }
+.pb-dock[data-orient='v'] { grid-template-columns: 40px minmax(0, 1fr); column-gap: 14px; }
+.pb-dock[data-orient='h'] { grid-template-rows: 46px minmax(0, 1fr); row-gap: 4px; }
 .pb-dock[data-hidden] { opacity: 0; pointer-events: none; }
 .pb-dock[data-orient='v'][data-hidden] { translate: 28px 0; }
 .pb-dock[data-orient='h'][data-hidden] { translate: 0 20px; }
@@ -203,7 +200,7 @@
 .pb-dock[data-orient='h'] .pb-key-group[data-g~='lock'] { padding: 0 6%; }
 
 /* the time, quiet and tabular */
-.pb-readout { display: grid; justify-items: center; gap: 3px; padding: 2px 0 4px; font: 500 0.74rem/1 var(--mono); font-variant-numeric: tabular-nums; letter-spacing: 0.01em; color: var(--k-band); }
+.pb-readout { display: grid; justify-items: center; gap: 3px; padding: 2px 0 4px; font: 500 0.74rem/1 var(--mono); font-variant-numeric: tabular-nums; letter-spacing: 0.01em; color: #f4ede0; text-shadow: 0 1px 2px rgb(0 0 0 / 0.5); }
 .pb-time--total { opacity: 0.66; }
 .pb-time-sep { width: 14px; height: 1.5px; border-radius: 1px; background: currentColor; opacity: 0.35; }
 .pb-dock[data-cols='2'] .pb-readout, .pb-dock[data-cols='3'] .pb-readout { grid-auto-flow: column; align-items: center; gap: 6px; }
@@ -216,14 +213,14 @@
 .pb-scrub { position: relative; cursor: pointer; touch-action: none; outline: none; }
 .pb-scrub[data-orient='v'] { width: 40px; height: 100%; }
 .pb-scrub[data-orient='h'] { width: 100%; height: 46px; }
-.pb-scrub-track { position: absolute; border-radius: 5px; background: var(--k-track); overflow: hidden; box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.3), 0 1px 0 rgb(255 255 255 / 0.18); }
+.pb-scrub-track { position: absolute; border-radius: 5px; background: rgb(244 237 224 / 0.2); overflow: hidden; box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.4); }
 .pb-scrub[data-orient='v'] .pb-scrub-track { top: 16px; bottom: 16px; left: 50%; width: 9px; translate: -50% 0; }
 .pb-scrub[data-orient='h'] .pb-scrub-track { left: 16px; right: 16px; top: 60%; height: 8px; translate: 0 -50%; }
 .pb-scrub-buffer, .pb-scrub-fill { position: absolute; left: 0; top: 0; border-radius: inherit; }
-.pb-scrub[data-orient='v'] .pb-scrub-buffer { width: 100%; height: calc(var(--b) * 100%); background: color-mix(in srgb, var(--k-accent-final) 22%, transparent); }
-.pb-scrub[data-orient='v'] .pb-scrub-fill { width: 100%; height: calc(var(--f) * 100%); background: var(--k-accent-final); }
-.pb-scrub[data-orient='h'] .pb-scrub-buffer { height: 100%; width: calc(var(--b) * 100%); background: color-mix(in srgb, var(--k-accent-final) 22%, transparent); }
-.pb-scrub[data-orient='h'] .pb-scrub-fill { height: 100%; width: calc(var(--f) * 100%); background: var(--k-accent-final); }
+.pb-scrub[data-orient='v'] .pb-scrub-buffer { width: 100%; height: calc(var(--b) * 100%); background: rgb(244 237 224 / 0.16); }
+.pb-scrub[data-orient='v'] .pb-scrub-fill { width: 100%; height: calc(var(--f) * 100%); background: var(--media-accent-color, var(--k-glow)); }
+.pb-scrub[data-orient='h'] .pb-scrub-buffer { height: 100%; width: calc(var(--b) * 100%); background: rgb(244 237 224 / 0.16); }
+.pb-scrub[data-orient='h'] .pb-scrub-fill { height: 100%; width: calc(var(--f) * 100%); background: var(--media-accent-color, var(--k-glow)); }
 .pb-scrub-thumb {
   position: absolute;
   z-index: 1;
@@ -241,6 +238,11 @@
 .pb-scrub:hover .pb-scrub-thumb { scale: 1.08; }
 .pb-scrub[data-dragging] .pb-scrub-thumb { scale: 1.2; background: var(--k-ink); }
 .pb-scrub:focus-visible .pb-scrub-thumb { box-shadow: inset 0 0 0 3px var(--k-ink), 0 3px 8px rgb(0 0 0 / 0.22); }
+
+/* while dragging, the time rides beside the thumb (the picture itself is the preview) */
+.pb-scrub-time { position: absolute; z-index: 2; padding: 4px 9px; border-radius: 7px; background: rgb(20 14 10 / 0.9); color: #f4ede0; font: 500 0.78rem var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; }
+.pb-scrub[data-orient='v'] .pb-scrub-time { right: calc(100% + 10px); top: calc(16px + (100% - 32px) * var(--f)); translate: 0 -50%; }
+.pb-scrub[data-orient='h'] .pb-scrub-time { bottom: calc(100% + 4px); left: calc(16px + (100% - 32px) * var(--f)); translate: -50% 0; }
 
 /* ---------- the reel: clips around the moment ---------- */
 
@@ -388,6 +390,7 @@
 /* ---------- preferences ---------- */
 
 @media (prefers-reduced-motion: reduce) {
+  .faceplate[data-open] .pb-stage { animation: none; }
   .faceplate, .faceplate[data-open], .pb-btn, .pb-dock, .pb-rail, .pb-title, .pb-unlock, .pb-scrub-thumb, .pb-toggle::after { transition-duration: 0.01ms !important; transition-delay: 0s !important; }
   .pb-pop, .pb-clip-img--wait { animation: none; }
   .pb-flash[data-on] { animation: pb-flash-calm 0.4s step-end; }
@@ -398,11 +401,11 @@
   .faceplate { backdrop-filter: none; background: var(--night); }
 }
 @media (prefers-contrast: more) {
-  .pb-btn, .pb-pop, .pb-dock { outline: 2px solid var(--k-ink); outline-offset: -2px; }
+  .pb-btn, .pb-pop { outline: 2px solid var(--k-ink); outline-offset: -2px; }
   .pb-scrub-track { outline: 1px solid var(--k-band); }
 }
 @media (forced-colors: active) {
-  .pb-btn, .pb-row, .frame-opt, .pb-pop, .pb-dock { border: 1px solid ButtonText; }
+  .pb-btn, .pb-row, .frame-opt, .pb-pop { border: 1px solid ButtonText; }
   .pb-btn:focus-visible, .pb-row:focus-visible, .frame-opt:focus-visible, .pb-scrub:focus-visible { outline: 3px solid Highlight; }
   .pb-scrub-fill, .pb-vol-fill { background: Highlight; }
   .pb-scrub-thumb, .pb-vol-thumb { forced-color-adjust: none; background: ButtonText; }

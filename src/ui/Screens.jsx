@@ -90,7 +90,7 @@ export function Hero() {
           </li>
         </ol>
         <div className="hero-actions reveal" style={{ '--i': 5 }}>
-          <button ref={cta} type="button" className="btn btn--primary btn--lg" onClick={enter} disabled={!visible} data-cursor="Enter">
+          <button ref={cta} type="button" className="btn btn--primary btn--lg" onClick={enter} disabled={!visible} data-tip="Step inside" data-key="Enter">
             Enter to play
           </button>
         </div>
@@ -141,9 +141,11 @@ function Switches() {
         role="switch"
         aria-checked={night}
         aria-label="Night lights"
+        data-tip={night ? 'Lights up' : 'Lights down'}
+        data-key="L"
+        data-tip-side="left"
         className="toggle toggle--light"
         data-sfx="none"
-        data-cursor={night ? 'Day' : 'Night'}
         onClick={() => useApp.getState().toggleTheme()}
       >
         <span className="toggle-knob">{night ? <I.Moon /> : <I.Sun />}</span>
@@ -153,8 +155,9 @@ function Switches() {
         role="switch"
         aria-checked={sound}
         aria-label="Sound"
+        data-tip={sound ? 'Sound off' : 'Sound on'}
+        data-tip-side="left"
         className="toggle toggle--sound"
-        data-cursor={sound ? 'Mute' : 'Sound'}
         onClick={() => useApp.getState().toggleSound()}
       >
         <span className="toggle-knob"><I.Volume level={sound ? 'high' : 'off'} /></span>
@@ -180,6 +183,7 @@ export function RoomUI() {
         </>
       )}
       {((phase === 'outside' && intro) || phase === 'entering' || phase === 'leaving' || (phase === 'inside' && station !== 'watch' && !inspect)) && <Switches />}
+      <PromptCard />
       <div className="veil" data-on={veil || undefined} aria-hidden="true" />
     </>
   );
@@ -204,7 +208,7 @@ function SkipButton() {
     return () => window.removeEventListener('keydown', onKey);
   }, [skip]);
   return (
-    <button ref={ref} type="button" className="btn skip" onClick={skip} data-cursor="Skip">
+    <button ref={ref} type="button" className="btn skip" onClick={skip} data-tip="Skip the walk" data-key="Esc">
       Skip
     </button>
   );
@@ -235,7 +239,7 @@ function RoomNav({ station }) {
 
   return (
     <>
-      <button type="button" className="float-btn room-exit" onClick={leave} data-cursor="Exit" aria-label="Step out of the booth">
+      <button type="button" className="float-btn room-exit" onClick={leave} aria-label="Step out of the booth" data-tip="Step out" data-key="Q">
         <I.Exit />
         <span>Step out</span>
       </button>
@@ -243,7 +247,7 @@ function RoomNav({ station }) {
         {NAV.map((n) => {
           const Icon = NAV_ICONS[n.id];
           return (
-            <button key={n.id} type="button" className="float-btn view-btn" aria-current={station === n.id ? 'location' : undefined} data-cursor={station === n.id ? 'Here' : 'Go'} onClick={() => go(n.id)}>
+            <button key={n.id} type="button" className="float-btn view-btn" aria-current={station === n.id ? 'location' : undefined} data-tip={n.label} data-key={n.key} onClick={() => go(n.id)}>
               <Icon />
               <span>{n.label}</span>
             </button>
@@ -251,13 +255,13 @@ function RoomNav({ station }) {
         })}
       </nav>
       <div className="room-actions">
-        <button type="button" className="float-btn" onClick={() => useApp.getState().setCompilerOpen(true)} data-cursor="Snaps" aria-label={`Snaps, ${snaps}`}>
+        <button type="button" className="float-btn" onClick={() => useApp.getState().setCompilerOpen(true)} aria-label={`Snaps, ${snaps}`} data-tip="Snaps" data-key="5">
           <I.Stack />
           <span>Snaps</span>
           {snaps > 0 && <span className="float-badge" aria-hidden="true">{snaps}</span>}
         </button>
         {canWatch && (
-          <button type="button" className="float-btn float-btn--primary" onClick={() => go('watch')} data-cursor="Watch">
+          <button type="button" className="float-btn float-btn--primary" onClick={() => go('watch')} data-tip="Sit and watch" data-key="W">
             <I.Play />
             <span>Watch</span>
           </button>
@@ -268,6 +272,29 @@ function RoomNav({ station }) {
 }
 
 const NAV_ICONS = { tapes: I.Tape, player: I.Screen, prints: I.Print, booth: I.Rooms };
+
+/** The little card that names what's under the pointer, like a game's interact prompt. */
+function PromptCard() {
+  const hover = useApp((s) => s.hover);
+  const coarse = useApp((s) => s.coarsePointer);
+  if (!hover || coarse) return null;
+  const left = Math.min(hover.x + 18, window.innerWidth - 270);
+  const top = Math.min(hover.y + 18, window.innerHeight - 140);
+  return (
+    <div className="prompt-card" style={{ left, top }} aria-hidden="true">
+      <p className="prompt-title">{hover.title}</p>
+      {hover.sub && <p className="prompt-sub">{hover.sub}</p>}
+      <ul>
+        {hover.actions.map(([key, label]) => (
+          <li key={label}>
+            <kbd>{key === 'click' ? 'Click' : key === 'drag' ? 'Drag' : key}</kbd>
+            {label}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 /* ---------- live region ---------- */
 

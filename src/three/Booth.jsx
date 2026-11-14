@@ -133,14 +133,18 @@ function SignBox() {
       <RoundedBox args={[2.6, 0.52, 0.12]} radius={0.04} smoothness={3} castShadow material={mat(PAL.woodDark, { roughness: 0.6 })} />
       <mesh position={[0, 0, 0.062]}>
         <planeGeometry args={[2.46, 0.4]} />
-        <meshStandardMaterial color={PAL.tealDeep} emissive="#3c8a78" emissiveIntensity={0} roughness={0.55} ref={dayNight('emissiveIntensity', 0, 0.35)} />
+        <meshStandardMaterial color={PAL.tealDeep} emissive="#3c8a78" emissiveIntensity={0} roughness={0.55} ref={dayNight('emissiveIntensity', 0, 0.9)} />
       </mesh>
-      <Text font={FONT_SERIF} fontSize={0.21} letterSpacing={0.14} color="#f4ede0" anchorX="center" anchorY="middle" position={[0, 0.035, 0.07]}>
+      {/* at night the letters light up like a neon sign and wash the front of the booth */}
+      <Text font={FONT_SERIF} fontSize={0.21} letterSpacing={0.14} anchorX="center" anchorY="middle" position={[0, 0.035, 0.07]}>
         PLAYBOOTH
+        <meshBasicMaterial toneMapped={false} color="#f4ede0" ref={(m) => m && dayNight('', '#ece4d4', '#fff4d6')(m.color)} />
       </Text>
-      <Text font={FONT_MONO} fontSize={0.052} letterSpacing={0.1} color="#d8e8e2" anchorX="center" anchorY="middle" position={[0, -0.125, 0.07]}>
+      <Text font={FONT_MONO} fontSize={0.052} letterSpacing={0.1} anchorX="center" anchorY="middle" position={[0, -0.125, 0.07]}>
         photos and films
+        <meshBasicMaterial toneMapped={false} color="#d8e8e2" ref={(m) => m && dayNight('', '#cfe0da', '#e6fff6')(m.color)} />
       </Text>
+      <pointLight position={[0, -0.25, 0.7]} intensity={0} distance={4.2} decay={1.6} color="#bfeee0" ref={dayNight('intensity', 0, 4.5)} />
     </group>
   );
 }

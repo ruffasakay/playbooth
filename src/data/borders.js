@@ -44,7 +44,7 @@ export const BORDERS = [
     radius: 0,
     swatch: ['#1c140f', '#1c140f'],
     strip: { bg: '#f6f1e7', ink: '#33261c' },
-    ui: ui({ dock: '#17110d', surface: '#2a211b', ink: '#f4ede0', band: '#f4ede0', accent: '#cf6a4c', track: 'rgb(244 237 224 / 0.22)', play: ['#f4ede0', '#1b1511'] }),
+    ui: ui({ dock: '#17110d', surface: '#f4ede0', ink: '#33261c', band: '#f4ede0', accent: '#cf6a4c', track: 'rgb(244 237 224 / 0.22)', play: ['#f4ede0', '#1b1511'], playKey: ['#cf6a4c', '#fff8ef'] }),
   },
   {
     id: 'booth',
@@ -124,7 +124,7 @@ export const BORDERS = [
     radius: 0,
     swatch: ['#8a2b2b', '#f5ede1'],
     strip: { bg: '#8a2b2b', ink: '#f5ede1' },
-    ui: ui({ dock: '#8a2b2b', surface: '#6b1f1f', ink: '#f5ede1', band: '#f5ede1', accent: '#f5ede1', track: 'rgb(245 237 225 / 0.22)', play: ['#f5ede1', '#8a2b2b'], bar: 'film', thumb: 'sprocket' }),
+    ui: ui({ dock: '#8a2b2b', surface: '#f5ede1', ink: '#8a2b2b', band: '#f5ede1', accent: '#f5ede1', track: 'rgb(245 237 225 / 0.22)', play: ['#f5ede1', '#8a2b2b'], bar: 'film', thumb: 'sprocket' }),
   },
   {
     id: 'airmail',
