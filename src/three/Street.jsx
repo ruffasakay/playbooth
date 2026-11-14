@@ -494,11 +494,15 @@ export function PottedPlant({ position, scale = 1, rotation }) {
   );
   return (
     <group position={position} scale={scale} rotation={rotation}>
-      <mesh position={[0, 0.2, 0]} castShadow receiveShadow material={mat('#c9bfb0', { roughness: 0.7 })}>
-        <cylinderGeometry args={[0.2, 0.16, 0.4, 24]} />
+      {/* an open pot: soil sits 2 cm under the rim, so no two faces share a plane */}
+      <mesh position={[0, 0.2, 0]} castShadow receiveShadow material={mat('#c9bfb0', { roughness: 0.7, side: THREE.DoubleSide })}>
+        <cylinderGeometry args={[0.2, 0.16, 0.4, 24, 1, true]} />
       </mesh>
-      <mesh position={[0, 0.39, 0]} material={mat('#3d2d22')}>
-        <cylinderGeometry args={[0.18, 0.18, 0.02, 20]} />
+      <mesh position={[0, 0.005, 0]} rotation={[Math.PI / 2, 0, 0]} material={mat('#b3a998', { side: THREE.DoubleSide })}>
+        <circleGeometry args={[0.16, 24]} />
+      </mesh>
+      <mesh position={[0, 0.37, 0]} material={mat('#3d2d22')}>
+        <cylinderGeometry args={[0.188, 0.188, 0.02, 24]} />
       </mesh>
       {leaves.map((l, i) => (
         <mesh key={i} position={[l.x, 0.4 + l.h / 2, l.z]} rotation={[Math.sin(l.a) * l.tilt, l.a, Math.cos(l.a) * l.tilt]} castShadow material={mat(i % 2 ? PAL.leaf : PAL.leafLight)}>

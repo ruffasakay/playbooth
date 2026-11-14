@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useApp } from '../store.js';
 import { BackKey, useModal } from './Dialogs.jsx';
 import { Logo } from './Logo.jsx';
-import { Credit } from './Credit.jsx';
+import { Credit, REPO } from './Credit.jsx';
 import { PlayTwice } from './PlayTwice.jsx';
 
 /** Controls, as a game's pause card lists them. Touch screens get touch words. */
@@ -80,8 +80,9 @@ export function AboutDialog() {
 
             <div className="about-idea">
               <p className="about-text">
-                <b>Play</b> as in a game: walk into the booth, pick a tape off the shelf and slide it into the player.{' '}
-                <b>Play</b> as in a film: watch it, snap any frame you love and print your snaps as a photostrip.
+                A photobooth is a little room you step into; this one is made for <b>play</b>, both kinds.{' '}
+                <b>Play the game:</b> walk in, pick a tape off the shelf and slide it into the player.{' '}
+                <b>Play the film:</b> watch it, snap any frame you love and print your snaps as a photostrip.
               </p>
             </div>
 
@@ -92,7 +93,15 @@ export function AboutDialog() {
 
             <footer className="about-foot">
               <Credit className="about-credit" />
-              <p className="about-fine">Player built on Video.js 10. Films by the Blender Foundation, CC BY.</p>
+              <nav className="about-links" aria-label="More">
+                <a href="/player/" data-tip="The skin on its own, to test every size">
+                  Player showcase ↗
+                </a>
+                <a href={REPO} target="_blank" rel="noopener noreferrer" data-tip="Open source, Apache 2.0">
+                  GitHub ↗
+                </a>
+              </nav>
+              <p className="about-fine">Player built on Video.js 10. Films: Blender Foundation open movies, Creative Commons.</p>
             </footer>
           </article>
         </>

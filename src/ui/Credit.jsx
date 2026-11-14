@@ -1,5 +1,7 @@
 /** The maker's credit, shared by the booth and the Video.js showcase. */
 export const MAKER = { handle: '@ruffasakay', url: 'https://contra.com/ruffasakay' };
+/** The source, open under the Apache License 2.0. */
+export const REPO = 'https://github.com/ruffasakay/playbooth';
 
 export function Credit({ className = '' }) {
   return (

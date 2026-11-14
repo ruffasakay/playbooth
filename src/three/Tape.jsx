@@ -18,7 +18,7 @@ const tmpE = new THREE.Euler();
 
 export function Tapes() {
   const cubbies = useMemo(cubbyCenters, []);
-  return MOVIES.slice(0, 9).map((movie, i) => <Tape key={movie.id} movie={movie} cubby={cubbies[i]} />);
+  return MOVIES.slice(0, cubbies.length).map((movie, i) => <Tape key={movie.id} movie={movie} cubby={cubbies[i]} />);
 }
 
 /** A VHS clamshell case with the film's cover behind the clear sleeve. */
@@ -73,7 +73,12 @@ function Tape({ movie, cubby }) {
   const home = useMemo(() => {
     const pos = new THREE.Vector3(cubby.x, cubby.floorY + TAPE.h / 2 + 0.004, cubby.z);
     const quat = new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.16, 0, 0));
-    return { pos, quat };
+    // lifted 9 cm (the lip is 6 cm tall) and only 4 cm forward, so it never passes through the lip or the shelf above
+    const lift = pos.clone().add(new THREE.Vector3(0, 0.09, 0.04));
+    const liftQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.04, 0, 0));
+    // the way out of the cubby: up over the lip, then forward
+    const out = pos.clone().add(new THREE.Vector3(0, 0.1, 0.2));
+    return { pos, quat, lift, liftQuat, out };
   }, [cubby]);
 
   const st = useRef({
@@ -226,12 +231,12 @@ function Tape({ movie, cubby }) {
 
     switch (local.mode) {
       case 'shelf': {
-        tmpV.copy(home.pos);
-        if (local.hover || s.focusedTapeId === id) {
-          tmpV.z += 0.06;
-          tmpV.y += 0.012;
-        }
-        follow(g, tmpV, home.quat, reduced ? 40 : 9, dt);
+        // hovered: the case rises clear of the shelf lip first, then leans out and stands up toward you
+        const up = local.hover || s.focusedTapeId === id;
+        tmpV.copy(up ? home.lift : home.pos);
+        // coming back from in front of the shelf: stay high until it is over its cubby, then settle down
+        if (!up && g.position.z - home.pos.z > 0.012) tmpV.y = Math.max(tmpV.y, home.lift.y);
+        follow(g, tmpV, up ? home.liftQuat : home.quat, reduced ? 40 : 10, dt);
         break;
       }
       case 'drag': {
@@ -323,7 +328,8 @@ function insertPath(g, home) {
   const fromSlot = start.pos.distanceTo(SLOT_ENTRY.position) < 0.35; // dropped on the slot by a drag
   const legs = [];
   if (!fromSlot) {
-    legs.push({ pos: home.pos.clone().add(new THREE.Vector3(0, 0.02, 0.16)), quat: home.quat, dur: 0.32, ease: easeOut });
+    legs.push({ pos: home.lift, quat: home.liftQuat, dur: 0.22, ease: easeOut });
+    legs.push({ pos: home.out, quat: home.liftQuat, dur: 0.22, ease: easeInOut });
     legs.push({ pos: PRE_SLOT, quat: SLOT_ENTRY.quaternion, dur: 0.85, ease: easeInOut, arc: 0.16 });
   }
   legs.push({ pos: SLOT_ENTRY.position, quat: SLOT_ENTRY.quaternion, dur: fromSlot ? 0.18 : 0.28, ease: easeInOut, flap: 1 });
@@ -339,8 +345,9 @@ function ejectPath(home) {
       { pos: SLOT_ENTRY.position, quat: SLOT_ENTRY.quaternion, dur: 0.6, ease: easeOut, flap: 1 },
       { pos: PRE_SLOT, quat: SLOT_ENTRY.quaternion, dur: 0.35, ease: easeInOut, flap: 1 },
       { pos: PRE_SLOT, quat: SLOT_ENTRY.quaternion, dur: 0.15, ease: (t) => t },
-      { pos: home.pos.clone().add(new THREE.Vector3(0, 0.02, 0.16)), quat: home.quat, dur: 0.9, ease: easeInOut, arc: 0.16 },
-      { pos: home.pos, quat: home.quat, dur: 0.32, ease: easeInOut },
+      { pos: home.out, quat: home.liftQuat, dur: 0.9, ease: easeInOut, arc: 0.16 },
+      { pos: home.lift, quat: home.liftQuat, dur: 0.24, ease: easeInOut },
+      { pos: home.pos, quat: home.quat, dur: 0.28, ease: easeInOut },
     ],
   };
 }

@@ -2312,7 +2312,7 @@ const PAINTERS = {
  * to the frame, or tiled across it. The picture's own window is cut out.
  */
 export const CUSTOM = { border: null };
-export function setCustomBorder({ image, mode = 'fit', pad = 0.1, tone = null }) {
+export function setCustomBorder({ image, mode = 'fit', pad = 0.06, tone = null }) {
   CUSTOM.border = {
     id: 'custom',
     name: 'Your frame',
@@ -2338,7 +2338,13 @@ export function setCustomBorder({ image, mode = 'fit', pad = 0.1, tone = null })
         t.getContext('2d').drawImage(image, 0, 0, t.width, t.height);
         ctx.fillStyle = ctx.createPattern(t, 'repeat');
         ctx.fillRect(0, 0, L.W, L.H);
-      } else ctx.drawImage(image, 0, 0, L.W, L.H);
+      } else {
+        // fit keeps the picture's proportions: scaled to cover the frame and centred, never stretched
+        const k = Math.max(L.W / image.width, L.H / image.height);
+        const w = image.width * k;
+        const h = image.height * k;
+        ctx.drawImage(image, (L.W - w) / 2, (L.H - h) / 2, w, h);
+      }
     },
     () => {},
   ];

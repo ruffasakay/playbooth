@@ -29,7 +29,7 @@ export function Hotspots() {
 
   return (
     <group>
-      {MOVIES.slice(0, 9).map((m, i) => {
+      {MOVIES.slice(0, cubbies.length).map((m, i) => {
         if (m.id === inserted || m.id === inserting) return null;
         const c = cubbies[i];
         return (

@@ -7,7 +7,7 @@ import { FrameThumb, PlayboothSkin } from '../player/Skin.jsx';
 import { Media } from '../player/PlayerLayer.jsx';
 import { Hint } from '../ui/Hint.jsx';
 import { Logo } from '../ui/Logo.jsx';
-import { Credit } from '../ui/Credit.jsx';
+import { Credit, REPO } from '../ui/Credit.jsx';
 import { PlayTwice } from '../ui/PlayTwice.jsx';
 import { bindSounds } from '../lib/sfx.js';
 import * as I from '../player/icons.jsx';
@@ -132,8 +132,11 @@ export default function Showcase() {
       <a className="skip-link" href="#sc-player">Skip to the player</a>
       <header className="sc-top">
         <div className="sc-brand">
-          <Logo size={30} />
-          <span className="wordmark sc-word">PLAYBOOTH</span>
+          {/* the name takes you back to the booth itself */}
+          <a className="sc-home" href="/" data-tip="Step into the booth" data-tip-side="bottom" aria-label="PLAYBOOTH, back to the booth">
+            <Logo size={30} />
+            <span className="wordmark sc-word">PLAYBOOTH</span>
+          </a>
           <span className="sc-x" aria-hidden="true">×</span>
           <span className="sc-vjs">
             <VideoJsMark size={20} />
@@ -218,7 +221,7 @@ export default function Showcase() {
 /* ---------- the options: one section open at a time, so it never needs scrolling ---------- */
 
 function Options({ narrow, shape, pickShape, width, min, max, setWidth, height, autoplay, setAutoplay, loop, setLoop, custom, setCustom, close }) {
-  const [openId, setOpenId] = useState('frame');
+  const [openId, setOpenId] = useState('size');
   const film = useApp((s) => s.insertedTapeId);
   const calm = useApp((s) => s.reducedMotion);
   const sound = useApp((s) => s.sound);
@@ -254,6 +257,19 @@ function Options({ narrow, shape, pickShape, width, min, max, setWidth, height, 
       ),
     },
     {
+      id: 'play',
+      title: 'Playback',
+      value: [autoplay && 'autoplay', loop && 'loop', calm && 'calm'].filter(Boolean).join(', ') || 'default',
+      body: (
+        <>
+          <Switch label="Autoplay, muted" checked={autoplay} onChange={setAutoplay} />
+          <Switch label="Loop the film" checked={loop} onChange={setLoop} />
+          <Switch label="Calm motion" checked={calm} onChange={(v) => useApp.setState({ reducedMotion: v })} />
+          <Switch label="Key sounds" checked={sound} onChange={() => useApp.getState().toggleSound()} />
+        </>
+      ),
+    },
+    {
       id: 'film',
       title: 'Film',
       value: movie?.title,
@@ -280,19 +296,6 @@ function Options({ narrow, shape, pickShape, width, min, max, setWidth, height, 
       value: custom ? 'On' : 'Upload a picture',
       body: <OwnFrame custom={custom} setCustom={setCustom} />,
     },
-    {
-      id: 'play',
-      title: 'Playback',
-      value: [autoplay && 'autoplay', loop && 'loop', calm && 'calm'].filter(Boolean).join(', ') || 'default',
-      body: (
-        <>
-          <Switch label="Autoplay, muted" checked={autoplay} onChange={setAutoplay} />
-          <Switch label="Loop the film" checked={loop} onChange={setLoop} />
-          <Switch label="Calm motion" checked={calm} onChange={(v) => useApp.setState({ reducedMotion: v })} />
-          <Switch label="Key sounds" checked={sound} onChange={() => useApp.getState().toggleSound()} />
-        </>
-      ),
-    },
   ];
   return (
     <aside className="sc-panel" aria-label="Options">
@@ -310,7 +313,7 @@ function Options({ narrow, shape, pickShape, width, min, max, setWidth, height, 
           <div className="sc-tabs" role="tablist" aria-label="Options">
             {sections.map((s) => (
               <button key={s.id} type="button" role="tab" aria-selected={openId === s.id} className="sc-tab" onClick={() => setOpenId(s.id)}>
-                {s.title === 'Your own frame' ? 'Yours' : s.title}
+                {s.title === 'Your own frame' ? 'Upload' : s.title}
               </button>
             ))}
           </div>
@@ -389,7 +392,7 @@ function OwnFrame({ custom, setCustom }) {
       useApp.getState().announce('That picture could not be opened.');
       return;
     }
-    setCustom({ image, url, tone: averageTone(image), mode: custom?.mode ?? 'fit', pad: custom?.pad ?? 0.1 });
+    setCustom({ image, url, tone: averageTone(image), mode: custom?.mode ?? 'fit', pad: custom?.pad ?? 0.06 });
     useApp.getState().announce('Your frame is on.');
   };
   const set = (patch) => setCustom((c) => ({ ...c, ...patch }));
@@ -432,7 +435,7 @@ function OwnFrame({ custom, setCustom }) {
         <>
           <div className="sc-seg" role="radiogroup" aria-label="How the picture fills the frame">
             {[
-              ['fit', 'Fit', 'Stretched once around the film'],
+              ['fit', 'Fit', 'Scaled to cover, never stretched'],
               ['tile', 'Tile', 'Repeated, so it fits any shape'],
             ].map(([id, label, tip]) => (
               <button key={id} type="button" role="radio" aria-checked={custom.mode === id} data-tip={tip} onClick={() => set({ mode: id })}>
@@ -445,11 +448,11 @@ function OwnFrame({ custom, setCustom }) {
               <span>Margin</span>
               <output>{Math.round(custom.pad * 100)}%</output>
             </span>
-            <input type="range" min={0.04} max={0.22} step={0.01} value={custom.pad} onChange={(e) => set({ pad: +e.target.value })} />
+            <input type="range" min={0.03} max={0.16} step={0.01} value={custom.pad} onChange={(e) => set({ pad: +e.target.value })} />
           </label>
         </>
       )}
-      {!custom && <p className="sc-note">Fit stretches it once around the film; Tile repeats it, so it suits any shape. The keys take its average colour.</p>}
+      {!custom && <p className="sc-note">Fit scales it to cover the frame, keeping its proportions; Tile repeats it, so it suits any shape. The keys take its average colour.</p>}
     </>
   );
 }
@@ -563,11 +566,12 @@ function Sheet({ id, close }) {
 const IDEAS = [
   {
     badge: 'Play ×2',
-    title: 'A name that plays twice',
+    title: 'A booth made for play, both kinds',
     text: (
       <>
-        <b>Play</b> as in a game: walk into a little booth, pick a tape off the shelf, slide it into the player. <b>Play</b> as in a
-        film: watch, snap the frames you love, print them as a photostrip. This page is the player on its own.
+        A photobooth is a little room you step into. PLAYBOOTH is one made for <b>play</b>. <b>Play the game:</b> walk in, pick a tape
+        off the shelf, slide it into the player. <b>Play the film:</b> watch, snap the frames you love, print them as a photostrip.
+        This page is its player, on its own.
       </>
     ),
     art: true,
@@ -840,9 +844,9 @@ function Credits() {
         <PlayTwice className="about-emblem" size={150} />
       </header>
       <p className="about-text">
-        <b>Play</b> as in a game: walk into the booth, pick a tape and slide it into the player. <b>Play</b> as in a film: watch it,
-        snap any frame you love and print your snaps as a photostrip. The full booth is at the site's front door; this page is its
-        player, built on Video.js 10.
+        A photobooth is a little room you step into; this one is made for <b>play</b>, both kinds. <b>Play the game:</b> walk in, pick
+        a tape and slide it into the player. <b>Play the film:</b> watch it, snap any frame you love and print your snaps as a
+        photostrip. This page is the booth's player on its own, built on Video.js 10.
       </p>
       <dl className="sc-credit-list">
         <div>
@@ -853,7 +857,7 @@ function Credits() {
         </div>
         <div>
           <dt>Films</dt>
-          <dd>Blender Foundation open movies, CC BY</dd>
+          <dd>Ten Blender Foundation open movies, Creative Commons</dd>
         </div>
         <div>
           <dt>Frames</dt>
@@ -862,6 +866,14 @@ function Credits() {
       </dl>
       <footer className="about-foot">
         <Credit className="about-credit" />
+        <nav className="about-links" aria-label="More">
+          <a href="/" data-tip="The whole booth: walk in, pick a tape">
+            Enter the booth ↗
+          </a>
+          <a href={REPO} target="_blank" rel="noopener noreferrer" data-tip="Open source, Apache 2.0">
+            GitHub ↗
+          </a>
+        </nav>
       </footer>
     </article>
   );

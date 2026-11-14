@@ -95,6 +95,9 @@ export const SLOT_ENTRY = {
 };
 export const SLOT_INSIDE = SLOT_ENTRY.position.clone().add(new THREE.Vector3(0, 0, -0.5));
 
+/** Tapes per shelf, top first: staggered like a video store's front rack. */
+export const SHELF_ROWS = [3, 4, 3];
+
 /** Shelf positions in the rack, top row first. */
 export function cubbyCenters() {
   const { x, z, w, h, d } = CABINET;
@@ -103,23 +106,16 @@ export function cubbyCenters() {
   const plinth = 0.16;
   const shelf = 0.035;
   const innerW = w - side * 2;
-  const colW = innerW / 3;
   const innerH = h - top - plinth - shelf * 2;
-  const rowH = innerH / 3;
+  const rowH = innerH / SHELF_ROWS.length;
   const out = [];
-  for (let row = 0; row < 3; row++) {
+  SHELF_ROWS.forEach((n, row) => {
     const floorY = h - top - (row + 1) * rowH - row * shelf;
-    for (let col = 0; col < 3; col++) {
-      out.push({
-        x: x - innerW / 2 + colW * (col + 0.5),
-        floorY,
-        z: z + d / 2 - 0.13,
-        rowH,
-        colW,
-        index: row * 3 + col,
-      });
+    const colW = innerW / n;
+    for (let col = 0; col < n; col++) {
+      out.push({ x: x - innerW / 2 + colW * (col + 0.5), floorY, z: z + d / 2 - 0.13, rowH, colW, row, index: out.length });
     }
-  }
+  });
   return out;
 }
 

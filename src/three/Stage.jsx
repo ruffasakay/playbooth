@@ -28,8 +28,9 @@ export default function Stage() {
       <Canvas
         shadows={!lite}
         dpr={dpr}
-        camera={{ fov: 40, near: 0.05, far: 160, position: [-6, 3, 9] }}
-        gl={{ antialias: true, powerPreference: 'high-performance' }}
+        camera={{ fov: 40, near: 0.1, far: 160, position: [-6, 3, 9] }}
+        // a logarithmic depth buffer keeps surfaces a few millimetres apart from flickering, phones included
+        gl={{ antialias: true, powerPreference: 'high-performance', logarithmicDepthBuffer: true }}
         onCreated={({ gl }) => {
           gl.toneMapping = THREE.ACESFilmicToneMapping;
           gl.toneMappingExposure = 0.95 - light.t * 0.08;
@@ -106,7 +107,7 @@ function SoftEnvironment() {
     const pmrem = new THREE.PMREMGenerator(gl);
     const env = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
     scene.environment = env;
-    scene.environmentIntensity = 0.28;
+    scene.environmentIntensity = 0.28 - light.t * 0.2; // reflections dim at night
     return () => {
       scene.environment = null;
       env.dispose();
@@ -118,7 +119,7 @@ function SoftEnvironment() {
 
 /** Eases the whole scene toward the theme: 0 is day, 1 is night. */
 function DayNight() {
-  const { gl } = useThree();
+  const { gl, scene } = useThree();
   useFrame((_, dt) => {
     const s = useApp.getState();
     const target = s.theme === 'night' ? 1 : 0;
@@ -127,6 +128,7 @@ function DayNight() {
     const t = Math.abs(target - light.t) < 0.002 ? target : light.t + (target - light.t) * k;
     applyLight(t);
     gl.toneMappingExposure = 0.95 - t * 0.08;
+    scene.environmentIntensity = 0.28 - t * 0.2;
   });
   return null;
 }
@@ -145,9 +147,16 @@ function SkyDome() {
           sun: { value: new THREE.Vector3(0.75, 0.32, 0.58).normalize() },
           glowAmount: { value: 0.35 },
         },
-        vertexShader: `varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
-        fragmentShader: `uniform vec3 top; uniform vec3 mid; uniform vec3 low; uniform vec3 sun; uniform float glowAmount; varying vec3 vDir;
+        vertexShader: `#include <common>
+          #include <logdepthbuf_pars_vertex>
+          varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+          #include <logdepthbuf_vertex>
+          }`,
+        fragmentShader: `#include <common>
+          #include <logdepthbuf_pars_fragment>
+          uniform vec3 top; uniform vec3 mid; uniform vec3 low; uniform vec3 sun; uniform float glowAmount; varying vec3 vDir;
           void main(){
+            #include <logdepthbuf_fragment>
             float h = vDir.y;
             vec3 c = mix(low, mid, smoothstep(-0.02, 0.18, h));
             c = mix(c, top, smoothstep(0.18, 0.8, h));

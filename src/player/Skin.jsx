@@ -345,8 +345,9 @@ export function PlayboothSkin({ children }) {
     if (!playing) setLocked(false);
   }, [playing]);
 
+  // locking is instant: the keys go, one unlock key stays, one click brings everything back
   const lock = () => {
-    animate.current = true;
+    animate.current = false;
     setPop(null);
     setLocked(true);
     sfx('switch');
@@ -354,7 +355,7 @@ export function PlayboothSkin({ children }) {
     flashUnlock();
   };
   const unlock = () => {
-    animate.current = true;
+    animate.current = false;
     setLocked(false);
     setUnlockShown(false);
     sfx('switch');
@@ -569,7 +570,7 @@ export function PlayboothSkin({ children }) {
               <button
                 type="button"
                 className="pb-btn pb-unlock"
-                data-shown={unlockShown || undefined}
+                data-bright={unlockShown || undefined}
                 aria-label="Unlock controls"
                 data-tip="Unlock the controls"
                 onClick={unlock}
@@ -856,26 +857,46 @@ function Dock({ geo, win, aspect, movie, hidden, inert, pop, setPop, onScrub, on
   );
 }
 
-/** Mute on the key; on desktop a level slider slides out beside it. */
+/** Where a key sits inside its dock, so a pop-out can line up with it from outside the dock. */
+function useKeyAnchor() {
+  const ref = useRef(null);
+  const [at, setAt] = useState({ top: 0, left: 0, w: 0, h: 0 });
+  const measure = useCallback(() => {
+    const b = ref.current?.querySelector('.pb-btn');
+    if (b) setAt({ top: b.offsetTop, left: b.offsetLeft, w: b.offsetWidth, h: b.offsetHeight });
+  }, []);
+  return [ref, at, measure];
+}
+
+/**
+ * Mute on the key; with a mouse, a level slider slides out beside the dock,
+ * level with the key and clear of the progress, with its own M key shown,
+ * so no hint card has to cover it.
+ */
 function VolumeKey({ v }) {
+  const [ref, at, measure] = useKeyAnchor();
+  const style = v ? { top: at.top + at.h / 2, '--bridge': `${10 + at.left}px` } : { left: Math.max(0, at.left + at.w / 2 - 90), '--bridge': `${10 + at.top}px` };
   return (
-    <div className="pb-volume" data-orient={v ? 'v' : 'h'}>
+    <div className="pb-volume" data-orient={v ? 'v' : 'h'} ref={ref} onPointerEnter={measure} onFocus={measure}>
       <MuteButton
         className="pb-btn"
         label={(s) => (s.muted ? 'Unmute' : 'Mute')}
         render={(props, s) => (
-          <button {...props} data-tip={s.muted ? 'Unmute' : 'Mute'} data-key="M">
+          <button {...props}>
             <I.Volume level={s.muted || s.volumeLevel === 'off' ? 'off' : s.volumeLevel === 'low' ? 'low' : 'high'} />
           </button>
         )}
       />
-      <div className="pb-vol-pop">
+      <div className="pb-vol-pop" style={style}>
         <VolumeSlider.Root className="pb-vol" label="Volume">
           <VolumeSlider.Track className="pb-vol-track">
             <VolumeSlider.Fill className="pb-vol-fill" />
           </VolumeSlider.Track>
           <VolumeSlider.Thumb className="pb-vol-thumb" />
         </VolumeSlider.Root>
+        <kbd className="pb-vol-key" aria-hidden="true">
+          M
+        </kbd>
       </div>
     </div>
   );
@@ -984,6 +1005,9 @@ function Scrubber({ orient, movie, win, aspect, onScrub }) {
   const bufEnd = buffered?.length ? Math.max(...buffered.map((b) => b[1])) : 0;
   const bf = duration ? clamp(bufEnd / duration, 0, 1) : 0;
   const reel = drag ? { ...drag, mode: 'drag' } : hover ? { ...hover, mode: 'hover' } : null;
+  // once the reel has been opened it stays built (hidden), so its stills never load twice
+  const [used, setUsed] = useState(false);
+  if (reel && !used) setUsed(true);
 
   return (
     <div
@@ -1011,63 +1035,49 @@ function Scrubber({ orient, movie, win, aspect, onScrub }) {
         <div className="pb-scrub-fill" />
       </div>
       <div className="pb-scrub-thumb" />
-      {reel && duration > 0 && <Reel orient={orient} reel={reel} duration={duration} movie={movie} win={win} aspect={aspect} />}
+      {(reel || used) && duration > 0 && <Reel orient={orient} reel={reel} duration={duration} movie={movie} win={win} aspect={aspect} />}
     </div>
   );
 }
 
 /**
- * The clips around a moment. Dragging rolls a long strip past the picture,
- * faster than the finger, like flicking through a feed; hovering floats three
- * clips with the one under the pointer outlined.
+ * A photostrip of the whole film laid along the progress: clip k sits at the
+ * point of the bar its moment belongs to, so the strip never moves or reloads.
+ * Hover or drag and the clip under the pointer lifts and gets its outline, its
+ * neighbours stay quietly dimmed, and a notch glides with the pointer. Built
+ * once on first use and kept, so every still is loaded only once.
  */
 function Reel({ orient, reel, duration, movie, win, aspect }) {
   const v = orient === 'v';
-  const { f, len, mode } = reel;
+  const [len, setLen] = useState(0);
+  if (reel?.len && Math.abs(reel.len - len) > 1) setLen(reel.len);
+  if (!len || !duration) return null;
   const gap = 8;
-  const N = clamp(Math.round(len / 22), 8, 80);
-  const step = duration / N;
-  const k0 = Math.min(N - 1, Math.floor(f * N));
-  // the same reel whether you hover or drag: three clips, the one you are on outlined and full size
-  let w = clamp(win.w * 0.24, 104, 220);
-  let h = w / aspect;
+  let w;
+  let h;
   if (v) {
-    const room = (len - gap * 2) / 3;
-    if (h > room) {
-      h = Math.max(48, room);
-      w = h * aspect;
-    }
+    w = clamp(win.w * 0.2, 96, 190);
+    h = w / aspect;
   } else {
-    const room = (len - gap * 2) / 3;
-    if (w > room) {
-      w = Math.max(80, room);
-      h = w / aspect;
-    }
+    h = clamp(win.h * 0.2, 40, 76);
+    w = h * aspect;
   }
   const along = v ? h : w;
-  const pitch = along + gap;
-  const pos = f * len;
-  const items = [];
-  const anchor = clamp(pos, pitch + along / 2, len - pitch - along / 2);
-  for (let d = -1; d <= 1; d++) {
-    const k = k0 + d;
-    if (k < 0 || k >= N) continue;
-    items.push({ k, c: anchor + d * pitch, active: d === 0 });
-  }
-  const t = f * duration;
+  const n = Math.max(2, Math.floor((len + gap) / (along + gap)));
+  const pitch = n > 1 ? (len - along) / (n - 1) : 0;
+  const centers = Array.from({ length: n }, (_, k) => along / 2 + k * pitch);
+  const on = !!reel;
+  const pos = on ? reel.f * len : 0;
+  const active = on ? clamp(Math.round((pos - along / 2) / (pitch || 1)), 0, n - 1) : -1;
   return (
-    <div className="pb-reel" data-mode={mode} data-orient={orient} aria-hidden="true" style={{ '--w': `${w}px`, '--h': `${h}px`, [v ? 'height' : 'width']: len }}>
-      {items.map((it) => (
-        <div
-          key={it.k}
-          className="pb-clip"
-          data-active={it.active || undefined}
-          style={{ [v ? 'top' : 'left']: it.c - along / 2 }}
-        >
-          <Thumb movie={movie} time={(it.k + 0.5) * step} />
-          {it.active && <span className="pb-clip-time">{formatTimecode(t)}</span>}
+    <div className="pb-reel" data-on={on || undefined} data-mode={reel?.mode} data-orient={orient} aria-hidden="true" style={{ '--w': `${w}px`, '--h': `${h}px`, [v ? 'height' : 'width']: len }}>
+      {centers.map((c, k) => (
+        <div key={k} className="pb-clip" data-active={k === active || undefined} style={{ [v ? 'top' : 'left']: c - along / 2 }}>
+          <Thumb movie={movie} time={clamp((c / len) * duration, 0, Math.max(0, duration - 0.5))} />
+          {k === active && <span className="pb-clip-time">{formatTimecode(reel.f * duration)}</span>}
         </div>
       ))}
+      {on && <span className="pb-reel-notch" style={{ [v ? 'top' : 'left']: pos }} />}
     </div>
   );
 }
@@ -1187,10 +1197,30 @@ const CAPTION_SIZES = { s: { name: 'Small', scale: 0.8 }, m: { name: 'Medium', s
 
 function SettingsKey({ open, setOpen }) {
   const wrap = useRef(null);
+  const popRef = useRef(null);
   const [page, setPage] = useState('main');
+  const [place, setPlace] = useState(null);
   usePopover(open, setOpen, wrap, '.pb-settings');
+  // line the menu's top up with the key (proximity), kept inside the player
+  useLayoutEffect(() => {
+    if (!open) return;
+    const key = wrap.current?.querySelector('.pb-settings');
+    const dock = wrap.current?.closest('.pb-dock');
+    const skin = dock?.offsetParent;
+    const pop = popRef.current;
+    if (!key || !dock || !skin || !pop) return;
+    if (dock.dataset.orient === 'v') {
+      const room = skin.clientHeight - 16;
+      const h = Math.min(pop.scrollHeight, room);
+      const top = Math.max(8 - dock.offsetTop, Math.min(key.offsetTop, skin.clientHeight - 8 - dock.offsetTop - h));
+      setPlace({ top, maxHeight: room });
+    } else setPlace({ maxHeight: Math.max(160, dock.offsetTop - 16) });
+  }, [open, page]);
   useEffect(() => {
-    if (!open) setPage('main');
+    if (!open) {
+      setPage('main');
+      setPlace(null);
+    }
   }, [open]);
   useEffect(() => {
     if (open) requestAnimationFrame(() => wrap.current?.querySelector('.pb-pop button')?.focus({ preventScroll: true, focusVisible: false }));
@@ -1201,7 +1231,7 @@ function SettingsKey({ open, setOpen }) {
         <I.Settings />
       </button>
       {open && (
-        <div className="pb-pop" role="dialog" aria-label="Settings">
+        <div className="pb-pop" role="dialog" aria-label="Settings" ref={popRef} style={place ?? { visibility: 'hidden' }}>
           {page === 'main' && <SettingsMain go={setPage} />}
           {page === 'speed' && <SpeedPage back={() => setPage('main')} />}
           {page === 'subs' && <SubtitlesPage back={() => setPage('main')} />}

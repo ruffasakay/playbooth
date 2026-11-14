@@ -195,17 +195,19 @@ function Rack() {
   const wood = mat(PAL.woodLight, { roughness: 0.7 });
   const dark = mat(PAL.woodDark, { roughness: 0.75 });
   const cubbies = useMemo(cubbyCenters, []);
-  const rows = [0, 1, 2].map((r) => cubbies[r * 3]);
+  const rows = [...new Set(cubbies.map((c) => c.row))].map((r) => cubbies.find((c) => c.row === r));
   return (
     <group>
-      <mesh position={[x, h / 2, z - d / 2 + 0.015]} material={mat('#5a6b66', { roughness: 0.85 })} receiveShadow>
-        <boxGeometry args={[w, h, 0.03]} />
+      {/* every part stops where the next begins, so no two faces share a plane (no flicker) */}
+      <mesh position={[x, (h - 0.07) / 2, z - d / 2 + 0.016]} material={mat('#5a6b66', { roughness: 0.85 })} receiveShadow>
+        <boxGeometry args={[w - 0.124, h - 0.072, 0.03]} />
       </mesh>
       {[-1, 1].map((s) => (
-        <RoundedBox key={s} args={[0.06, h, d]} radius={0.01} smoothness={2} position={[x + s * (w / 2 - 0.03), h / 2, z]} castShadow receiveShadow material={wood} />
+        <RoundedBox key={s} args={[0.06, h - 0.072, d]} radius={0.01} smoothness={2} position={[x + s * (w / 2 - 0.03), (h - 0.072) / 2, z]} castShadow receiveShadow material={wood} />
       ))}
       <RoundedBox args={[w + 0.06, 0.07, d + 0.04]} radius={0.012} smoothness={2} position={[x, h - 0.035, z + 0.01]} castShadow material={dark} />
-      <RoundedBox args={[w, 0.16, d]} radius={0.012} smoothness={2} position={[x, 0.08, z]} castShadow receiveShadow material={dark} />
+      {/* a recessed kick plinth between the sides */}
+      <RoundedBox args={[w - 0.124, 0.158, d - 0.03]} radius={0.01} smoothness={2} position={[x, 0.08, z - 0.012]} castShadow receiveShadow material={dark} />
       {rows.map((c, i) => (
         <group key={i}>
           <mesh position={[x, c.floorY - 0.018, z]} castShadow receiveShadow material={wood}>
@@ -218,7 +220,7 @@ function Rack() {
         </group>
       ))}
       {/* hand-written year tags on the lips */}
-      {MOVIES.slice(0, 9).map((m, i) => {
+      {MOVIES.slice(0, cubbies.length).map((m, i) => {
         const c = cubbies[i];
         return (
           <group key={m.id} position={[c.x, c.floorY + 0.03, z + d / 2 - 0.018]} rotation={[0, 0, (i % 2 ? 1 : -1) * 0.02]}>

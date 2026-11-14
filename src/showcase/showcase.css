@@ -28,6 +28,9 @@ body { background: #f4ede0; color: #33261c; }
 /* ---------- header ---------- */
 .sc-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; }
 .sc-brand { display: flex; align-items: center; gap: 8px 10px; min-width: 0; }
+.sc-home { display: inline-flex; align-items: center; gap: 8px; color: inherit; text-decoration: none; border-radius: 10px; padding: 2px 6px 2px 2px; margin-left: -2px; }
+.sc-home:hover { background: rgb(51 38 28 / 0.06); }
+.sc-home:focus-visible { outline: 2px solid #33261c; outline-offset: 2px; }
 .sc-word { font-size: clamp(1.15rem, 2.2vw, 1.6rem); }
 .sc-x { font-family: var(--serif); font-size: 1.2rem; color: #9e4330; }
 .sc-vjs { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px 5px 5px; border-radius: 999px; background: #33261c; color: #f6efe2; font-weight: 500; font-size: 0.82rem; white-space: nowrap; }
@@ -205,8 +208,10 @@ body { background: #f4ede0; color: #33261c; }
   .sc-tabpanel { min-height: 0; display: grid; align-content: start; gap: 8px; padding: 2px 4px; overflow: auto; }
   .sc-frames { grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); }
   .sc-chip { min-height: 56px; }
-  .sc-films { grid-template-columns: 1fr 1fr 1fr; }
-  .sc-film { min-height: 46px; padding: 6px 8px; font-size: 0.76rem !important; }
+  /* ten films in five rows of one line each */
+  .sc-films { grid-template-columns: 1fr 1fr; gap: 5px; }
+  .sc-film { grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px; min-height: 36px; padding: 4px 10px; font-size: 0.76rem !important; }
+  .sc-film > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .sc-size { display: none; }
   .sc-stage { grid-template-rows: minmax(0, 1fr) auto; gap: 4px; }
 
@@ -246,7 +251,8 @@ body { background: #f4ede0; color: #33261c; }
 }
 @media (max-width: 899px) and (max-height: 700px) {
   .sc[data-tools] .sc-main { grid-template-rows: minmax(0, 1fr) minmax(0, 60%); }
-  .sc-frames { grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); }
+  .sc-frames { grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 4px; }
+  .sc-tabpanel { gap: 5px; }
   .sc-chip { min-height: 46px; gap: 1px; }
   .sc-chip .sc-chip-sub { display: none; }
   .sc-tabpanel .sc-note { display: none; }

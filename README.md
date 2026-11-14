@@ -1,12 +1,16 @@
 # PLAYBOOTH
 
-A little movie booth you step inside. Pick a tape from the cabinet, slide it into the player, choose a frame for your photos, watch, snap the moments you love, and collect your prints from the booth's printer.
+A photobooth is a little room you step into. PLAYBOOTH is one made for **play**, both kinds: **play the game** (walk in, pick a tape off the shelf, slide it into the player) and **play the film** (watch it in a frame you choose, snap the moments you love, print them as a photostrip).
 
 Built for the Video.js v10 Skins Design Challenge with **Video.js 10.4.0 (`@videojs/react`)**, React Three Fiber and Mux.
 
+- Live site: https://playbooth.vercel.app
+- The player on its own (Project URL): https://playbooth.vercel.app/player/
+- Source: https://github.com/ruffasakay/playbooth (Apache License 2.0, see `LICENSE`)
+
 ## Design thinking (for the submission form)
 
-> PLAYBOOTH is a photobooth for films. You step into a little white booth on a quiet street, pick a tape from the rack and watch it on an old television. The Video.js skin is a photo frame with a remote beside it: the frame you choose holds the picture, and a dock of round paper keys in that frame's own colors stands at its right. The progress runs top to bottom, like scrolling a feed: drag it and a strip of clips rolls past the picture, hover it and three clips float up with the moment under your pointer outlined. When nobody touches anything the dock steps away and the framed picture grows into the room. On a phone, full screen turns the film on its side, so both thumbs rest on the controls like a game. Press Snap on any frame and it downloads at once and waits in the booth's tray, ready to be printed in its frame or stacked into a photostrip.
+> PLAYBOOTH is a booth made for play: play the game, play the film. You step into a little white booth on a quiet street, pick a tape from the rack and watch it on an old television. The Video.js skin is a photo frame with a remote beside it: the frame you choose holds the picture, and a dock of round paper keys in that frame's own colors stands at its right. The progress runs top to bottom, like scrolling a feed: hover or drag it and a photostrip of the whole film appears beside it, the clip under your pointer lifted and outlined. When nobody touches anything the dock steps away and the framed picture grows into the room. On a phone, full screen turns the film on its side, so both thumbs rest on the controls like a game. Press Snap on any frame and it downloads at once and waits in the booth's tray, ready to be printed in its frame or stacked into a photostrip.
 
 ## Run it
 
@@ -40,12 +44,27 @@ Replace `playbooth.vercel.app` with your own Vercel domain.
 - **Film**, **Frame** (all 30, ranked) and **Your own frame**: drop or choose a picture, fit or tile it, set the margin. The keys take the picture's average colour for their dock.
 - **Playback**: autoplay (muted), loop, calm motion, key sounds.
 - The left keys in the player become Frames, Next film and Surprise frame (there is no booth to go back to).
-- Below: the idea (Play ×2, vertical controls, the clip reel, frames as themes), the minimum requirements and accessibility tips with live measurements (key contrast for the current frame, smallest key on screen), and every keyboard shortcut.
+- The cards: the idea (a booth made for play, vertical controls, the photostrip reel, frames as themes), the minimum requirements and accessibility tips with live measurements (key contrast for the current frame, smallest key on screen), and every keyboard shortcut.
 - The Video.js mark is the official one from the `videojs/video.js` repository (`site/public/favicon.svg`).
 
 ## Mux bonus
 
-All six tapes are Mux assets (`src/data/movies.js`). Submit any one playback ID, for example Charge: `xDY3RHlCJTE71hNjUkIAxGQJPYUjxEElEj3XBGVkemg`. Keep the assets **public** and **live through judging**.
+All ten tapes are Mux assets (`src/data/movies.js`), listed below so the entry is transparent. Keep every asset **public** and **live through judging**.
+
+| Shelf | Film | Mux playback ID |
+| --- | --- | --- |
+| Top | Big Buck Bunny | `W02G8oHMlhhE202Uw9C02eSvmVBHA01ZDF3qusCKvQ02oiIs` |
+| Top | Sintel | `qoXh2JaPC1dQ26yr6vB6ybJqKMn2K5a5aHsIO7rtpes` |
+| Top | Agent 327: Operation Barbershop | `yZxPit1BWmxEWyBf01ym2Ez8dtU84Nrjjb2hAwVOYpVM` |
+| Middle | Charge | `xDY3RHlCJTE71hNjUkIAxGQJPYUjxEElEj3XBGVkemg` |
+| Middle | Cosmos Laundromat | `7O8N1XhgouGf1WdofHO9o1d02lp3Sx56MU5b013XhBXGs` |
+| Middle | Sprite Fright | `TWFNjB9Ku021WuLLXrYG3lLoOR6l02fgYcg2oYWTqLyCs` |
+| Middle | Tears of Steel | `B00XyRvdblOoE022lFSoAB39hNNEX0013a9Mx8yQPQ2V01I` |
+| Bottom | Wing It! | `rCJR1vEOG00kz2ppqCanigCEtDSniE4o02xi02em6gRUL4` |
+| Bottom | Singularity | `HcEBfBVn9gNbjtm101wUr00PBpzCNZfFwdeDfnT6j8gSI` |
+| Bottom | Elephants Dream | `qGpuC17ZuBsL4Wwb00LDkXBEtroYB2rvV5zJGF9wnsB4` |
+
+The shelves hold 3, 4 and 3 tapes, most loved first, every cubby filled.
 
 Playback uses Video.js's `MuxVideo` with `preferPlayback: 'mse'` and `crossOrigin="anonymous"`, so screenshots read real frames in every browser that has Media Source Extensions (including iPhone on iOS 17.1+). Mux Data is attached through `@videojs/react/extensions/mux-data` and needs no key.
 
@@ -53,7 +72,7 @@ Playback uses Video.js's `MuxVideo` with `preferPlayback: 'mse'` and `crossOrigi
 
 | Where | What |
 | --- | --- |
-| `src/player/Skin.jsx` | **The skin.** Frame on the left, dock on the right: a full-height vertical progress groove (drag: the picture scrubs with the time beside the thumb; hover: three floating clips, the current one outlined) and one column of keys: time, lock, settings, captions on/off, sound, ±10 s, play, Snap, full screen. The booth's own actions (back, snaps, album, eject) sit in a column on the left that mirrors the player's keys across the frame, so both sides balance; every key is its own solid circle, with no panel behind. While you choose a frame, only the framed picture shows; the controls arrive with the film. Dragging the progress scrubs the picture itself with the time beside the thumb; hovering floats three clips. Controls step away after a few seconds of play and the picture grows (an animated FLIP). Lock hides everything until the unlock key. Settings has playback speed, subtitle style (font, size, color, outline or box) and picture-in-picture. Upright phones lay the dock under the picture. Full screen fills the screen with the frame's own paper, and on phones lands in landscape (screen orientation lock, or a CSS turn where the browser can't lock, such as iPhone Safari). Video.js `Container`, `PlayButton`, `SeekButton`, `Time`, `MuteButton`, `VolumeSlider`, `Poster`, `BufferingIndicator`, `ErrorDialog`, `Hotkey`s, `StatusAnnouncer` and the player store |
+| `src/player/Skin.jsx` | **The skin.** Rail, frame, dock: the booth's own keys (back, snaps, album, eject) in a one-key-wide rail on the left, the framed picture taking everything in between, and on the right a full-height vertical progress plus one column of keys (time, lock, settings, captions on/off, sound, ±10 s, play, Snap, full screen; two columns only on short players such as a phone on its side). Hover or drag the progress and a photostrip of the whole film appears beside it, each clip at its own moment on the bar, the one under the pointer lifted and outlined while a notch glides with the pointer; it is built once and kept, so stills never reload. The volume slider and the settings menu open beside the whole dock, level with their keys, never over the progress; hint cards stand outside the dock too. Lock is instant: the keys go, one unlock key stays, one click brings them back. Controls step away after a few seconds of play and the picture grows (an animated FLIP). Settings has playback speed, subtitle style (font, size, color, outline or box) and picture-in-picture. Upright phones lay the dock under the picture. Full screen lands in landscape on phones (orientation lock, or a CSS turn where the browser can't lock, such as iPhone Safari). Video.js `Container`, `PlayButton`, `SeekButton`, `Time`, `MuteButton`, `VolumeSlider`, `Poster`, `BufferingIndicator`, `ErrorDialog`, `Hotkey`s, `StatusAnnouncer` and the player store |
 | `src/styles/skin.css` | Skin styles. Each frame sets theme tokens (`--k-dock`, `--k-surface`, `--k-ink`, `--k-band`, `--k-accent`, `--k-track`, `--k-play-bg`) that color its dock, keys and progress groove. Keys show state by filling in, never by a ring drawn around them |
 | `src/data/borders.js` | The 30 photo frames (graphics only: no words, numbers or lettering, and always a straight-edged rectangular window so nothing crops the film), their control colors, the painter used for the player, prints and photostrips, and `setCustomBorder` for a frame made from your own picture |
 | `src/ui/Hint.jsx` | Hover hints like a game's key prompts: rest the mouse on a control and a small card names it with its key ("Snap this frame  S"). Mouse only, nothing on touch |
@@ -91,22 +110,26 @@ Rail, frame, dock: the booth rail is one key wide, the dock is its progress plus
 Made with love by [@ruffasakay](https://contra.com/ruffasakay). The credit is on the About card in the booth and in the footer of the showcase page.
 
 
-Films, all by the Blender Foundation, hosted on Mux:
+Films, all Blender Foundation open movies, hosted on Mux:
 
 | Film | Credit | License |
 | --- | --- | --- |
-| Charge (2022) | (CC) Blender Foundation, studio.blender.org | CC BY 4.0 |
-| Sprite Fright (2021) | (CC) Blender Foundation, studio.blender.org | CC BY 4.0 |
-| Wing It! (2023) | (CC) Blender Foundation, studio.blender.org | CC BY 4.0 |
-| Tears of Steel (2012) | (CC) Blender Foundation, mango.blender.org | CC BY 3.0 |
 | Big Buck Bunny (2008) | © 2008 Blender Foundation, www.bigbuckbunny.org | CC BY 3.0 |
 | Sintel (2010) | © Blender Foundation, durian.blender.org | CC BY 3.0 |
+| Agent 327: Operation Barbershop (2017) | (CC) Blender Foundation, agent327.com | CC BY-ND (played unaltered) |
+| Charge (2022) | (CC) Blender Foundation, studio.blender.org | CC BY 4.0 |
+| Cosmos Laundromat: First Cycle (2015) | (CC) Blender Foundation, gooseberry.blender.org | CC BY-SA 4.0 (as distributed by Blender) |
+| Sprite Fright (2021) | (CC) Blender Foundation, studio.blender.org | CC BY 4.0 |
+| Tears of Steel (2012) | (CC) Blender Foundation, mango.blender.org | CC BY 3.0 |
+| Wing It! (2023) | (CC) Blender Foundation, studio.blender.org | CC BY 4.0 |
+| Singularity (2026) | (CC) Blender Foundation, studio.blender.org | Creative Commons Attribution |
+| Elephants Dream (2006) | (CC) Blender Foundation, orange.blender.org | CC BY 2.5 |
 
 Fonts: Fraunces (headings and reading text), DM Mono (interface), Caveat (handwritten notes), Atkinson Hyperlegible Next (caption sans) and Literata (caption serif), all SIL Open Font License 1.1.
 
 All 3D models, icons and illustrations are original and drawn in code.
 
-This entry is licensed under the Apache License, Version 2.0, per the challenge guidelines. Add the full license text with GitHub's "Add file → Create new file → LICENSE → Choose a license template → Apache 2.0".
+This entry is open source under the Apache License, Version 2.0 (full text in `LICENSE`), per the challenge guidelines: https://github.com/ruffasakay/playbooth
 
 ## Known limits
 

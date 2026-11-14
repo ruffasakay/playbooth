@@ -40,15 +40,28 @@ export function Hint() {
       if (!el || el.closest('[inert], [data-hidden]')) return;
       timer = setTimeout(() => {
         if (!el.isConnected || el.getAttribute('aria-expanded') === 'true') return;
-        const r = el.getBoundingClientRect();
         const rot = el.closest('[data-rotate]');
         if (rot) return; // a turned player has no mouse to hover with
-        const side = el.closest('[data-tip-side]')?.dataset.tipSide || (r.bottom > innerHeight - 120 ? 'top' : r.left + r.width / 2 > innerWidth / 2 ? 'left' : 'right');
+        // a menu is open in the player: no card on top of it
+        const dock = el.closest('.pb-dock, .pb-rail');
+        if (dock && dock.closest('.pb-skin')?.querySelector('.pb-pop')) return;
+        const k = el.getBoundingClientRect();
+        const side = el.closest('[data-tip-side]')?.dataset.tipSide || (k.bottom > innerHeight - 120 ? 'top' : k.left + k.width / 2 > innerWidth / 2 ? 'left' : 'right');
+        // inside a dock the card stands outside the whole dock, level with the key, so it never covers the progress or a neighbour
+        let r = k;
+        if (dock) {
+          const d = dock.getBoundingClientRect();
+          r = side === 'left' ? { left: d.left, right: k.right, top: k.top, bottom: k.bottom, width: k.right - d.left, height: k.height }
+            : side === 'right' ? { left: k.left, right: d.right, top: k.top, bottom: k.bottom, width: d.right - k.left, height: k.height }
+            : side === 'top' ? { left: k.left, right: k.right, top: d.top, bottom: k.bottom, width: k.width, height: k.bottom - d.top }
+            : { left: k.left, right: k.right, top: k.top, bottom: d.bottom, width: k.width, height: d.bottom - k.top };
+        }
         setHint({ text: el.dataset.tip, keys: (el.dataset.key || '').split(' ').filter(Boolean), r, side });
       }, 380);
     };
     document.addEventListener('pointerover', over);
     document.addEventListener('pointerdown', hide, true);
+    document.addEventListener('click', hide, true);
     document.addEventListener('keydown', hide, true);
     window.addEventListener('blur', hide);
     window.addEventListener('scroll', hide, true);
@@ -56,6 +69,7 @@ export function Hint() {
       clearTimeout(timer);
       document.removeEventListener('pointerover', over);
       document.removeEventListener('pointerdown', hide, true);
+      document.removeEventListener('click', hide, true);
       document.removeEventListener('keydown', hide, true);
       window.removeEventListener('blur', hide);
       window.removeEventListener('scroll', hide, true);
