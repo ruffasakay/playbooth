@@ -5,9 +5,9 @@ import * as THREE from 'three';
  * Matches the CSS tokens in styles/tokens.css.
  */
 export const PAL = {
-  haze: '#e9dcc8',
-  hazeTop: '#c9cfd3',
-  horizon: '#f2d9b8',
+  haze: '#c9d6da',
+  hazeTop: '#8fb0c6',
+  horizon: '#f0d2a8',
   paper: '#f4ede0',
   cream: '#ebe2d0',
   booth: '#ece6dc',

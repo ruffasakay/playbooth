@@ -16,8 +16,12 @@ function audio() {
   if (!AC) return null;
   ctx = new AC();
   master = ctx.createGain();
-  master.gain.value = 0.32;
-  master.connect(ctx.destination);
+  master.gain.value = 0.55;
+  // a gentle limiter so the louder set never clips
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -10;
+  comp.ratio.value = 4;
+  master.connect(comp).connect(ctx.destination);
   noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 1.5, ctx.sampleRate);
   const d = noiseBuf.getChannelData(0);
   for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
@@ -58,22 +62,24 @@ function tone(t, dur, { freq = 440, to, type = 'sine', peak = 0.3, attack = 0.00
 }
 
 const SOUNDS = {
-  /** a soft click: buttons, chips, toggles */
+  /** a key going down: a crisp click over a short, felt thock */
   tick: (t) => {
-    noise(t, 0.03, { freq: 3200, q: 2.5, peak: 0.35 });
-    tone(t, 0.04, { freq: 1400, to: 900, peak: 0.05 });
+    noise(t, 0.025, { freq: 3400, q: 2.2, peak: 0.5 });
+    tone(t, 0.06, { freq: 190, to: 110, type: 'sine', peak: 0.42, attack: 0.002 });
+    noise(t + 0.045, 0.02, { freq: 2400, q: 3, peak: 0.16 });
   },
   /** quieter still: the pointer finding something */
-  hover: (t) => noise(t, 0.02, { freq: 4200, q: 4, peak: 0.08 }),
+  hover: (t) => noise(t, 0.02, { freq: 4200, q: 4, peak: 0.12 }),
   /** a wooden tap: play and pause */
   tap: (t) => {
-    tone(t, 0.08, { freq: 420, to: 260, type: 'triangle', peak: 0.28 });
-    noise(t, 0.02, { freq: 2600, q: 2, peak: 0.2 });
+    tone(t, 0.09, { freq: 420, to: 250, type: 'triangle', peak: 0.4 });
+    tone(t, 0.07, { freq: 150, to: 95, type: 'sine', peak: 0.35, attack: 0.002 });
+    noise(t, 0.02, { freq: 2600, q: 2, peak: 0.3 });
   },
   /** the wall switch: snap, then a low thunk */
   switch: (t) => {
-    noise(t, 0.025, { freq: 2400, q: 3, peak: 0.6 });
-    tone(t + 0.01, 0.09, { freq: 140, to: 80, type: 'sine', peak: 0.35 });
+    noise(t, 0.025, { freq: 2400, q: 3, peak: 0.75 });
+    tone(t + 0.01, 0.1, { freq: 150, to: 80, type: 'sine', peak: 0.5 });
   },
   /** a camera shutter: two leaves */
   shutter: (t) => {

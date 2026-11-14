@@ -5,6 +5,7 @@ import { bindSounds } from './lib/sfx.js';
 import { PlayerLayer } from './player/PlayerLayer.jsx';
 import { Announcer, Hero, Preloader, RoomUI, deepLinkToPlayer } from './ui/Screens.jsx';
 import { AlbumDialog, CompilerDialog, FlatShelf, PhotoDialog } from './ui/Dialogs.jsx';
+import { Cursor } from './ui/Cursor.jsx';
 import { hotspotPortal } from './three/portal.js';
 
 const Stage = lazy(() => import('./three/Stage.jsx'));
@@ -88,7 +89,7 @@ export default function App() {
   const phase = useApp((s) => s.phase);
   return (
     <div className="app" data-phase={phase}>
-      <a className="skip-link" href="#main-action" onClick={(e) => { e.preventDefault(); document.querySelector('.hero .btn--primary, .nav-key, .pb-skin')?.focus(); }}>
+      <a className="skip-link" href="#main-action" onClick={(e) => { e.preventDefault(); document.querySelector('.hero .btn--primary, .view-btn, .pb-skin')?.focus(); }}>
         Skip to the booth controls
       </a>
       {webgl && (
@@ -114,6 +115,7 @@ export default function App() {
       <PhotoDialog />
       <Announcer />
       <Preloader />
+      <Cursor />
     </div>
   );
 }

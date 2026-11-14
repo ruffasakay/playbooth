@@ -32,7 +32,7 @@ export default function Stage() {
         gl={{ antialias: true, powerPreference: 'high-performance' }}
         onCreated={({ gl }) => {
           gl.toneMapping = THREE.ACESFilmicToneMapping;
-          gl.toneMappingExposure = 0.95 + light.t * 0.15;
+          gl.toneMappingExposure = 0.95 - light.t * 0.2;
           gl.shadowMap.type = THREE.PCFShadowMap;
         }}
       >
@@ -58,6 +58,7 @@ export default function Stage() {
         <ReadySignal />
       </Canvas>
       <div className="stage-grain" />
+      <div className="stage-night" />
     </div>
   );
 }
@@ -68,7 +69,7 @@ function Lights() {
     <>
       <hemisphereLight
         ref={(h) => {
-          dayNight('intensity', 0.85, 0.16)(h);
+          dayNight('intensity', 0.85, 0.1)(h);
           if (h) dayNight('', '#f3e6d2', '#5b6788')(h.color);
           if (h) dayNight('', '#7a6252', '#2a2420')(h.groundColor);
         }}
@@ -76,7 +77,7 @@ function Lights() {
       />
       <directionalLight
         ref={(l) => {
-          dayNight('intensity', 3.1, 0.55)(l);
+          dayNight('intensity', 3.1, 0.35)(l);
           if (l) dayNight('', '#ffcf9c', '#9db1ff')(l.color);
         }}
         position={[9, 6.5, 7]}
@@ -125,7 +126,7 @@ function DayNight() {
     const k = s.reducedMotion ? 1 : 1 - Math.exp(-3.2 * Math.min(dt, 0.05));
     const t = Math.abs(target - light.t) < 0.002 ? target : light.t + (target - light.t) * k;
     applyLight(t);
-    gl.toneMappingExposure = 0.95 + t * 0.15;
+    gl.toneMappingExposure = 0.95 - t * 0.2;
   });
   return null;
 }

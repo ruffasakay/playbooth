@@ -116,7 +116,7 @@ function Shell() {
 function Roof() {
   return (
     <group position={[0, wallH, 0]}>
-      <RoundedBox args={[halfW * 2 + 0.22, 0.16, halfD * 2 + 0.22]} radius={0.03} smoothness={2} position={[0, 0.08, 0]} castShadow receiveShadow material={mat('#e6dccb', { roughness: 0.7 })} />
+      <RoundedBox args={[halfW * 2 + 0.22, 0.16, halfD * 2 + 0.22]} radius={0.03} smoothness={2} position={[0, 0.08, 0]} castShadow receiveShadow material={mat('#2f5c55', { roughness: 0.62 })} />
       <mesh position={[0, 0.02, 0]} material={mat(PAL.woodDark)}>
         <boxGeometry args={[halfW * 2 + 0.24, 0.04, halfD * 2 + 0.24]} />
       </mesh>

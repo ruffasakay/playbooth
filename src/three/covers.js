@@ -111,3 +111,141 @@ export function coverTexture(movie) {
 }
 
 export const COVER_ASPECT = W / H;
+
+/* ---------- the rest of the case: back, spine and edges ---------- */
+
+function mark(ctx, x, y, h, ink, accent) {
+  const w = h * 0.44;
+  ctx.save();
+  ctx.strokeStyle = ink;
+  ctx.lineWidth = Math.max(2, h * 0.05);
+  ctx.strokeRect(x, y, w, h);
+  [0.1, 0.395, 0.69].forEach((f, i) => {
+    ctx.fillStyle = i === 1 ? accent : ink;
+    ctx.fillRect(x + w * 0.2, y + h * f, w * 0.6, h * 0.21);
+  });
+  ctx.restore();
+}
+
+function stripes(ctx, x, y, w, h, vertical) {
+  const cols = ['#9e4330', '#d2a24c', '#3c8a78'];
+  cols.forEach((c, i) => {
+    ctx.fillStyle = c;
+    if (vertical) ctx.fillRect(x + (w / 3) * i, y, w / 3 + 0.5, h);
+    else ctx.fillRect(x, y + (h / 3) * i, w, h / 3 + 0.5);
+  });
+}
+
+const backs = new Map();
+/** The back of the case: the booth's label, three stripes, the film's line. */
+export function backTexture(movie) {
+  if (backs.has(movie.id)) return backs.get(movie.id);
+  const c = document.createElement('canvas');
+  c.width = W;
+  c.height = H;
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  const draw = () => {
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#2b221b';
+    ctx.fillRect(0, 0, W, H);
+    // fine ribbing, like the plastic
+    ctx.fillStyle = 'rgb(255 255 255 / 0.035)';
+    for (let y = 0; y < H; y += 6) ctx.fillRect(0, y, W, 2);
+    stripes(ctx, 0, 120, W, 54, false);
+    // the label
+    ctx.fillStyle = '#efe4cf';
+    ctx.fillRect(40, 230, W - 80, 470);
+    mark(ctx, 70, 266, 120, '#33261c', '#9e4330');
+    ctx.fillStyle = '#33261c';
+    ctx.textBaseline = 'alphabetic';
+    ctx.font = `600 54px ${FONT_SERIF}`;
+    ctx.fillText('PLAYBOOTH', 140, 330);
+    ctx.font = `22px ${FONT_MONO}`;
+    ctx.fillStyle = 'rgb(51 38 28 / 0.7)';
+    ctx.fillText('a photobooth for films', 142, 370);
+    ctx.fillStyle = '#3c8a78';
+    ctx.fillRect(70, 420, 72, 5);
+    ctx.fillStyle = '#33261c';
+    ctx.font = `600 40px ${FONT_SERIF}`;
+    wrapLines(ctx, movie.title, W - 150, 2).forEach((l, i) => ctx.fillText(l, 70, 480 + i * 44));
+    ctx.font = `21px ${FONT_MONO}`;
+    ctx.fillStyle = 'rgb(51 38 28 / 0.72)';
+    ctx.fillText(`${movie.year ?? ''}  ${movie.genre ?? ''}`.trim(), 70, 590);
+    ctx.fillText('play  ·  snap  ·  print', 70, 650);
+    // barcode
+    let bx = W - 200;
+    for (let i = 0; i < 30; i++) {
+      const bw = i % 3 === 0 ? 4 : 2;
+      ctx.fillStyle = '#efe4cf';
+      ctx.fillRect(bx, H - 110, bw, 60);
+      bx += bw + 2.5;
+    }
+    mark(ctx, 60, H - 116, 72, '#efe4cf', '#cf6a4c');
+    tex.needsUpdate = true;
+  };
+  draw();
+  ensureFrameFonts().then(draw);
+  backs.set(movie.id, tex);
+  return tex;
+}
+
+const spines = new Map();
+/** The spine: a cream label with the title running up it and the mark on top. */
+export function spineTexture(movie) {
+  if (spines.has(movie.id)) return spines.get(movie.id);
+  const SW = 128;
+  const SH = 1024;
+  const c = document.createElement('canvas');
+  c.width = SW;
+  c.height = SH;
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  const draw = () => {
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#efe4cf';
+    ctx.fillRect(0, 0, SW, SH);
+    ctx.fillStyle = movie.colors?.shell ?? '#3c8a78';
+    ctx.fillRect(0, 0, SW, 150);
+    mark(ctx, SW / 2 - 22, 28, 100, '#efe4cf', '#33261c');
+    stripes(ctx, 0, SH - 110, SW, 110, false);
+    ctx.save();
+    ctx.translate(SW / 2 + 16, SH - 140);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = '#33261c';
+    ctx.textBaseline = 'alphabetic';
+    let size = 54;
+    ctx.font = `600 ${size}px ${FONT_SERIF}`;
+    while (ctx.measureText(movie.title).width > SH - 330 && size > 26) {
+      size -= 2;
+      ctx.font = `600 ${size}px ${FONT_SERIF}`;
+    }
+    ctx.fillText(movie.title, 0, 0);
+    ctx.restore();
+    tex.needsUpdate = true;
+  };
+  draw();
+  ensureFrameFonts().then(draw);
+  spines.set(movie.id, tex);
+  return tex;
+}
+
+let edgeTex = null;
+/** Top, bottom and the far side: the three stripes and a row of marks. */
+export function edgeTexture() {
+  if (edgeTex) return edgeTex;
+  const c = document.createElement('canvas');
+  c.width = 1024;
+  c.height = 128;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#2b221b';
+  ctx.fillRect(0, 0, 1024, 128);
+  stripes(ctx, 0, 34, 1024, 60, false);
+  for (let x = 40; x < 1024; x += 200) mark(ctx, x, 40, 48, '#efe4cf', '#33261c');
+  edgeTex = new THREE.CanvasTexture(c);
+  edgeTex.colorSpace = THREE.SRGBColorSpace;
+  edgeTex.anisotropy = 4;
+  return edgeTex;
+}

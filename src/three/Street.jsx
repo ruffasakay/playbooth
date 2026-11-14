@@ -152,7 +152,7 @@ function Shopfront() {
   }, []);
   return (
     <group>
-      <mesh position={[0, 3, z - 0.2]} receiveShadow castShadow material={mat('#e5d9c6')}>
+      <mesh position={[0, 3, z - 0.2]} receiveShadow castShadow material={mat('#a9b5ae')}>
         <boxGeometry args={[30, 6.2, 0.4]} />
       </mesh>
       <mesh position={[0, 0.55, z + 0.005]} receiveShadow>
@@ -165,7 +165,7 @@ function Shopfront() {
       <ShopWindow x={8.6} z={z} awning={PAL.tealDeep} />
       {[-11, -7.5, -4, 0, 4, 7.5, 11].map((x, i) => (
         <group key={x} position={[x, 4.4, z + 0.01]}>
-          <mesh material={mat('#c4b6a3')}>
+          <mesh material={mat('#efe6d6')}>
             <boxGeometry args={[1.3, 1.5, 0.06]} />
           </mesh>
           <mesh position={[0, 0, 0.035]}>
@@ -190,11 +190,11 @@ function Shopfront() {
 /** Taller buildings behind and to the sides, so the sky never reads as empty. */
 function BackBlocks() {
   const blocks = [
-    [-9, 4.6, -8.5, 7, 9.2, '#d6c8b3'],
-    [-1.5, 5.4, -9.5, 8, 10.8, '#cbbca6'],
-    [7, 4.2, -8.8, 7, 8.4, '#d9cdb9'],
-    [-15, 3.6, -1, 5, 7.2, '#d2c3ad'],
-    [15, 3.9, -1, 5, 7.8, '#cfc0aa'],
+    [-9, 4.6, -8.5, 7, 9.2, '#8e9ca4'],
+    [-1.5, 5.4, -9.5, 8, 10.8, '#7d8b93'],
+    [7, 4.2, -8.8, 7, 8.4, '#98a58e'],
+    [-15, 3.6, -1, 5, 7.2, '#a9a19a'],
+    [15, 3.9, -1, 5, 7.8, '#8e9ca4'],
   ];
   return (
     <group>

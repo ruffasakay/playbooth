@@ -428,7 +428,7 @@ function LightSwitch() {
   };
   const prompt = (e) => {
     const night = useApp.getState().theme === 'night';
-    useApp.getState().setHover({ title: 'Light switch', actions: [['click', night ? 'Lights up' : 'Lights down']], x: e.clientX, y: e.clientY });
+    useApp.getState().setHover({ title: 'Light switch', cursor: night ? 'Day' : 'Night', actions: [['click', night ? 'Lights up' : 'Lights down']], x: e.clientX, y: e.clientY });
   };
   return (
     <group position={SWITCH_POS}>

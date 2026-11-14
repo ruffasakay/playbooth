@@ -213,7 +213,7 @@ function Television() {
     const s = useApp.getState();
     return inRoom() && !!s.insertedTapeId && s.deck !== 'reading';
   };
-  const handlers = hoverHandlers({ title: 'Television', actions: [['click', 'Sit and watch']] }, canWatch);
+  const handlers = hoverHandlers({ title: 'Television', cursor: 'Watch', actions: [['click', 'Sit and watch']] }, canWatch);
 
   const cream = mat('#e3dccf', { roughness: 0.45 });
   return (
@@ -320,7 +320,7 @@ function Printer() {
 }
 
 function Tray() {
-  const handlers = hoverHandlers({ title: 'Photo tray', actions: [['click', 'Open album']] }, inRoom);
+  const handlers = hoverHandlers({ title: 'Photo tray', cursor: 'Album', actions: [['click', 'Open album']] }, inRoom);
   return (
     <group position={[TRAY.x, TRAY.y, TRAY.z]}>
       <mesh position={[0, 0.004, 0]} receiveShadow material={mat('#5c3d28', { roughness: 0.7 })}>

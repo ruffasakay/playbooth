@@ -63,10 +63,39 @@ export const Back = () => (
 export const Stack = () => (
   <svg {...base}><rect x="6.5" y="6.5" width="13" height="11" rx="1.2" {...line} /><path {...line} d="M4 15V5.2C4 4.5 4.5 4 5.2 4H16" /><path {...line} d="m9 14.6 2.4-2.7 1.8 1.8 1.3-1.3 2 2.2" /></svg>
 );
-export const TextStyle = () => (
-  <svg {...base}><path {...line} d="M4 18 9 6l5 12M5.8 14h6.4" /><path {...line} d="M15.5 12.4c.5-.9 1.4-1.4 2.5-1.4 1.6 0 2.5.9 2.5 2.5V18m0-3.2c-.5-.3-1.3-.5-2.2-.5-1.4 0-2.5.6-2.5 1.8 0 1.1.9 1.9 2.1 1.9 1.2 0 2.1-.6 2.6-1.4" /></svg>
+export const Lock = () => (
+  <svg {...base}><rect x="5" y="10.5" width="14" height="10" rx="2.2" fill="currentColor" /><path {...line} d="M8.2 10.5V8a3.8 3.8 0 0 1 7.6 0v2.5" /></svg>
 );
-/** Three dots: speed, skip and picture in picture live behind it. */
-export const More = () => (
-  <svg {...base}><circle cx="5.6" cy="12" r="1.8" fill="currentColor" /><circle cx="12" cy="12" r="1.8" fill="currentColor" /><circle cx="18.4" cy="12" r="1.8" fill="currentColor" /></svg>
+export const Unlock = () => (
+  <svg {...base}><rect x="5" y="10.5" width="14" height="10" rx="2.2" fill="currentColor" /><path {...line} d="M8.2 10.5V8a3.8 3.8 0 0 1 7.4-1.2" /></svg>
+);
+export const Settings = () => (
+  <svg {...base}>
+    <path {...line} d="M12 3.2l1.6 2.2 2.7-.5.8 2.6 2.5 1.2-.9 2.5 1.6 2.2-2.2 1.6.1 2.7-2.7.4-1 2.5-2.5-1-2.5 1-1-2.5-2.7-.4.1-2.7L3.7 13.4l1.6-2.2-.9-2.5 2.5-1.2.8-2.6 2.7.5L12 3.2Z" />
+    <circle cx="12" cy="12" r="2.9" {...line} />
+  </svg>
+);
+export const Chevron = ({ back }) => (
+  <svg {...base}><path {...line} d={back ? 'M14.5 6 8.5 12l6 6' : 'M9.5 6l6 6-6 6'} /></svg>
+);
+export const Check = () => (
+  <svg {...base}><path {...line} strokeWidth="2.2" d="m5.5 12.5 4.2 4.2 8.8-9.4" /></svg>
+);
+export const Sun = () => (
+  <svg {...base}><circle cx="12" cy="12" r="4.2" fill="currentColor" /><path {...line} d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.5 1.5M17.1 17.1l1.5 1.5M5.4 18.6l1.5-1.5M17.1 6.9l1.5-1.5" /></svg>
+);
+export const Moon = () => (
+  <svg {...base}><path d="M19.6 14.6A8 8 0 0 1 9.4 4.4a8 8 0 1 0 10.2 10.2Z" fill="currentColor" /></svg>
+);
+export const Rooms = () => (
+  <svg {...base}><path {...line} d="M3.6 10.6 12 4l8.4 6.6" /><path {...line} d="M5.8 9v10.4h12.4V9" /><path {...line} d="M10 19.4v-5h4v5" /></svg>
+);
+export const Tape = () => (
+  <svg {...base}><rect x="3" y="6" width="18" height="12" rx="1.8" {...line} /><circle cx="8.6" cy="11.4" r="1.9" {...line} /><circle cx="15.4" cy="11.4" r="1.9" {...line} /><path {...line} d="M8.6 9.5h6.8M7 18l1.4-2.6h7.2L17 18" /></svg>
+);
+export const Screen = () => (
+  <svg {...base}><rect x="3" y="4.5" width="18" height="12.5" rx="1.8" {...line} /><path {...line} d="M9 20.5h6M12 17v3.5" /><path d="M10.4 8.4v4.7c0 .4.4.6.7.4l3.7-2.3c.3-.2.3-.6 0-.8l-3.7-2.4c-.3-.2-.7 0-.7.4Z" fill="currentColor" /></svg>
+);
+export const Exit = () => (
+  <svg {...base}><path {...line} d="M13.5 4.5H6.2c-.7 0-1.2.5-1.2 1.2v12.6c0 .7.5 1.2 1.2 1.2h7.3" /><path {...line} d="M10.5 12h9.5M16.8 8.6 20.2 12l-3.4 3.4" /></svg>
 );

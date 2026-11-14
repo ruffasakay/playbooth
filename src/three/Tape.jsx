@@ -4,8 +4,8 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
 import { MOVIES } from '../data/movies.js';
 import { useApp } from '../store.js';
-import { SLOT_ENTRY, SLOT_INSIDE, TAPE, cubbyCenters, damp, interaction, mat, smoothstep } from './world.js';
-import { coverTexture } from './covers.js';
+import { SLOT_ENTRY, SLOT_INSIDE, TAPE, cubbyCenters, damp, interaction, smoothstep } from './world.js';
+import { backTexture, coverTexture, edgeTexture, spineTexture } from './covers.js';
 
 const DRAG_PLANE = new THREE.Plane(new THREE.Vector3(0, 0, 1), -(SLOT_ENTRY.position.z + 0.14));
 const SNAP_RADIUS = 0.3;
@@ -24,6 +24,9 @@ export function Tapes() {
 /** A VHS clamshell case with the film's cover behind the clear sleeve. */
 export function TapeCase({ movie, highlight }) {
   const cover = useMemo(() => coverTexture(movie), [movie]);
+  const back = useMemo(() => backTexture(movie), [movie]);
+  const spine = useMemo(() => spineTexture(movie), [movie]);
+  const edge = useMemo(() => edgeTexture(), []);
   const shell = useMemo(() => new THREE.MeshStandardMaterial({ color: '#1f1c1a', roughness: 0.45, metalness: 0.05, emissive: '#ffd9a0', emissiveIntensity: 0 }), []);
   useFrame((_, dt) => {
     const target = highlight?.current ? 0.06 : 0;
@@ -36,10 +39,27 @@ export function TapeCase({ movie, highlight }) {
         <planeGeometry args={[TAPE.w - 0.01, TAPE.h - 0.01]} />
         <meshStandardMaterial map={cover} roughness={0.35} metalness={0} />
       </mesh>
-      {/* spine label */}
-      <mesh position={[-TAPE.w / 2 - 0.0015, 0, 0]} rotation={[0, -Math.PI / 2, 0]} material={mat('#efe4cf')}>
-        <planeGeometry args={[TAPE.d - 0.012, TAPE.h - 0.04]} />
+      {/* the back: the booth's own label */}
+      <mesh position={[0, 0, -TAPE.d / 2 - 0.0015]} rotation={[0, Math.PI, 0]}>
+        <planeGeometry args={[TAPE.w - 0.01, TAPE.h - 0.01]} />
+        <meshStandardMaterial map={back} roughness={0.45} />
       </mesh>
+      {/* spine label */}
+      <mesh position={[-TAPE.w / 2 - 0.0015, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
+        <planeGeometry args={[TAPE.d - 0.008, TAPE.h - 0.02]} />
+        <meshStandardMaterial map={spine} roughness={0.5} />
+      </mesh>
+      {/* the far side, top and bottom: stripes and marks */}
+      <mesh position={[TAPE.w / 2 + 0.0015, 0, 0]} rotation={[0, Math.PI / 2, Math.PI / 2]}>
+        <planeGeometry args={[TAPE.h - 0.02, TAPE.d - 0.008]} />
+        <meshStandardMaterial map={edge} roughness={0.5} />
+      </mesh>
+      {[1, -1].map((s) => (
+        <mesh key={s} position={[0, s * (TAPE.h / 2 + 0.0015), 0]} rotation={[-s * Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[TAPE.w - 0.012, TAPE.d - 0.008]} />
+          <meshStandardMaterial map={edge} roughness={0.5} />
+        </mesh>
+      ))}
     </group>
   );
 }
@@ -80,6 +100,7 @@ function Tape({ movie, cubby }) {
   const showPrompt = (e) => {
     useApp.getState().setHover({
       title: movie.title,
+      cursor: 'View',
       sub: `${movie.year}  ${movie.genre}`,
       actions: [
         ['click', 'Inspect'],

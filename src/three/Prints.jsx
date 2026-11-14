@@ -167,7 +167,7 @@ function Print({ photo, stackIndex, batchIndex, runStart }) {
         e.stopPropagation();
         hover.current = true;
         document.body.style.cursor = 'pointer';
-        useApp.getState().setHover({ title: photo.kind === 'strip' ? 'Photostrip' : 'Print', sub: photo.title, actions: [['click', 'View']], x: e.clientX, y: e.clientY });
+        useApp.getState().setHover({ title: photo.kind === 'strip' ? 'Photostrip' : 'Print', sub: photo.title, cursor: 'View', actions: [['click', 'View']], x: e.clientX, y: e.clientY });
       }}
       onPointerOut={() => {
         hover.current = false;

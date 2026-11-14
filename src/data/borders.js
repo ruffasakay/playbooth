@@ -3,11 +3,8 @@
  * around the playing video, on the booth's television, in captured photos
  * and in photostrips. Sizes are fractions of the photo's width.
  *
- * In the player the frame's bottom edge grows to hold the controls. `deck`
- * sets, in photo widths, the gap from the picture to the controls and the
- * foot below them that keeps the frame's edge clear. A player layout passes
- * L.Hd (top of the controls) and L.Hb (bottom of the controls) inside L.H.
- * Each frame also carries `ui`, the look its controls inherit.
+ * Frames are pictures only: no words, no numbers. Each frame also carries
+ * `ui`, the paper and ink its control dock and keys are made of.
  */
 
 export const FONT_SERIF = '"Fraunces Variable", Fraunces, Georgia, serif';
@@ -44,143 +41,180 @@ export const BORDERS = [
     name: 'No frame',
     hint: 'Just the film, with a quiet dark bar for the controls.',
     pads: { t: 0, r: 0, b: 0, l: 0 },
-    deck: { gap: 0, foot: 0 },
     radius: 0,
     swatch: ['#1c140f', '#1c140f'],
     strip: { bg: '#f6f1e7', ink: '#33261c' },
-    ui: ui({ surface: '#2a211b', ink: '#f4ede0', band: '#f4ede0', accent: '#cf6a4c', track: 'rgb(244 237 224 / 0.22)', play: ['#f4ede0', '#1b1511'] }),
+    ui: ui({ dock: '#17110d', surface: '#2a211b', ink: '#f4ede0', band: '#f4ede0', accent: '#cf6a4c', track: 'rgb(244 237 224 / 0.22)', play: ['#f4ede0', '#1b1511'] }),
   },
   {
     id: 'booth',
     name: 'Booth white',
     hint: 'The plain white edge of a real photobooth print, stamped at the bottom.',
     pads: { t: 0.04, r: 0.04, b: 0.085, l: 0.04 },
-    deck: { gap: 0.07, foot: 0.028 },
     radius: 0,
     swatch: ['#f6f1e7', '#d8d0c3'],
     strip: { bg: '#f6f1e7', ink: C.ink },
-    ui: ui({ surface: '#ece4d6', ink: '#33261c', band: '#33261c', accent: '#33261c', track: 'rgb(51 38 28 / 0.16)', play: ['#33261c', '#f6f1e7'] }),
+    ui: ui({ dock: '#f6f1e7', surface: '#ece4d6', ink: '#33261c', band: '#33261c', accent: '#33261c', track: 'rgb(51 38 28 / 0.16)', play: ['#33261c', '#f6f1e7'] }),
   },
   {
     id: 'lace',
     name: 'Lace',
     hint: 'A cotton lace doily laid on a dark wooden table.',
     pads: { t: 0.085, r: 0.085, b: 0.085, l: 0.085 },
-    deck: { gap: 0.032, foot: 0.06 },
     radius: 0,
     swatch: ['#4a3125', '#f5ebe7'],
     strip: { bg: C.wood, ink: '#f5ebe7', wood: true },
-    ui: ui({ surface: '#fbf6f2', ink: '#4a3125', band: '#4a3125', accent: '#7a5340', track: 'rgb(74 49 37 / 0.22)', play: ['#fbf6f2', '#4a3125'], edge: 'lace', bar: 'lace', thumb: 'flower', thumbColor: '#7a5340' }),
+    ui: ui({ dock: '#f5ebe7', surface: '#fbf6f2', ink: '#4a3125', band: '#4a3125', accent: '#7a5340', track: 'rgb(74 49 37 / 0.22)', play: ['#4a3125', '#fbf6f2'], edge: 'lace', bar: 'lace', thumb: 'flower', thumbColor: '#7a5340' }),
   },
   {
     id: 'stamp',
     name: 'Postage stamp',
     hint: 'Deep red with a perforated edge, like a stamp torn from its sheet.',
     pads: { t: 0.06, r: 0.06, b: 0.06, l: 0.06 },
-    deck: { gap: 0.04, foot: 0.038 },
     radius: 0,
     swatch: ['#8c2a22', '#f6f1e7'],
     strip: { bg: '#f1ebe0', ink: C.ink },
-    ui: ui({ surface: '#f6f1e7', ink: '#8c2a22', band: '#f6f1e7', accent: '#f6f1e7', track: 'rgb(246 241 231 / 0.3)', play: ['#f6f1e7', '#8c2a22'], edge: 'perf', bar: 'perf' }),
+    ui: ui({ dock: '#8c2a22', surface: '#f6f1e7', ink: '#8c2a22', band: '#f6f1e7', accent: '#f6f1e7', track: 'rgb(246 241 231 / 0.3)', play: ['#f6f1e7', '#8c2a22'], edge: 'perf', bar: 'perf' }),
   },
   {
     id: 'ticket',
     name: 'Cinema ticket',
     hint: 'A cream admission ticket with a numbered stub.',
     pads: { t: 0.055, r: 0.055, b: 0.15, l: 0.055 },
-    deck: { gap: 0.06, foot: 0.03 },
     radius: 0,
     swatch: ['#efe4cf', '#33261c'],
     strip: { bg: '#2e231b', ink: '#efe4cf' },
-    ui: ui({ surface: '#e3d4b9', ink: '#33261c', band: '#33261c', accent: '#9e4330', track: 'rgb(51 38 28 / 0.2)', play: ['#33261c', '#efe4cf'], edge: 'ticket', bar: 'stitch' }),
+    ui: ui({ dock: '#efe4cf', surface: '#f8f1e3', ink: '#33261c', band: '#33261c', accent: '#9e4330', track: 'rgb(51 38 28 / 0.2)', play: ['#33261c', '#efe4cf'], edge: 'ticket', bar: 'stitch' }),
   },
   {
     id: 'denim',
     name: 'Denim & lace',
     hint: 'Blue denim edged in lace, with two gingham star patches.',
     pads: { t: 0.08, r: 0.07, b: 0.08, l: 0.07 },
-    deck: { gap: 0.045, foot: 0.048 },
     radius: 0,
     swatch: ['#4c6a96', '#f7f1ea'],
     strip: { bg: '#4c6a96', ink: '#f7f1ea' },
-    ui: ui({ surface: '#f7f1ea', ink: '#2d4166', band: '#f7f1ea', accent: '#f2c6cf', track: 'rgb(247 241 234 / 0.3)', play: ['#f7f1ea', '#2d4166'], edge: 'lace', bar: 'stitch', thumb: 'star', thumbColor: '#ecd77c' }),
+    ui: ui({ dock: '#4c6a96', surface: '#f7f1ea', ink: '#2d4166', band: '#f7f1ea', accent: '#f2c6cf', track: 'rgb(247 241 234 / 0.3)', play: ['#f7f1ea', '#2d4166'], edge: 'lace', bar: 'stitch', thumb: 'star', thumbColor: '#ecd77c' }),
   },
   {
     id: 'knit',
     name: 'Red knit',
     hint: 'A burgundy knit with a stamp-cut mat, a ribbon bow, a pin and a button.',
     pads: { t: 0.09, r: 0.08, b: 0.09, l: 0.08 },
-    deck: { gap: 0.055, foot: 0.05 },
     radius: 0,
     swatch: ['#86232a', '#fbf7f0'],
     strip: { bg: '#86232a', ink: '#fbf7f0' },
-    ui: ui({ surface: '#fbf7f0', ink: '#86232a', band: '#fbf7f0', accent: '#fbf7f0', track: 'rgb(251 247 240 / 0.28)', play: ['#fbf7f0', '#86232a'], edge: 'perf', bar: 'perf', thumb: 'button', thumbColor: '#efe8dc' }),
+    ui: ui({ dock: '#86232a', surface: '#fbf7f0', ink: '#86232a', band: '#fbf7f0', accent: '#fbf7f0', track: 'rgb(251 247 240 / 0.28)', play: ['#fbf7f0', '#86232a'], edge: 'perf', bar: 'perf', thumb: 'button', thumbColor: '#efe8dc' }),
   },
   {
     id: 'cocoa',
     name: 'Cocoa bow',
     hint: 'Chocolate polka dots, a pinked cream mat and a little bow. Memories.',
     pads: { t: 0.07, r: 0.07, b: 0.15, l: 0.07 },
-    deck: { gap: 0.1, foot: 0.05 },
     radius: 0,
     swatch: ['#3a2822', '#efe6d7'],
     strip: { bg: '#3a2822', ink: '#efe6d7' },
-    ui: ui({ surface: '#f8f2e6', ink: '#3a2822', band: '#3a2822', accent: '#6b4632', track: 'rgb(58 40 34 / 0.16)', play: ['#f4ecdd', '#3a2822'], edge: 'zigzag', bar: 'dots', thumb: 'bow', thumbColor: '#c79b7c' }),
+    ui: ui({ dock: '#3a2822', surface: '#f8f2e6', ink: '#3a2822', band: '#efe6d7', accent: '#e7c9a9', track: 'rgb(239 230 215 / 0.22)', play: ['#f4ecdd', '#3a2822'], edge: 'zigzag', bar: 'dots', thumb: 'bow', thumbColor: '#c79b7c' }),
   },
   {
     id: 'reel',
     name: 'Red film',
     hint: 'A strip of red film with sprocket holes down both sides.',
     pads: { t: 0.07, r: 0.085, b: 0.1, l: 0.085 },
-    deck: { gap: 0.075, foot: 0.025 },
     radius: 0,
     swatch: ['#8a2b2b', '#f5ede1'],
     strip: { bg: '#8a2b2b', ink: '#f5ede1' },
-    ui: ui({ surface: '#6b1f1f', ink: '#f5ede1', band: '#f5ede1', accent: '#f5ede1', track: 'rgb(245 237 225 / 0.22)', play: ['#f5ede1', '#8a2b2b'], bar: 'film', thumb: 'sprocket' }),
+    ui: ui({ dock: '#8a2b2b', surface: '#6b1f1f', ink: '#f5ede1', band: '#f5ede1', accent: '#f5ede1', track: 'rgb(245 237 225 / 0.22)', play: ['#f5ede1', '#8a2b2b'], bar: 'film', thumb: 'sprocket' }),
   },
   {
     id: 'airmail',
     name: 'Airmail',
     hint: 'Ledger paper, airmail stripes, a postmark and a paperclip.',
     pads: { t: 0.075, r: 0.07, b: 0.08, l: 0.07 },
-    deck: { gap: 0.045, foot: 0.032 },
     radius: 0,
     swatch: ['#f2e9d6', '#b8433a'],
     strip: { bg: '#f2e9d6', ink: '#2f4a86' },
-    ui: ui({ surface: '#f8f2e8', ink: '#2f4a86', band: '#2f4a86', accent: '#b8433a', track: 'rgb(47 74 134 / 0.18)', play: ['#2f4a86', '#f8f2e8'], edge: 'airmail', bar: 'airmail', thumb: 'star', thumbColor: '#b8433a' }),
+    ui: ui({ dock: '#f2e9d6', surface: '#f8f2e8', ink: '#2f4a86', band: '#2f4a86', accent: '#b8433a', track: 'rgb(47 74 134 / 0.18)', play: ['#2f4a86', '#f8f2e8'], edge: 'airmail', bar: 'airmail', thumb: 'star', thumbColor: '#b8433a' }),
   },
   {
     id: 'matinee',
     name: 'Matinee',
     hint: 'Dark denim with a cream admission ticket above the picture.',
     pads: { t: 0.16, r: 0.07, b: 0.07, l: 0.07 },
-    deck: { gap: 0.04, foot: 0.03 },
     radius: 0,
     swatch: ['#2f4672', '#f4e9d8'],
     strip: { bg: '#2f4672', ink: '#f4e9d8' },
-    ui: ui({ surface: '#f4e9d8', ink: '#a3323a', band: '#f4e9d8', accent: '#f4e9d8', track: 'rgb(244 233 216 / 0.25)', play: ['#f4e9d8', '#a3323a'], edge: 'ticket', bar: 'stitch' }),
+    ui: ui({ dock: '#2f4672', surface: '#f4e9d8', ink: '#a3323a', band: '#f4e9d8', accent: '#f4e9d8', track: 'rgb(244 233 216 / 0.25)', play: ['#f4e9d8', '#a3323a'], edge: 'ticket', bar: 'stitch' }),
   },
   {
     id: 'polka',
     name: 'Red polka',
     hint: 'Burgundy with small cream dots and softened corners.',
     pads: { t: 0.06, r: 0.06, b: 0.06, l: 0.06 },
-    deck: { gap: 0.04, foot: 0.032 },
     radius: 0.03,
     swatch: ['#6b2024', '#efe4cf'],
     strip: { bg: '#f1ebe0', ink: C.ink },
-    ui: ui({ surface: '#efe4cf', ink: '#6b2024', band: '#efe4cf', accent: '#efe4cf', track: 'rgb(239 228 207 / 0.28)', play: ['#efe4cf', '#6b2024'], bar: 'dots' }),
+    ui: ui({ dock: '#6b2024', surface: '#efe4cf', ink: '#6b2024', band: '#efe4cf', accent: '#efe4cf', track: 'rgb(239 228 207 / 0.28)', play: ['#efe4cf', '#6b2024'], bar: 'dots' }),
   },
   {
     id: 'stripe',
     name: 'Linen stripe',
     hint: 'Pale linen with fine brown pinstripes and a little oval label.',
     pads: { t: 0.055, r: 0.055, b: 0.055, l: 0.055 },
-    deck: { gap: 0.065, foot: 0.028 },
     radius: 0.022,
     swatch: ['#ece3d3', '#7b5a42'],
     strip: { bg: '#ece3d3', ink: C.ink, stripes: true },
-    ui: ui({ surface: '#f6efe3', ink: '#5a3f2c', band: '#33261c', accent: '#7b5a42', track: 'rgb(123 90 66 / 0.22)', play: ['#7b5a42', '#f6efe3'], edge: 'stitch', bar: 'pin' }),
+    ui: ui({ dock: '#ece3d3', surface: '#f6efe3', ink: '#5a3f2c', band: '#33261c', accent: '#7b5a42', track: 'rgb(123 90 66 / 0.22)', play: ['#7b5a42', '#f6efe3'], edge: 'stitch', bar: 'pin' }),
+  },
+  {
+    id: 'velvet',
+    name: 'Velvet curtain',
+    hint: 'Deep red velvet and a gold rope, like the front row of an old cinema.',
+    pads: { t: 0.09, r: 0.09, b: 0.09, l: 0.09 },
+    radius: 0,
+    swatch: ['#6e1420', '#d9a646'],
+    strip: { bg: '#6e1420', ink: '#e7c27a' },
+    ui: ui({ dock: '#5a101a', surface: '#f3e3c2', ink: '#5a101a', band: '#f0d9a4', accent: '#e2b85c', track: 'rgb(240 217 164 / 0.22)', play: ['#f3e3c2', '#5a101a'] }),
+  },
+  {
+    id: 'pressed',
+    name: 'Pressed flowers',
+    hint: 'Cream card with little flowers and leaves pressed into the margin.',
+    pads: { t: 0.1, r: 0.1, b: 0.1, l: 0.1 },
+    radius: 0,
+    swatch: ['#f3ecdf', '#7d9468'],
+    strip: { bg: '#f3ecdf', ink: '#4f6b4a' },
+    ui: ui({ dock: '#f3ecdf', surface: '#fbf7ef', ink: '#3f5a3b', band: '#3f5a3b', accent: '#7d9468', track: 'rgb(63 90 59 / 0.18)', play: ['#3f5a3b', '#fbf7ef'] }),
+  },
+  {
+    id: 'crochet',
+    name: 'Granny squares',
+    hint: 'A blanket of crocheted squares in warm yarn around the picture.',
+    pads: { t: 0.12, r: 0.12, b: 0.12, l: 0.12 },
+    radius: 0,
+    swatch: ['#c2703f', '#efe4cf'],
+    strip: { bg: '#efe4cf', ink: '#7a3f22' },
+    ui: ui({ dock: '#e9dcc4', surface: '#f8f0e1', ink: '#7a3f22', band: '#7a3f22', accent: '#c2703f', track: 'rgb(122 63 34 / 0.18)', play: ['#7a3f22', '#f8f0e1'] }),
+  },
+  {
+    id: 'starry',
+    name: 'Starry night',
+    hint: 'A navy sky full of small stars, with a gold moon in the corner.',
+    pads: { t: 0.09, r: 0.09, b: 0.09, l: 0.09 },
+    radius: 0,
+    swatch: ['#1b2442', '#e8c56a'],
+    strip: { bg: '#1b2442', ink: '#e8c56a' },
+    ui: ui({ dock: '#1b2442', surface: '#f2e6c4', ink: '#1b2442', band: '#f2e6c4', accent: '#e8c56a', track: 'rgb(242 230 196 / 0.2)', play: ['#f2e6c4', '#1b2442'] }),
+  },
+  {
+    id: 'checker',
+    name: 'Sage checker',
+    hint: 'Sage and cream tiles, like a café floor, around a soft cream mat.',
+    pads: { t: 0.1, r: 0.1, b: 0.1, l: 0.1 },
+    radius: 0.012,
+    swatch: ['#9fb08d', '#f4ecdc'],
+    strip: { bg: '#f4ecdc', ink: '#4f6b4a' },
+    ui: ui({ dock: '#9fb08d', surface: '#f7f1e4', ink: '#3f5a3b', band: '#2f4430', accent: '#f7f1e4', track: 'rgb(47 68 48 / 0.22)', play: ['#f7f1e4', '#3f5a3b'] }),
   },
 ];
 
@@ -269,18 +303,34 @@ function boothBack(ctx, L) {
   ctx.strokeRect(L.win.x - 0.5, L.win.y - 0.5, L.win.w + 1, L.win.h + 1);
 }
 
-function boothFront(ctx, L, meta) {
+function boothFront(ctx, L) {
   const { u, win } = L;
-  const y = win.y + win.h + ((L.Hd ?? L.H) - win.y - win.h) * 0.52;
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = C.ink;
-  ctx.textAlign = 'left';
-  ctx.font = `${Math.round(u * 0.03)}px ${FONT_SERIF}`;
-  ctx.fillText('PLAYBOOTH', win.x, y);
-  ctx.textAlign = 'right';
-  ctx.fillStyle = C.inkSoft;
-  const line = [meta.title, meta.date].filter(Boolean).join('   ');
-  ctx.fillText(fitText(ctx, line, win.w * 0.6, `{s} ${FONT_MONO}`, Math.round(u * 0.022), 8), win.x + win.w, y);
+  const y = win.y + win.h + (L.H - win.y - win.h) * 0.5;
+  logoMark(ctx, win.x + u * 0.012, y, Math.min(u * 0.05, (L.H - win.y - win.h) * 0.62), C.ink, C.terracotta);
+  ctx.fillStyle = 'rgb(51 38 28 / 0.35)';
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.arc(win.x + win.w - u * 0.008 - i * u * 0.022, y, u * 0.0055, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+/** The PLAYBOOTH mark as a drawing: a three-frame strip, the middle frame lit. */
+function logoMark(ctx, x, cy, h, ink, accent) {
+  const w = h * 0.44;
+  const y = cy - h / 2;
+  ctx.save();
+  ctx.strokeStyle = ink;
+  ctx.lineWidth = Math.max(1, h * 0.045);
+  ctx.strokeRect(x, y, w, h);
+  const cw = w * 0.6;
+  const ch = h * 0.21;
+  const cx = x + (w - cw) / 2;
+  [0.1, 0.395, 0.69].forEach((f, i) => {
+    ctx.fillStyle = i === 1 ? accent : ink;
+    ctx.fillRect(cx, y + h * f, cw, ch);
+  });
+  ctx.restore();
 }
 
 function laceLayer(L) {
@@ -432,11 +482,12 @@ function stampFront(ctx, L) {
   ctx.restore();
 }
 
-function serial(meta) {
-  const s = `${meta.title || ''}${meta.date || ''}`;
-  let h = 7;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 1000000;
-  return String(h).padStart(6, '0');
+function stars(ctx, cx, cy, n, R, gapX, color) {
+  ctx.fillStyle = color;
+  for (let i = 0; i < n; i++) {
+    starPath(ctx, cx + (i - (n - 1) / 2) * gapX, cy, R, R * 0.45);
+    ctx.fill();
+  }
 }
 
 function ticketBack(ctx, L) {
@@ -448,34 +499,27 @@ function ticketBack(ctx, L) {
   ctx.strokeRect(L.win.x - g, L.win.y - g, L.win.w + g * 2, L.win.h + g * 2);
 }
 
-function ticketFront(ctx, L, meta) {
+function ticketFront(ctx, L) {
   const { u, win } = L;
   const stubTop = win.y + win.h + u * 0.035;
   // perforation line
   ctx.fillStyle = 'rgb(51 38 28 / 0.55)';
   for (let x = u * 0.03; x < L.W - u * 0.02; x += u * 0.022) ctx.fillRect(x, stubTop, u * 0.011, Math.max(1, u * 0.003));
-  const y = stubTop + ((L.Hd ?? L.H) - stubTop) * 0.5;
-  const printText = L.Hb == null;
-  ctx.textBaseline = 'middle';
-  if (printText) {
-  ctx.fillStyle = C.ink;
-  ctx.textAlign = 'left';
-  ctx.font = `${Math.round(u * 0.04)}px ${FONT_MONO}`;
-  ctx.fillText(serial(meta), win.x, y);
-  ctx.font = `${Math.round(u * 0.034)}px ${FONT_SERIF}`;
-  ctx.textAlign = 'center';
-  ctx.fillText(fitText(ctx, `ADMIT ONE  ·  ${meta.title || 'PLAYBOOTH'}`.toUpperCase(), win.w * 0.5, `{s} ${FONT_SERIF}`, Math.round(u * 0.032), 8), L.W / 2, y - u * 0.012);
-  ctx.font = `${Math.round(u * 0.02)}px ${FONT_MONO}`;
-  ctx.fillStyle = C.inkSoft;
-  ctx.fillText(meta.date || '', L.W / 2, y + u * 0.024);
-  // barcode
+  const y = stubTop + (L.H - stubTop) * 0.5;
+  const room = L.H - stubTop;
+  // a punched hole, three stars, a barcode: a ticket without a word on it
+  ctx.strokeStyle = C.ink;
+  ctx.lineWidth = Math.max(1, u * 0.003);
+  ctx.beginPath();
+  ctx.arc(win.x + u * 0.03, y, Math.min(u * 0.018, room * 0.28), 0, Math.PI * 2);
+  ctx.stroke();
+  stars(ctx, L.W / 2, y, 3, Math.min(u * 0.016, room * 0.24), u * 0.05, C.terracotta);
   let bx = win.x + win.w - u * 0.17;
   for (let i = 0; i < 34; i++) {
     const bw = u * (i % 3 === 0 ? 0.0045 : 0.0022);
     ctx.fillStyle = C.ink;
-    ctx.fillRect(bx, y - u * 0.03, bw, u * 0.06);
+    ctx.fillRect(bx, y - Math.min(u * 0.03, room * 0.34), bw, Math.min(u * 0.06, room * 0.68));
     bx += bw + u * 0.0023;
-  }
   }
   // notched corners
   ctx.save();
@@ -541,22 +585,20 @@ function stripeBack(ctx, L) {
 
 function stripeFront(ctx, L) {
   const { u, win } = L;
+  const room = L.H - win.y - win.h;
   const cx = win.x + win.w - u * 0.1;
-  const cy = win.y + win.h + ((L.Hd ?? L.H) - win.y - win.h) / 2;
+  const cy = win.y + win.h + room / 2;
+  const ry = Math.min(u * 0.026, room * 0.36);
   ctx.save();
   ctx.fillStyle = C.linen;
   ctx.strokeStyle = C.stripe;
   ctx.lineWidth = Math.max(1, u * 0.003);
   ctx.beginPath();
-  ctx.ellipse(cx, cy, u * 0.075, u * 0.022, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx, cy, ry * 2.6, ry, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
-  ctx.fillStyle = C.ink;
-  ctx.font = `${Math.round(u * 0.02)}px ${FONT_SERIF}`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('PLAYBOOTH', cx, cy + u * 0.001);
   ctx.restore();
+  logoMark(ctx, cx - ry * 0.35, cy, ry * 1.5, C.ink, C.terracotta);
 }
 
 /* ---------- shared craft pieces for the newer frames ---------- */
@@ -867,17 +909,35 @@ function cocoaBack(ctx, L) {
 
 function cocoaFront(ctx, L) {
   const { u, win } = L;
-  const Hd = L.Hd ?? L.H;
   const m = u * 0.03;
-  const below = Math.min(u * 0.075, Hd - (win.y + win.h) - m);
-  ctx.fillStyle = '#4a3328';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.font = `600 ${Math.round(u * 0.05)}px ${FONT_HAND}`;
-  const gap = (L.Hd ?? L.H) - (win.y + win.h);
-  const ty = L.Hb != null ? win.y + win.h + gap * 0.5 : win.y + win.h + below * 0.55;
-  ctx.fillText('Memories', win.x + win.w / 2, ty);
-  bow(ctx, win.x + u * 0.005, L.Hb != null ? win.y + win.h + gap * 0.3 : win.y + win.h + below * 0.35, u * 0.08, '#6b4632', '#4a2f22');
+  const below = Math.min(u * 0.075, L.H - (win.y + win.h) - m);
+  const y = win.y + win.h + below * 0.55;
+  // a stitched line with a little heart sewn in the middle
+  ctx.save();
+  ctx.strokeStyle = '#6b4632';
+  ctx.lineWidth = Math.max(1, u * 0.0028);
+  ctx.setLineDash([u * 0.012, u * 0.008]);
+  const hw = u * 0.022;
+  ctx.beginPath();
+  ctx.moveTo(win.x + win.w * 0.2, y);
+  ctx.lineTo(win.x + win.w / 2 - hw * 1.6, y);
+  ctx.moveTo(win.x + win.w / 2 + hw * 1.6, y);
+  ctx.lineTo(win.x + win.w * 0.8, y);
+  ctx.stroke();
+  ctx.restore();
+  heart(ctx, win.x + win.w / 2, y, hw, '#a5523f');
+  bow(ctx, win.x + u * 0.005, win.y + win.h + below * 0.35, u * 0.08, '#6b4632', '#4a2f22');
+}
+
+function heart(ctx, cx, cy, r, color) {
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy + r * 0.9);
+  ctx.bezierCurveTo(cx - r * 1.6, cy - r * 0.2, cx - r * 0.7, cy - r * 1.3, cx, cy - r * 0.45);
+  ctx.bezierCurveTo(cx + r * 0.7, cy - r * 1.3, cx + r * 1.6, cy - r * 0.2, cx, cy + r * 0.9);
+  ctx.fill();
+  ctx.restore();
 }
 
 /* ---------- Red film ---------- */
@@ -904,17 +964,25 @@ function reelBack(ctx, L) {
   ctx.strokeRect(win.x - g, win.y - g, win.w + g * 2, win.h + g * 2);
 }
 
-function reelFront(ctx, L, meta) {
+function reelFront(ctx, L) {
   const { u, win } = L;
-  const Hd = L.Hd ?? L.H;
+  const y = win.y + win.h + (L.H - win.y - win.h) * 0.5;
+  const s = Math.min(u * 0.014, (L.H - win.y - win.h) * 0.22);
+  // the edge marks printed on real film, as shapes
   ctx.fillStyle = '#f5ede1';
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'center';
-  ctx.font = `${Math.round(u * 0.03)}px ${FONT_SERIF}`;
-  ctx.fillText('Own the moment', win.x + win.w / 2, win.y + win.h + (Hd - win.y - win.h) * 0.55);
-  ctx.textAlign = 'right';
-  ctx.font = `${Math.round(u * 0.018)}px ${FONT_MONO}`;
-  ctx.fillText(meta.timecode ? `▸ ${meta.timecode}` : '', win.x + win.w, win.y - u * 0.028);
+  for (let i = 0; i < 5; i++) {
+    const x = win.x + win.w / 2 + (i - 2) * s * 4.2;
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.7, y - s);
+    ctx.lineTo(x + s, y);
+    ctx.lineTo(x - s * 0.7, y + s);
+    ctx.closePath();
+    ctx.globalAlpha = i === 2 ? 1 : 0.55;
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.fillRect(win.x, y - Math.max(1, u * 0.0015), win.w * 0.18, Math.max(1, u * 0.003));
+  ctx.fillRect(win.x + win.w * 0.82, y - Math.max(1, u * 0.0015), win.w * 0.18, Math.max(1, u * 0.003));
 }
 
 /* ---------- Airmail ---------- */
@@ -970,12 +1038,9 @@ function airmailFront(ctx, L) {
     for (let x = 0; x <= u * 0.12; x += u * 0.004) ctx.lineTo(cx - u * 0.14 + x, cy - u * 0.02 + i * u * 0.012 + Math.sin(x / (u * 0.012)) * u * 0.003);
     ctx.stroke();
   }
-  ctx.fillStyle = 'rgb(60 50 70 / 0.6)';
-  ctx.font = `${Math.round(u * 0.012)}px ${FONT_MONO}`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('PLAYBOOTH', cx, cy - u * 0.005);
-  ctx.fillText('POST', cx, cy + u * 0.01);
+  starPath(ctx, cx, cy, u * 0.016, u * 0.007);
+  ctx.fillStyle = 'rgb(60 50 70 / 0.55)';
+  ctx.fill();
   ctx.restore();
   // paperclip on the left edge
   ctx.save();
@@ -1031,20 +1096,375 @@ function matineeBack(ctx, L) {
   ctx.strokeRect(win.x - u * 0.006, win.y - u * 0.006, win.w + u * 0.012, win.h + u * 0.012);
 }
 
-function matineeFront(ctx, L, meta) {
+function matineeFront(ctx, L) {
   const { u, win } = L;
   const top = u * 0.025;
   const h = win.y - u * 0.05;
   const cy = top + h / 2;
+  const r = Math.min(h * 0.3, u * 0.028);
+  // a little film reel, a row of stars, a barcode
+  ctx.save();
   ctx.fillStyle = '#a3323a';
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'left';
-  ctx.font = `600 ${Math.round(Math.min(h * 0.46, u * 0.05))}px ${FONT_HAND}`;
-  ctx.fillText('Movie matinee', win.x + u * 0.03, cy);
-  ctx.textAlign = 'right';
-  ctx.font = `500 ${Math.round(Math.min(h * 0.24, u * 0.022))}px ${FONT_MONO}`;
-  ctx.fillText('ADMIT ONE', win.x + win.w - u * 0.03, cy - h * 0.13);
-  ctx.fillText(fitText(ctx, (meta.title || 'ONE DAY').toUpperCase(), win.w * 0.3, `500 {s} ${FONT_MONO}`, Math.round(Math.min(h * 0.24, u * 0.022)), 7), win.x + win.w - u * 0.03, cy + h * 0.16);
+  const rx = win.x + u * 0.03 + r;
+  ctx.beginPath();
+  ctx.arc(rx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalCompositeOperation = 'destination-out';
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2 - Math.PI / 2;
+    ctx.beginPath();
+    ctx.arc(rx + Math.cos(a) * r * 0.55, cy + Math.sin(a) * r * 0.55, r * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.beginPath();
+  ctx.arc(rx, cy, r * 0.12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  stars(ctx, win.x + win.w / 2, cy, 5, Math.min(h * 0.16, u * 0.014), u * 0.042, '#a3323a');
+  let bx = win.x + win.w - u * 0.15;
+  for (let i = 0; i < 26; i++) {
+    const bw = u * (i % 3 === 0 ? 0.004 : 0.002);
+    ctx.fillStyle = '#a3323a';
+    ctx.fillRect(bx, cy - h * 0.26, bw, h * 0.52);
+    bx += bw + u * 0.002;
+  }
+}
+
+/* ---------- Velvet curtain ---------- */
+
+function velvetBack(ctx, L) {
+  const { u, win, W, H } = L;
+  ctx.fillStyle = '#6e1420';
+  ctx.fillRect(0, 0, W, H);
+  // soft folds
+  const n = Math.max(6, Math.round(W / (u * 0.07)));
+  for (let i = 0; i < n; i++) {
+    const x0 = (i * W) / n;
+    const g = ctx.createLinearGradient(x0, 0, x0 + W / n, 0);
+    g.addColorStop(0, 'rgb(0 0 0 / 0.3)');
+    g.addColorStop(0.45, 'rgb(255 210 210 / 0.08)');
+    g.addColorStop(1, 'rgb(0 0 0 / 0.3)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x0, 0, W / n + 1, H);
+  }
+  const v = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.25, W / 2, H / 2, Math.max(W, H) * 0.75);
+  v.addColorStop(0, 'rgb(0 0 0 / 0)');
+  v.addColorStop(1, 'rgb(0 0 0 / 0.4)');
+  ctx.fillStyle = v;
+  ctx.fillRect(0, 0, W, H);
+  if (win.w > 0) rope(ctx, win.x - u * 0.022, win.y - u * 0.022, win.w + u * 0.044, win.h + u * 0.044, u * 0.016);
+}
+
+/** A twisted gold rope along a rectangle. */
+function rope(ctx, x, y, w, h, t) {
+  ctx.save();
+  ctx.lineWidth = t;
+  ctx.strokeStyle = '#a8792a';
+  ctx.strokeRect(x, y, w, h);
+  const seg = t * 0.85;
+  const run = (x0, y0, x1, y1) => {
+    const len = Math.hypot(x1 - x0, y1 - y0);
+    const n = Math.max(1, Math.round(len / seg));
+    const ux = (x1 - x0) / len;
+    const uy = (y1 - y0) / len;
+    for (let i = 0; i < n; i++) {
+      ctx.save();
+      ctx.translate(x0 + ux * (i + 0.5) * (len / n), y0 + uy * (i + 0.5) * (len / n));
+      ctx.rotate(Math.atan2(uy, ux) + 0.85);
+      ctx.fillStyle = '#efcf7d';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, t * 0.52, t * 0.2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  };
+  run(x, y, x + w, y);
+  run(x + w, y, x + w, y + h);
+  run(x + w, y + h, x, y + h);
+  run(x, y + h, x, y);
+  ctx.restore();
+}
+
+function tassel(ctx, x, y, len) {
+  ctx.save();
+  ctx.fillStyle = '#d9a646';
+  ctx.beginPath();
+  ctx.arc(x, y + len * 0.16, len * 0.12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x - len * 0.08, y + len * 0.3);
+  ctx.lineTo(x + len * 0.08, y + len * 0.3);
+  ctx.lineTo(x + len * 0.17, y + len);
+  ctx.lineTo(x - len * 0.17, y + len);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#a8792a';
+  ctx.lineWidth = Math.max(1, len * 0.02);
+  for (let i = -3; i <= 3; i++) {
+    ctx.beginPath();
+    ctx.moveTo(x + i * len * 0.02, y + len * 0.36);
+    ctx.lineTo(x + i * len * 0.046, y + len * 0.97);
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#a8792a';
+  ctx.fillRect(x - len * 0.1, y + len * 0.27, len * 0.2, len * 0.06);
+  ctx.restore();
+}
+
+function velvetFront(ctx, L) {
+  const { u, win } = L;
+  const len = Math.min(u * 0.075, win.x * 0.9);
+  tassel(ctx, win.x - u * 0.045, win.y - u * 0.03, len);
+  tassel(ctx, win.x + win.w + u * 0.045, win.y - u * 0.03, len);
+}
+
+/* ---------- Pressed flowers ---------- */
+
+function seeded(n) {
+  let x = n * 9301 + 49297;
+  return () => {
+    x = (x * 9301 + 49297) % 233280;
+    return x / 233280;
+  };
+}
+
+function sprig(ctx, x, y, s, angle, flower) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.strokeStyle = '#6f8a5c';
+  ctx.lineWidth = Math.max(1, s * 0.035);
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(0, s * 0.5);
+  ctx.quadraticCurveTo(s * 0.1, 0, 0, -s * 0.42);
+  ctx.stroke();
+  for (let i = 0; i < 4; i++) {
+    const t = 0.32 - i * 0.2;
+    const side = i % 2 ? 1 : -1;
+    ctx.save();
+    ctx.translate(s * 0.04, t * s);
+    ctx.rotate(side * 0.95);
+    ctx.fillStyle = i % 2 ? '#7d9468' : '#93a77a';
+    ctx.beginPath();
+    ctx.ellipse(0, -s * 0.09, s * 0.045, s * 0.1, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.translate(0, -s * 0.46);
+  ctx.fillStyle = flower;
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.arc(Math.cos(a) * s * 0.07, Math.sin(a) * s * 0.07, s * 0.06, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = '#e8c56a';
+  ctx.beginPath();
+  ctx.arc(0, 0, s * 0.04, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function pressedBack(ctx, L) {
+  const { u, win, W, H } = L;
+  ctx.fillStyle = '#f3ecdf';
+  ctx.fillRect(0, 0, W, H);
+  const rnd = seeded(11);
+  ctx.fillStyle = 'rgb(120 100 70 / 0.08)';
+  for (let i = 0; i < (W * H) / (u * u) * 900; i++) ctx.fillRect(rnd() * W, rnd() * H, u * 0.002, u * 0.002);
+  if (win.w > 0) {
+    ctx.strokeStyle = '#7d9468';
+    ctx.lineWidth = Math.max(1, u * 0.0025);
+    const g = u * 0.016;
+    ctx.strokeRect(win.x - g, win.y - g, win.w + g * 2, win.h + g * 2);
+  }
+  // sprigs around the margin, alternating leaning in and out
+  const colors = ['#d98c7a', '#b9a3c9', '#e7a96b', '#d98c7a', '#9fb7c9'];
+  const size = Math.min(u * 0.1, Math.max(win.x, u * 0.06) * 1.05);
+  const place = (x, y, a, i) => sprig(ctx, x, y, size, a + (rnd() - 0.5) * 0.5, colors[i % colors.length]);
+  let i = 0;
+  const step = u * 0.12;
+  const topY = win.w > 0 ? win.y / 2 : size * 0.7;
+  const botY = win.w > 0 ? H - (H - win.y - win.h) / 2 : H - size * 0.7;
+  const leftX = win.w > 0 ? win.x / 2 : size * 0.7;
+  const rightX = win.w > 0 ? W - (W - win.x - win.w) / 2 : W - size * 0.7;
+  for (let x = step * 0.6; x < W - step * 0.3; x += step) {
+    place(x, topY, Math.PI / 2 + (i % 2 ? 0.5 : -0.5), i++);
+    place(W - x, botY, -Math.PI / 2 + (i % 2 ? 0.5 : -0.5), i++);
+  }
+  for (let y = step * 1.1; y < H - step; y += step) {
+    place(leftX, y, (i % 2 ? 0.4 : -0.4), i++);
+    place(rightX, H - y, Math.PI + (i % 2 ? 0.4 : -0.4), i++);
+  }
+}
+
+/* ---------- Granny squares ---------- */
+
+const YARN = [
+  ['#c2703f', '#e8c56a', '#7d9468'],
+  ['#7d9468', '#d98c7a', '#efe4cf'],
+  ['#e8c56a', '#c2703f', '#9fb7c9'],
+  ['#d98c7a', '#7d9468', '#e8c56a'],
+];
+
+function grannySquare(ctx, x, y, w, h, colors) {
+  const s = Math.min(w, h);
+  const rounds = ['#f6eddc', ...colors];
+  rounds.forEach((c, i) => {
+    const ins = i * s * 0.11 + s * 0.02;
+    ctx.fillStyle = c;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x + ins, y + ins, w - ins * 2, h - ins * 2, s * 0.06);
+    else ctx.rect(x + ins, y + ins, w - ins * 2, h - ins * 2);
+    ctx.fill();
+  });
+  // chain spaces between rounds
+  ctx.fillStyle = 'rgb(70 45 30 / 0.28)';
+  for (let r = 1; r <= 3; r++) {
+    const ins = r * s * 0.11 + s * 0.02 - s * 0.012;
+    const n = 4 - (r - 1);
+    for (let k = 0; k < n; k++) {
+      const f = (k + 0.5) / n;
+      for (const [px, py] of [[x + ins + (w - ins * 2) * f, y + ins], [x + ins + (w - ins * 2) * f, y + h - ins], [x + ins, y + ins + (h - ins * 2) * f], [x + w - ins, y + ins + (h - ins * 2) * f]]) {
+        ctx.beginPath();
+        ctx.arc(px, py, s * 0.018, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+  ctx.fillStyle = 'rgb(70 45 30 / 0.35)';
+  ctx.beginPath();
+  ctx.arc(x + w / 2, y + h / 2, s * 0.04, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function crochetBack(ctx, L) {
+  const { u, win, W, H } = L;
+  ctx.fillStyle = '#efe4cf';
+  ctx.fillRect(0, 0, W, H);
+  const band = win.w > 0 ? Math.min(win.x, win.y) : u * 0.12;
+  const nx = Math.max(3, Math.round(W / band));
+  const sw = W / nx;
+  const ny = Math.max(2, Math.round((H - band * 2) / band));
+  const sh = (H - band * 2) / ny;
+  let k = 0;
+  for (let i = 0; i < nx; i++) {
+    grannySquare(ctx, i * sw, 0, sw, band, YARN[k++ % 4]);
+    grannySquare(ctx, i * sw, H - band, sw, band, YARN[k++ % 4]);
+  }
+  for (let j = 0; j < ny; j++) {
+    grannySquare(ctx, 0, band + j * sh, band, sh, YARN[k++ % 4]);
+    grannySquare(ctx, W - band, band + j * sh, band, sh, YARN[k++ % 4]);
+  }
+  if (win.w > 0) {
+    const g = u * 0.012;
+    ctx.fillStyle = '#f6eddc';
+    ctx.fillRect(win.x - g, win.y - g, win.w + g * 2, win.h + g * 2);
+    ctx.strokeStyle = '#c2703f';
+    ctx.setLineDash([u * 0.008, u * 0.006]);
+    ctx.lineWidth = Math.max(1, u * 0.003);
+    ctx.strokeRect(win.x - g * 0.5, win.y - g * 0.5, win.w + g, win.h + g);
+    ctx.setLineDash([]);
+  }
+}
+
+/* ---------- Starry night ---------- */
+
+function starryBack(ctx, L) {
+  const { u, win, W, H } = L;
+  const g = ctx.createLinearGradient(0, 0, W * 0.3, H);
+  g.addColorStop(0, '#151d3a');
+  g.addColorStop(1, '#2a2f58');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+  const rnd = seeded(5);
+  const count = Math.round((W * H) / (u * u) * 260);
+  for (let i = 0; i < count; i++) {
+    const x = rnd() * W;
+    const y = rnd() * H;
+    const r = u * (0.0016 + rnd() * 0.003);
+    ctx.globalAlpha = 0.35 + rnd() * 0.65;
+    ctx.fillStyle = rnd() > 0.8 ? '#f6d98c' : '#f4ede0';
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  for (let i = 0; i < Math.round((W * H) / (u * u) * 8); i++) {
+    const x = rnd() * W;
+    const y = rnd() * H;
+    ctx.fillStyle = '#f6d98c';
+    starPath(ctx, x, y, u * 0.012, u * 0.0035, rnd());
+    ctx.fill();
+  }
+  if (win.w > 0) {
+    ctx.fillStyle = '#e8c56a';
+    const gp = u * 0.018;
+    const dot = u * 0.0035;
+    const step = u * 0.014;
+    for (let x = win.x - gp; x <= win.x + win.w + gp; x += step) {
+      ctx.fillRect(x, win.y - gp, dot, dot);
+      ctx.fillRect(x, win.y + win.h + gp, dot, dot);
+    }
+    for (let y = win.y - gp; y <= win.y + win.h + gp; y += step) {
+      ctx.fillRect(win.x - gp, y, dot, dot);
+      ctx.fillRect(win.x + win.w + gp, y, dot, dot);
+    }
+  }
+}
+
+function starryFront(ctx, L) {
+  const { u, win } = L;
+  const r = Math.min(win.y * 0.34, u * 0.032);
+  const cx = win.x + win.w - u * 0.05;
+  const cy = win.y * 0.5;
+  // a crescent: a gold disc with a bite taken out of it
+  const c = document.createElement('canvas');
+  c.width = Math.ceil(r * 2.4);
+  c.height = Math.ceil(r * 2.4);
+  const g = c.getContext('2d');
+  g.fillStyle = '#e8c56a';
+  g.beginPath();
+  g.arc(c.width / 2, c.height / 2, r, 0, Math.PI * 2);
+  g.fill();
+  g.globalCompositeOperation = 'destination-out';
+  g.beginPath();
+  g.arc(c.width / 2 + r * 0.45, c.height / 2 - r * 0.25, r * 0.85, 0, Math.PI * 2);
+  g.fill();
+  ctx.drawImage(c, cx - c.width / 2, cy - c.height / 2);
+}
+
+/* ---------- Sage checker ---------- */
+
+function checkerBack(ctx, L) {
+  const { u, win, W, H } = L;
+  const s = u * 0.042;
+  for (let y = 0, r = 0; y < H; y += s, r++) {
+    for (let x = 0, q = 0; x < W; x += s, q++) {
+      ctx.fillStyle = (r + q) % 2 ? '#9fb08d' : '#f4ecdc';
+      ctx.fillRect(x, y, s + 0.5, s + 0.5);
+    }
+  }
+  if (win.w > 0) {
+    const m = u * 0.03;
+    ctx.save();
+    ctx.shadowColor = 'rgb(40 50 35 / 0.3)';
+    ctx.shadowBlur = u * 0.014;
+    ctx.shadowOffsetY = u * 0.004;
+    ctx.fillStyle = '#f7f1e4';
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(win.x - m, win.y - m, win.w + m * 2, win.h + m * 2, u * 0.022);
+    else ctx.rect(win.x - m, win.y - m, win.w + m * 2, win.h + m * 2);
+    ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = '#7d9468';
+    ctx.lineWidth = Math.max(1, u * 0.0025);
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(win.x - m * 0.45, win.y - m * 0.45, win.w + m * 0.9, win.h + m * 0.9, u * 0.016);
+    else ctx.rect(win.x - m * 0.45, win.y - m * 0.45, win.w + m * 0.9, win.h + m * 0.9);
+    ctx.stroke();
+  }
 }
 
 /** Photostrip backings for frames whose texture should carry onto the strip. */
@@ -1068,6 +1488,11 @@ const STRIP_PAINT = {
     airmailStripes(ctx, 0, 0, w, h, w * 0.025, w);
   },
   matinee: (ctx, w, h) => denimFill(ctx, 0, 0, w, h, w, '#2f4672'),
+  velvet: (ctx, w, h) => velvetBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  pressed: (ctx, w, h) => pressedBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  crochet: (ctx, w, h) => crochetBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  starry: (ctx, w, h) => starryBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  checker: (ctx, w, h) => checkerBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
 };
 
 const PAINTERS = {
@@ -1084,6 +1509,11 @@ const PAINTERS = {
   matinee: [matineeBack, matineeFront],
   polka: [polkaBack, () => {}],
   stripe: [stripeBack, stripeFront],
+  velvet: [velvetBack, velvetFront],
+  pressed: [pressedBack, () => {}],
+  crochet: [crochetBack, () => {}],
+  starry: [starryBack, starryFront],
+  checker: [checkerBack, () => {}],
 };
 
 /** No frame: nothing around the picture, a dark bar under it for the controls. */
@@ -1161,15 +1591,8 @@ export function paintStrip(ctx, border, images, meta, width = 900) {
     y += heights[i] + gap;
   });
   const fy = y - gap + footer * 0.5;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = s.ink;
-  ctx.font = `${Math.round(width * 0.075)}px ${FONT_SERIF}`;
-  ctx.fillText('PLAYBOOTH', width / 2, fy - width * 0.035);
-  ctx.globalAlpha = 0.8;
-  ctx.font = `${Math.round(width * 0.034)}px ${FONT_MONO}`;
-  ctx.fillText(fitText(ctx, [meta.title, meta.date].filter(Boolean).join('   '), width - pad * 2, `{s} ${FONT_MONO}`, Math.round(width * 0.034), 10), width / 2, fy + width * 0.045);
-  ctx.globalAlpha = 1;
+  const mh = width * 0.13;
+  logoMark(ctx, width / 2 - mh * 0.22, fy, mh, s.ink, C.terracotta);
 }
 
 export function formatTimecode(seconds) {

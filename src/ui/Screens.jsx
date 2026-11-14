@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { MOVIES } from '../data/movies.js';
 import { useApp } from '../store.js';
 import { Logo, Wordmark } from './Logo.jsx';
+import * as I from '../player/icons.jsx';
 
 /* ---------- preloader ---------- */
 
@@ -89,9 +90,8 @@ export function Hero() {
           </li>
         </ol>
         <div className="hero-actions reveal" style={{ '--i': 5 }}>
-          <button ref={cta} type="button" className="btn btn--primary btn--lg" onClick={enter} disabled={!visible}>
+          <button ref={cta} type="button" className="btn btn--primary btn--lg" onClick={enter} disabled={!visible} data-cursor="Enter">
             Enter to play
-            <kbd aria-hidden="true">Enter</kbd>
           </button>
         </div>
       </div>
@@ -127,10 +127,11 @@ const NAV = [
 ];
 
 /**
- * A wall switch plate: flick it for day or night. It follows you from the
- * street into the booth, and does what the switch on the booth's wall does.
+ * Two small toggles, top right from the street to the booth: lights and
+ * sound. The knob carries the icon and slides, so on and off read at a
+ * glance without a word.
  */
-function LightSwitchPlate() {
+function Switches() {
   const night = useApp((s) => s.theme === 'night');
   const sound = useApp((s) => s.sound);
   return (
@@ -139,36 +140,24 @@ function LightSwitchPlate() {
         type="button"
         role="switch"
         aria-checked={night}
-        className="switch-plate"
+        aria-label="Night lights"
+        className="toggle toggle--light"
         data-sfx="none"
+        data-cursor={night ? 'Day' : 'Night'}
         onClick={() => useApp.getState().toggleTheme()}
-        aria-label="Lights: night"
-        aria-keyshortcuts="L"
       >
-        <span className="switch-screw" aria-hidden="true" />
-        <span className="switch-slot" aria-hidden="true">
-          <span className="switch-lever" />
-        </span>
-        <span className="switch-screw" aria-hidden="true" />
-        <span className="switch-label" aria-hidden="true">{night ? 'Night' : 'Day'}</span>
+        <span className="toggle-knob">{night ? <I.Moon /> : <I.Sun />}</span>
       </button>
       <button
         type="button"
         role="switch"
         aria-checked={sound}
-        className="sound-knob"
-        onClick={() => useApp.getState().toggleSound()}
         aria-label="Sound"
-        data-on={sound || undefined}
+        className="toggle toggle--sound"
+        data-cursor={sound ? 'Mute' : 'Sound'}
+        onClick={() => useApp.getState().toggleSound()}
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4 9.6c0-.5.4-.9.9-.9h2.6l4-3.2c.6-.5 1.5-.1 1.5.7v11.6c0 .8-.9 1.2-1.5.7l-4-3.2H4.9c-.5 0-.9-.4-.9-.9V9.6Z" fill="currentColor" />
-          {sound ? (
-            <path d="M16.2 9.4a3.7 3.7 0 0 1 0 5.2M18.7 6.9a7.3 7.3 0 0 1 0 10.2" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-          ) : (
-            <path d="m16.4 9.6 4.4 4.8m0-4.8-4.4 4.8" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-          )}
-        </svg>
+        <span className="toggle-knob"><I.Volume level={sound ? 'high' : 'off'} /></span>
       </button>
     </div>
   );
@@ -190,8 +179,7 @@ export function RoomUI() {
           <RoomNav station={station} />
         </>
       )}
-      {((phase === 'outside' && intro) || phase === 'entering' || phase === 'leaving' || (phase === 'inside' && station !== 'watch' && !inspect)) && <LightSwitchPlate />}
-      <PromptCard />
+      {((phase === 'outside' && intro) || phase === 'entering' || phase === 'leaving' || (phase === 'inside' && station !== 'watch' && !inspect)) && <Switches />}
       <div className="veil" data-on={veil || undefined} aria-hidden="true" />
     </>
   );
@@ -216,8 +204,8 @@ function SkipButton() {
     return () => window.removeEventListener('keydown', onKey);
   }, [skip]);
   return (
-    <button ref={ref} type="button" className="btn btn--ghost skip" onClick={skip}>
-      <kbd aria-hidden="true">Esc</kbd> Skip
+    <button ref={ref} type="button" className="btn skip" onClick={skip} data-cursor="Skip">
+      Skip
     </button>
   );
 }
@@ -230,6 +218,7 @@ function RoomNav({ station }) {
   const canWatch = inserted && deck !== 'reading';
   const snaps = useApp((s) => s.snaps.length);
 
+  // the keyboard still works everywhere; nothing on screen spells it out
   useEffect(() => {
     const onKey = (e) => {
       if (e.target.closest?.('input, textarea, dialog, [role="dialog"]') || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -245,63 +234,40 @@ function RoomNav({ station }) {
   }, [go, leave, canWatch]);
 
   return (
-    <nav className="room-nav" aria-label="Move around the booth">
-      <ul>
-        {NAV.map((n) => (
-          <li key={n.id}>
-            <button type="button" className="nav-key" aria-current={station === n.id ? 'location' : undefined} aria-keyshortcuts={n.key} onClick={() => go(n.id)}>
-              <kbd aria-hidden="true">{n.key}</kbd>
-              {n.label}
+    <>
+      <button type="button" className="float-btn room-exit" onClick={leave} data-cursor="Exit" aria-label="Step out of the booth">
+        <I.Exit />
+        <span>Step out</span>
+      </button>
+      <nav className="room-views" aria-label="Look around the booth">
+        {NAV.map((n) => {
+          const Icon = NAV_ICONS[n.id];
+          return (
+            <button key={n.id} type="button" className="float-btn view-btn" aria-current={station === n.id ? 'location' : undefined} data-cursor={station === n.id ? 'Here' : 'Go'} onClick={() => go(n.id)}>
+              <Icon />
+              <span>{n.label}</span>
             </button>
-          </li>
-        ))}
+          );
+        })}
+      </nav>
+      <div className="room-actions">
+        <button type="button" className="float-btn" onClick={() => useApp.getState().setCompilerOpen(true)} data-cursor="Snaps" aria-label={`Snaps, ${snaps}`}>
+          <I.Stack />
+          <span>Snaps</span>
+          {snaps > 0 && <span className="float-badge" aria-hidden="true">{snaps}</span>}
+        </button>
         {canWatch && (
-          <li>
-            <button type="button" className="nav-key nav-key--accent" aria-keyshortcuts="W" onClick={() => go('watch')}>
-              <kbd aria-hidden="true">W</kbd>
-              Watch
-            </button>
-          </li>
+          <button type="button" className="float-btn float-btn--primary" onClick={() => go('watch')} data-cursor="Watch">
+            <I.Play />
+            <span>Watch</span>
+          </button>
         )}
-        <li>
-          <button type="button" className="nav-key" aria-keyshortcuts="5" onClick={() => useApp.getState().setCompilerOpen(true)}>
-            <kbd aria-hidden="true">5</kbd>
-            Snaps{snaps ? ` ${snaps}` : ''}
-          </button>
-        </li>
-        <li>
-          <button type="button" className="nav-key" onClick={leave}>
-            <kbd aria-hidden="true">Q</kbd>
-            Step out
-          </button>
-        </li>
-      </ul>
-    </nav>
+      </div>
+    </>
   );
 }
 
-/** The little card that names what's under the pointer, like a game's interact prompt. */
-function PromptCard() {
-  const hover = useApp((s) => s.hover);
-  const coarse = useApp((s) => s.coarsePointer);
-  if (!hover || coarse) return null;
-  const left = Math.min(hover.x + 18, window.innerWidth - 270);
-  const top = Math.min(hover.y + 18, window.innerHeight - 140);
-  return (
-    <div className="prompt-card" style={{ left, top }} aria-hidden="true">
-      <p className="prompt-title">{hover.title}</p>
-      {hover.sub && <p className="prompt-sub">{hover.sub}</p>}
-      <ul>
-        {hover.actions.map(([key, label]) => (
-          <li key={label}>
-            <kbd>{key === 'click' ? 'Click' : key === 'drag' ? 'Drag' : key}</kbd>
-            {label}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+const NAV_ICONS = { tapes: I.Tape, player: I.Screen, prints: I.Print, booth: I.Rooms };
 
 /* ---------- live region ---------- */
 

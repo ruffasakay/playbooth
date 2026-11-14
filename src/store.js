@@ -43,6 +43,7 @@ export const useApp = create((set, get) => ({
   frameLocked: false,
   videoEl: null,
   videoAspect: 16 / 9,
+  pseudoFs: false, // full screen drawn by the page itself (iPhone has no element full screen)
   ended: false,
 
   // photos
@@ -308,7 +309,7 @@ function initialTheme() {
 }
 
 function loadCaptionStyle() {
-  const fallback = { color: '#ffffff', outline: true, font: 'sans' };
+  const fallback = { color: '#ffffff', outline: true, font: 'sans', size: 'm' };
   try {
     return { ...fallback, ...JSON.parse(localStorage.getItem('playbooth.captions') || '{}') };
   } catch {
