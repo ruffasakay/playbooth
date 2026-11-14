@@ -494,6 +494,12 @@ dialog.panel[open] { display: grid; grid-template-rows: auto minmax(0, 1fr) auto
 button.room-brand { border: 0; background: none; padding: 6px 8px 6px 4px; margin: -6px 0 0 -4px; border-radius: 12px; cursor: pointer; font: inherit; }
 button.room-brand:hover { background: rgb(0 0 0 / 0.16); }
 button.room-brand:focus-visible { outline: none; box-shadow: inset 0 0 0 2px currentColor; }
+/* the name in the room stands as tall as the light and sound switches (32 px) and shares their centre line */
+button.room-brand { box-sizing: content-box; height: 32px; padding: 6px 10px 6px 6px; margin: -6px 0 0 -6px; }
+/* the mark is 0.96 em, so this makes it exactly 32 px; on a phone too narrow for that beside the
+   switches (the logotype is 7.6 em wide, the switches and margins take about 184 px) it shrinks to fit, on the same centre line */
+.room-brand .logotype { font-size: min(calc(32px / 0.96), calc((100vw - var(--safe-left) - var(--safe-right) - 184px) / 7.6)); }
+.room-brand .logotype-mark { translate: 0 0; /* centred on the box, so it lines up with the switches to the pixel */ }
 
 .credit { display: inline-flex; align-items: center; gap: 0.4em; margin: 0; flex-wrap: wrap; }
 .credit-heart { color: #d4485e; flex: none; animation: beat 1.6s ease-in-out infinite; }
