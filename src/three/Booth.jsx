@@ -64,10 +64,17 @@ function Shell() {
           </mesh>
         </group>
       ))}
-      {/* terracotta base band: the booth's one warm accent at street level */}
-      <mesh position={[0, 0.17, halfD + 0.004]} material={mat(PAL.terracotta, { roughness: 0.7 })}>
-        <boxGeometry args={[halfW * 2 + 0.01, 0.34, 0.012]} />
-      </mesh>
+      {/* terracotta base band: the booth's one warm accent at street level, stopping at the door
+          (its ends tuck under the door posts, which stand 3 cm proud of the wall, so no faces meet) */}
+      {[-1, 1].map((sx) => {
+        const inner = door.halfW + 0.02;
+        const outer = halfW + 0.005;
+        return (
+          <mesh key={`front${sx}`} position={[(sx * (inner + outer)) / 2, 0.17, halfD + 0.004]} material={mat(PAL.terracotta, { roughness: 0.7 })}>
+            <boxGeometry args={[outer - inner, 0.34, 0.012]} />
+          </mesh>
+        );
+      })}
       {[-1, 1].map((sx) => (
         <mesh key={sx} position={[sx * (halfW + 0.004), 0.17, 0]} material={mat(PAL.terracotta, { roughness: 0.7 })}>
           <boxGeometry args={[0.012, 0.34, halfD * 2 + 0.01]} />

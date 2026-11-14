@@ -88,7 +88,7 @@ The skin supports the same public CSS properties as the Video.js skins: `--media
 
 ## Layout in landscape
 
-Rail, frame, dock: the booth rail is one key wide, the dock is its progress plus one column of keys (two below about 470 px of height, three below 320 px, so phones on their side get two), and the framed picture takes everything in between. Keys are sized to line up with the frame. The booth opens at night every visit; the switch changes it for the visit.
+Rail, frame, dock: the booth rail is one key wide, the dock is its progress plus one column of keys (two below about 470 px of height, three below 320 px, so phones on their side get two), and the framed picture takes everything in between. Keys are sized to line up with the frame. The booth keys sit together in the middle of the rail, grouped by what they do (back · snaps and album · eject; in the showcase, frames and surprise frame · next film), with a wider step between groups than between keys. Upright, they form one centred row at the top, and the title gets the whole width right above the picture. The booth opens at night every visit; the switch changes it for the visit.
 
 ## Playback performance
 

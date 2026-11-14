@@ -64,6 +64,9 @@
 .pb-title-name { font-family: var(--serif); font-weight: 600; font-variation-settings: var(--soft); font-size: 1.02rem; color: #f4ede0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pb-title-credit { font-size: 0.68rem; color: rgb(244 237 224 / 0.62); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pb-title[data-hidden] { opacity: 0; }
+/* the title sits on the picture's top edge, whatever room it has above */
+.pb-title { align-content: end; }
+.pb-skin[data-portrait] .pb-title-credit { white-space: normal; text-wrap: balance; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 
 /* ---------- the frame ---------- */
 
@@ -159,11 +162,11 @@
   gap: 10px;
   transition: opacity 0.35s ease, translate 0.45s var(--ease);
 }
-.pb-rail[data-orient='v'] { flex-direction: column; justify-content: space-between; padding: var(--rail-top, 4px) 0 4px; }
-.pb-rail[data-orient='v'] .pb-rail-group { display: flex; flex-direction: column; gap: 10px; }
-.pb-rail[data-orient='h'] { justify-content: space-between; }
-.pb-rail[data-orient='h'] .pb-rail-group { display: flex; gap: 8px; }
-.pb-rail-title { flex: 1; min-width: 0; margin: 0; display: grid; text-align: center; }
+/* close together in the middle; a wider step between groups than between keys in a group */
+.pb-rail { justify-content: center; gap: 24px; }
+.pb-rail-group { display: flex; gap: 10px; }
+.pb-rail[data-orient='v'], .pb-rail[data-orient='v'] .pb-rail-group { flex-direction: column; }
+.pb-rail[data-orient='h'] { gap: 22px; }
 .pb-rail[data-hidden] { opacity: 0; pointer-events: none; }
 .pb-rail[data-orient='v'][data-hidden] { translate: -24px 0; }
 .pb-rail[data-orient='h'][data-hidden] { translate: 0 -16px; }

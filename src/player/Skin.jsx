@@ -96,22 +96,31 @@ function computeLayout({ border, aspect, sw, sh, fs, picker, shown }) {
   }
 
   if (portrait) {
-    const top = !fs && !picker ? 60 : m;
     const avW = sw - m * 2;
     if (!shown) {
       const f = fitFrame(border, aspect, avW, sh - m * 2);
       return { portrait, frame: { ...f, x: (sw - f.W) / 2, y: (sh - f.H) / 2 } };
     }
-    const avH = sh - top - m - H_DOCK - gap;
-    const f = fitFrame(border, aspect, avW, avH);
-    const groupH = f.H + gap + H_DOCK;
-    const y0 = top + Math.max(0, (sh - top - m - groupH) / 2);
+    /*
+     * Top to bottom, as one group centred in the height: the booth keys in a
+     * row of their own, then the title right above the picture it names (the
+     * whole width, so it never gets cut short), the picture, and the dock.
+     */
+    const head = !fs;
+    const ROW = 44;
+    const TITLE = 54; // the name, and room for the credit to take two lines on a narrow phone
+    const headH = head ? ROW + gap + TITLE : 0;
+    const f = fitFrame(border, aspect, avW, sh - m * 2 - headH - H_DOCK - gap);
+    const total = headH + f.H + gap + H_DOCK;
+    const y0 = m + Math.max(0, (sh - m * 2 - total) / 2);
+    const fy = y0 + headH;
     const dw = Math.min(avW, Math.max(Math.min(f.W, 470), 340));
     return {
       portrait,
-      frame: { ...f, x: (sw - f.W) / 2, y: y0 },
-      dock: { orient: 'h', x: (sw - dw) / 2, y: y0 + f.H + gap, w: dw, h: H_DOCK, spec: { key: 44, play: 58 } },
-      rail: !picker && !fs ? { orient: 'h', x: m, y: m, w: sw - m * 2, h: 48 } : null,
+      frame: { ...f, x: (sw - f.W) / 2, y: fy },
+      dock: { orient: 'h', x: (sw - dw) / 2, y: fy + f.H + gap, w: dw, h: H_DOCK, spec: { key: 44, play: 58 } },
+      rail: head ? { orient: 'h', x: m, y: y0, w: avW, h: ROW, key: ROW } : null,
+      title: head ? { x: m, y: y0 + ROW + gap, w: avW, h: TITLE - 6 } : null,
     };
   }
 
@@ -170,7 +179,8 @@ function computeLayout({ border, aspect, sw, sh, fs, picker, shown }) {
     frame: { ...f, x: x0, y: fy },
     dock: { orient: 'v', x: x0 + f.W + gap, y: dy, w: dw, h: dh, spec },
     rail: rail ? { orient: 'v', x: gx, y: dy, w: spec.key, h: dh, key: spec.key, top: spec.cols === 1 ? 44 : 26 } : null,
-    title: titleH ? { x: x0, y: m, w: f.W, h: titleH - 8 } : null,
+    // the title sits right above the picture it names, not up at the edge when the picture is centred lower
+    title: titleH ? { x: x0, y: Math.max(m, fy - titleH), w: f.W, h: titleH - 8 } : null,
   };
 }
 
@@ -521,7 +531,7 @@ export function PlayboothSkin({ children }) {
         {geo && shownGeo && (
           <>
             {shownGeo.title && (
-              <p className="pb-title" data-hidden={!shown || undefined} style={{ left: shownGeo.title.x, top: shownGeo.title.y, width: shownGeo.title.w }}>
+              <p className="pb-title" data-hidden={!shown || undefined} style={{ left: shownGeo.title.x, top: shownGeo.title.y, width: shownGeo.title.w, height: shownGeo.title.h }}>
                 <span className="pb-title-name">{movie?.title}</span>
                 <span className="pb-title-credit">{movie ? `${movie.credit}, ${movie.license}` : ''}</span>
               </p>
@@ -653,7 +663,7 @@ function Rail(props) {
  * Outside the booth the left keys do what a demo needs: open the frames,
  * change the film, surprise me with a frame. Same places, same rhythm.
  */
-function ShowcaseRail({ geo, movie, hidden, portrait, fs, hover }) {
+function ShowcaseRail({ geo, hidden, hover }) {
   const v = geo.orient === 'v';
   const frames = () => {
     useApp.setState({ deck: 'frame' });
@@ -675,11 +685,6 @@ function ShowcaseRail({ geo, movie, hidden, portrait, fs, hover }) {
     s.announce(`${b.name} frame.`);
     sfx('paper');
   };
-  const dice = (
-    <button type="button" className="pb-btn pb-rail-key" aria-label="Surprise frame" data-tip="Surprise frame" onClick={shuffle}>
-      <I.Shuffle />
-    </button>
-  );
   return (
     <nav
       className="pb-rail"
@@ -687,30 +692,27 @@ function ShowcaseRail({ geo, movie, hidden, portrait, fs, hover }) {
       data-tip-side={v ? 'right' : 'bottom'}
       data-hidden={hidden || undefined}
       aria-label="Frames and films"
-      style={{ left: geo.x, top: geo.y, width: geo.w, height: geo.h, '--key': geo.key ? `${geo.key}px` : undefined, '--rail-top': geo.top ? `${geo.top}px` : undefined }}
+      style={{ left: geo.x, top: geo.y, width: geo.w, height: geo.h, '--key': geo.key ? `${geo.key}px` : undefined }}
       inert={hidden || undefined}
       {...hover}
     >
-      <button type="button" className="pb-btn pb-rail-key" aria-label="Choose a frame" data-tip="Frames" onClick={frames}>
-        <I.Frames />
-      </button>
-      {portrait && !fs && (
-        <p className="pb-rail-title">
-          <span className="pb-title-name">{movie?.title}</span>
-        </p>
-      )}
+      {/* grouped by what they change: the frame (choose, surprise), then the film */}
       <div className="pb-rail-group">
-        <button type="button" className="pb-btn pb-rail-key" aria-label="Next film" data-tip="Next film" onClick={nextFilm}>
-          <I.Tape />
+        <button type="button" className="pb-btn pb-rail-key" aria-label="Choose a frame" data-tip="Frames" onClick={frames}>
+          <I.Frames />
         </button>
-        {!v && dice}
+        <button type="button" className="pb-btn pb-rail-key" aria-label="Surprise frame" data-tip="Surprise frame" onClick={shuffle}>
+          <I.Shuffle />
+        </button>
       </div>
-      {v && dice}
+      <button type="button" className="pb-btn pb-rail-key" aria-label="Next film" data-tip="Next film" onClick={nextFilm}>
+        <I.Tape />
+      </button>
     </nav>
   );
 }
 
-function BoothRail({ geo, movie, hidden, portrait, fs, hover }) {
+function BoothRail({ geo, movie, hidden, hover }) {
   const snaps = useApp((s) => s.snaps.length);
   const total = useApp((s) => s.collection.length);
   const v = geo.orient === 'v';
@@ -719,31 +721,21 @@ function BoothRail({ geo, movie, hidden, portrait, fs, hover }) {
     if (document.fullscreenElement) document.exitFullscreen?.().catch?.(() => {});
     useApp.getState().goStation('player');
   };
-  const eject = (
-    <button type="button" className="pb-btn pb-rail-key" aria-label={`Eject ${movie?.title ?? 'tape'}`} data-tip="Eject the tape" onClick={() => useApp.getState().ejectTape()}>
-      <I.Eject />
-    </button>
-  );
-  // top, middle, bottom: the same rhythm as the dock across the frame
+  // grouped by what they do: leave, your pictures (snaps, album), the tape
   return (
     <nav
       className="pb-rail"
       data-orient={geo.orient}
-      data-tip-side={geo.orient === 'v' ? 'right' : 'bottom'}
+      data-tip-side={v ? 'right' : 'bottom'}
       data-hidden={hidden || undefined}
       aria-label="Booth"
-      style={{ left: geo.x, top: geo.y, width: geo.w, height: geo.h, '--key': geo.key ? `${geo.key}px` : undefined, '--rail-top': geo.top ? `${geo.top}px` : undefined }}
+      style={{ left: geo.x, top: geo.y, width: geo.w, height: geo.h, '--key': geo.key ? `${geo.key}px` : undefined }}
       inert={hidden || undefined}
       {...hover}
     >
       <button type="button" className="pb-btn pb-rail-key" aria-label="Back to the booth" data-tip="Back to the booth" data-key="Esc" onClick={back}>
         <I.Back />
       </button>
-      {portrait && !fs && (
-        <p className="pb-rail-title">
-          <span className="pb-title-name">{movie?.title}</span>
-        </p>
-      )}
       <div className="pb-rail-group">
         <button type="button" className="pb-btn pb-rail-key" aria-label={`Snaps, ${snaps}`} data-tip="Your snaps" onClick={() => useApp.getState().setCompilerOpen(true)}>
           <I.Stack />
@@ -752,9 +744,10 @@ function BoothRail({ geo, movie, hidden, portrait, fs, hover }) {
         <button type="button" className="pb-btn pb-rail-key" aria-label={`Album, ${total} prints`} data-tip="Album" onClick={() => useApp.getState().setAlbumOpen(true)}>
           <I.Album />
         </button>
-        {!v && eject}
       </div>
-      {v && eject}
+      <button type="button" className="pb-btn pb-rail-key" aria-label={`Eject ${movie?.title ?? 'tape'}`} data-tip="Eject the tape" onClick={() => useApp.getState().ejectTape()}>
+        <I.Eject />
+      </button>
     </nav>
   );
 }
