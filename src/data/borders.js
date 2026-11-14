@@ -46,15 +46,36 @@ export const BORDERS = [
     strip: { bg: '#f6f1e7', ink: '#33261c' },
     ui: ui({ dock: '#17110d', surface: '#f4ede0', ink: '#33261c', band: '#f4ede0', accent: '#cf6a4c', track: 'rgb(244 237 224 / 0.22)', play: ['#f4ede0', '#1b1511'], playKey: ['#cf6a4c', '#fff8ef'] }),
   },
+  /* ---- from your references, ranked by design and uniqueness ---- */
   {
-    id: 'booth',
-    name: 'Booth white',
-    hint: 'The plain white edge of a real photobooth print, stamped at the bottom.',
-    pads: { t: 0.04, r: 0.04, b: 0.085, l: 0.04 },
+    id: 'vinyl',
+    name: 'Vinyl cream',
+    hint: 'Cream card with a black record peeking out and red hearts.',
+    pads: { t: 0.08, r: 0.26, b: 0.08, l: 0.08 },
     radius: 0,
-    swatch: ['#f6f1e7', '#d8d0c3'],
-    strip: { bg: '#f6f1e7', ink: C.ink },
-    ui: ui({ dock: '#f6f1e7', surface: '#ece4d6', ink: '#33261c', band: '#33261c', accent: '#33261c', track: 'rgb(51 38 28 / 0.16)', play: ['#33261c', '#f6f1e7'] }),
+    swatch: ['#f1e8d8', '#16120f'],
+    strip: { bg: '#f1e8d8', ink: '#8e1f26' },
+    ui: ui({ dock: '#f1e8d8', surface: '#fbf6ec', ink: '#8e1f26', band: '#8e1f26', accent: '#c2363e', track: 'rgb(142 31 38 / 0.18)', play: ['#8e1f26', '#fbf6ec'] }),
+  },
+  {
+    id: 'confetti',
+    name: 'Star confetti',
+    hint: 'White card with bright paper stars stuck all around.',
+    pads: { t: 0.12, r: 0.12, b: 0.12, l: 0.12 },
+    radius: 0,
+    swatch: ['#ffffff', '#e0463c'],
+    strip: { bg: '#ffffff', ink: '#33261c' },
+    ui: ui({ dock: '#ffffff', surface: '#ffffff', ink: '#2c3e8f', band: '#2c3e8f', accent: '#f0b429', track: 'rgb(44 62 143 / 0.18)', play: ['#2c3e8f', '#ffffff'] }),
+  },
+  {
+    id: 'comic',
+    name: 'Comic blocks',
+    hint: 'Four halftone colour blocks and a bold ink panel, like a comic page.',
+    pads: { t: 0.09, r: 0.09, b: 0.11, l: 0.09 },
+    radius: 0,
+    swatch: ['#7fa6d6', '#a8c48f'],
+    strip: { bg: '#f4ecdc', ink: '#5a3f2c' },
+    ui: ui({ dock: '#7fa6d6', surface: '#fbf7ee', ink: '#3b4f78', band: '#fbf7ee', accent: '#f4d35e', track: 'rgb(251 247 238 / 0.28)', play: ['#3b4f78', '#fbf7ee'] }),
   },
   {
     id: 'lace',
@@ -67,34 +88,24 @@ export const BORDERS = [
     ui: ui({ dock: '#f5ebe7', surface: '#fbf6f2', ink: '#4a3125', band: '#4a3125', accent: '#7a5340', track: 'rgb(74 49 37 / 0.22)', play: ['#4a3125', '#fbf6f2'], edge: 'lace', bar: 'lace', thumb: 'flower', thumbColor: '#7a5340' }),
   },
   {
-    id: 'stamp',
-    name: 'Postage stamp',
-    hint: 'Deep red with a perforated edge, like a stamp torn from its sheet.',
-    pads: { t: 0.06, r: 0.06, b: 0.06, l: 0.06 },
+    id: 'reel',
+    name: 'Red film',
+    hint: 'A strip of red film with sprocket holes down both sides.',
+    pads: { t: 0.07, r: 0.085, b: 0.1, l: 0.085 },
     radius: 0,
-    swatch: ['#8c2a22', '#f6f1e7'],
-    strip: { bg: '#f1ebe0', ink: C.ink },
-    ui: ui({ dock: '#8c2a22', surface: '#f6f1e7', ink: '#8c2a22', band: '#f6f1e7', accent: '#f6f1e7', track: 'rgb(246 241 231 / 0.3)', play: ['#f6f1e7', '#8c2a22'], edge: 'perf', bar: 'perf' }),
+    swatch: ['#8a2b2b', '#f5ede1'],
+    strip: { bg: '#8a2b2b', ink: '#f5ede1' },
+    ui: ui({ dock: '#8a2b2b', surface: '#f5ede1', ink: '#8a2b2b', band: '#f5ede1', accent: '#f5ede1', track: 'rgb(245 237 225 / 0.22)', play: ['#f5ede1', '#8a2b2b'], bar: 'film', thumb: 'sprocket' }),
   },
   {
-    id: 'ticket',
-    name: 'Cinema ticket',
-    hint: 'A cream admission ticket with a numbered stub.',
-    pads: { t: 0.055, r: 0.055, b: 0.15, l: 0.055 },
+    id: 'lavender',
+    name: 'Lavender swirl',
+    hint: 'Lilac paper with soft scrollwork and a little pixel flower.',
+    pads: { t: 0.08, r: 0.08, b: 0.15, l: 0.08 },
     radius: 0,
-    swatch: ['#efe4cf', '#33261c'],
-    strip: { bg: '#2e231b', ink: '#efe4cf' },
-    ui: ui({ dock: '#efe4cf', surface: '#f8f1e3', ink: '#33261c', band: '#33261c', accent: '#9e4330', track: 'rgb(51 38 28 / 0.2)', play: ['#33261c', '#efe4cf'], edge: 'ticket', bar: 'stitch' }),
-  },
-  {
-    id: 'denim',
-    name: 'Denim & lace',
-    hint: 'Blue denim edged in lace, with two gingham star patches.',
-    pads: { t: 0.08, r: 0.07, b: 0.08, l: 0.07 },
-    radius: 0,
-    swatch: ['#4c6a96', '#f7f1ea'],
-    strip: { bg: '#4c6a96', ink: '#f7f1ea' },
-    ui: ui({ dock: '#4c6a96', surface: '#f7f1ea', ink: '#2d4166', band: '#f7f1ea', accent: '#f2c6cf', track: 'rgb(247 241 234 / 0.3)', play: ['#f7f1ea', '#2d4166'], edge: 'lace', bar: 'stitch', thumb: 'star', thumbColor: '#ecd77c' }),
+    swatch: ['#b9a7cf', '#ffffff'],
+    strip: { bg: '#c2b2d8', ink: '#5f4c80' },
+    ui: ui({ dock: '#b9a7cf', surface: '#f6f1fb', ink: '#5f4c80', band: '#f6f1fb', accent: '#d9c9f0', track: 'rgb(246 241 251 / 0.25)', play: ['#5f4c80', '#f6f1fb'] }),
   },
   {
     id: 'knit',
@@ -107,24 +118,14 @@ export const BORDERS = [
     ui: ui({ dock: '#86232a', surface: '#fbf7f0', ink: '#86232a', band: '#fbf7f0', accent: '#fbf7f0', track: 'rgb(251 247 240 / 0.28)', play: ['#fbf7f0', '#86232a'], edge: 'perf', bar: 'perf', thumb: 'button', thumbColor: '#efe8dc' }),
   },
   {
-    id: 'cocoa',
-    name: 'Cocoa bow',
-    hint: 'Chocolate polka dots, a pinked cream mat and a little bow. Memories.',
-    pads: { t: 0.07, r: 0.07, b: 0.15, l: 0.07 },
+    id: 'heart',
+    name: 'Paper hearts',
+    hint: 'Crinkled pink paper, a white mat and paper hearts cut out all around.',
+    pads: { t: 0.09, r: 0.09, b: 0.09, l: 0.09 },
     radius: 0,
-    swatch: ['#3a2822', '#efe6d7'],
-    strip: { bg: '#3a2822', ink: '#efe6d7' },
-    ui: ui({ dock: '#3a2822', surface: '#f8f2e6', ink: '#3a2822', band: '#efe6d7', accent: '#e7c9a9', track: 'rgb(239 230 215 / 0.22)', play: ['#f4ecdd', '#3a2822'], edge: 'zigzag', bar: 'dots', thumb: 'bow', thumbColor: '#c79b7c' }),
-  },
-  {
-    id: 'reel',
-    name: 'Red film',
-    hint: 'A strip of red film with sprocket holes down both sides.',
-    pads: { t: 0.07, r: 0.085, b: 0.1, l: 0.085 },
-    radius: 0,
-    swatch: ['#8a2b2b', '#f5ede1'],
-    strip: { bg: '#8a2b2b', ink: '#f5ede1' },
-    ui: ui({ dock: '#8a2b2b', surface: '#f5ede1', ink: '#8a2b2b', band: '#f5ede1', accent: '#f5ede1', track: 'rgb(245 237 225 / 0.22)', play: ['#f5ede1', '#8a2b2b'], bar: 'film', thumb: 'sprocket' }),
+    swatch: ['#f2b8c6', '#ffffff'],
+    strip: { bg: '#f2b8c6', ink: '#5b7fc4' },
+    ui: ui({ dock: '#f2b8c6', surface: '#fff5f8', ink: '#b23a5e', band: '#fff5f8', accent: '#ffe1ea', track: 'rgb(255 245 248 / 0.3)', play: ['#b23a5e', '#fff5f8'] }),
   },
   {
     id: 'airmail',
@@ -147,25 +148,96 @@ export const BORDERS = [
     ui: ui({ dock: '#2f4672', surface: '#f4e9d8', ink: '#a3323a', band: '#f4e9d8', accent: '#f4e9d8', track: 'rgb(244 233 216 / 0.25)', play: ['#f4e9d8', '#a3323a'], edge: 'ticket', bar: 'stitch' }),
   },
   {
-    id: 'polka',
-    name: 'Red polka',
-    hint: 'Burgundy with small cream dots and softened corners.',
-    pads: { t: 0.06, r: 0.06, b: 0.06, l: 0.06 },
-    radius: 0.03,
-    swatch: ['#6b2024', '#efe4cf'],
-    strip: { bg: '#f1ebe0', ink: C.ink },
-    ui: ui({ dock: '#6b2024', surface: '#efe4cf', ink: '#6b2024', band: '#efe4cf', accent: '#efe4cf', track: 'rgb(239 228 207 / 0.28)', play: ['#efe4cf', '#6b2024'], bar: 'dots' }),
+    id: 'denim',
+    name: 'Denim & lace',
+    hint: 'Blue denim edged in lace, with two gingham star patches.',
+    pads: { t: 0.08, r: 0.07, b: 0.08, l: 0.07 },
+    radius: 0,
+    swatch: ['#4c6a96', '#f7f1ea'],
+    strip: { bg: '#4c6a96', ink: '#f7f1ea' },
+    ui: ui({ dock: '#4c6a96', surface: '#f7f1ea', ink: '#2d4166', band: '#f7f1ea', accent: '#f2c6cf', track: 'rgb(247 241 234 / 0.3)', play: ['#f7f1ea', '#2d4166'], edge: 'lace', bar: 'stitch', thumb: 'star', thumbColor: '#ecd77c' }),
   },
   {
-    id: 'stripe',
-    name: 'Linen stripe',
-    hint: 'Pale linen with fine brown pinstripes and a little oval label.',
-    pads: { t: 0.055, r: 0.055, b: 0.055, l: 0.055 },
-    radius: 0.022,
-    swatch: ['#ece3d3', '#7b5a42'],
-    strip: { bg: '#ece3d3', ink: C.ink, stripes: true },
-    ui: ui({ dock: '#ece3d3', surface: '#f6efe3', ink: '#5a3f2c', band: '#33261c', accent: '#7b5a42', track: 'rgb(123 90 66 / 0.22)', play: ['#7b5a42', '#f6efe3'], edge: 'stitch', bar: 'pin' }),
+    id: 'vinylred',
+    name: 'Vinyl red',
+    hint: 'Deep red card with a clear record and white hearts.',
+    pads: { t: 0.08, r: 0.26, b: 0.08, l: 0.08 },
+    radius: 0,
+    swatch: ['#8e1f26', '#efe9e1'],
+    strip: { bg: '#8e1f26', ink: '#f6ece2' },
+    ui: ui({ dock: '#8e1f26', surface: '#fbf3ea', ink: '#8e1f26', band: '#fbf3ea', accent: '#f6c9cc', track: 'rgb(251 243 234 / 0.25)', play: ['#8e1f26', '#fbf3ea'] }),
   },
+  {
+    id: 'oval',
+    name: 'Comic wave',
+    hint: 'Leaf-green halftone, a wavy cream mat and a yellow starburst.',
+    pads: { t: 0.09, r: 0.09, b: 0.09, l: 0.09 },
+    radius: 0,
+    swatch: ['#a8c48f', '#f4d35e'],
+    strip: { bg: '#a8c48f', ink: '#3f5a3b' },
+    ui: ui({ dock: '#a8c48f', surface: '#fbf7ee', ink: '#3f5a3b', band: '#2c4129', accent: '#fbf7ee', track: 'rgb(44 65 41 / 0.2)', play: ['#3f5a3b', '#fbf7ee'] }),
+  },
+  {
+    id: 'butter',
+    name: 'Butter doodle',
+    hint: 'Butter-yellow paper with blue pen doodles: a cup, a record, hearts.',
+    pads: { t: 0.09, r: 0.09, b: 0.16, l: 0.09 },
+    radius: 0,
+    swatch: ['#f8f0bf', '#5b7fc4'],
+    strip: { bg: '#f8f0bf', ink: '#5b7fc4' },
+    ui: ui({ dock: '#f8f0bf', surface: '#fffcea', ink: '#3d5fa6', band: '#3d5fa6', accent: '#7d9edb', track: 'rgb(61 95 166 / 0.18)', play: ['#3d5fa6', '#fffcea'] }),
+  },
+  {
+    id: 'pixel',
+    name: 'Pixel lilac',
+    hint: 'A wide lilac margin with a heart drawn in white dots.',
+    pads: { t: 0.08, r: 0.08, b: 0.08, l: 0.24 },
+    radius: 0,
+    swatch: ['#a99bc0', '#ffffff'],
+    strip: { bg: '#a99bc0', ink: '#ffffff' },
+    ui: ui({ dock: '#a99bc0', surface: '#f7f3fc', ink: '#56477a', band: '#f7f3fc', accent: '#e6dcf7', track: 'rgb(247 243 252 / 0.25)', play: ['#56477a', '#f7f3fc'] }),
+  },
+  {
+    id: 'cocoa',
+    name: 'Cocoa bow',
+    hint: 'Chocolate polka dots, a pinked cream mat and a little bow. Memories.',
+    pads: { t: 0.07, r: 0.07, b: 0.15, l: 0.07 },
+    radius: 0,
+    swatch: ['#3a2822', '#efe6d7'],
+    strip: { bg: '#3a2822', ink: '#efe6d7' },
+    ui: ui({ dock: '#3a2822', surface: '#f8f2e6', ink: '#3a2822', band: '#efe6d7', accent: '#e7c9a9', track: 'rgb(239 230 215 / 0.22)', play: ['#f4ecdd', '#3a2822'], edge: 'zigzag', bar: 'dots', thumb: 'bow', thumbColor: '#c79b7c' }),
+  },
+  {
+    id: 'vinylpink',
+    name: 'Vinyl pink',
+    hint: 'Blush pink with soft hearts, a black record and white doodles.',
+    pads: { t: 0.08, r: 0.26, b: 0.08, l: 0.08 },
+    radius: 0,
+    swatch: ['#f2cfd3', '#16120f'],
+    strip: { bg: '#f2cfd3', ink: '#3a2528' },
+    ui: ui({ dock: '#f2cfd3', surface: '#fff7f8', ink: '#3a2528', band: '#3a2528', accent: '#d9677a', track: 'rgb(58 37 40 / 0.16)', play: ['#3a2528', '#fff7f8'] }),
+  },
+  {
+    id: 'news',
+    name: 'Newsprint',
+    hint: 'Cream newsprint, a halftone wash, a black band of hearts and stickers.',
+    pads: { t: 0.16, r: 0.07, b: 0.08, l: 0.07 },
+    radius: 0,
+    swatch: ['#f3ecdc', '#1d1a17'],
+    strip: { bg: '#f3ecdc', ink: '#1d1a17' },
+    ui: ui({ dock: '#f3ecdc', surface: '#fffaf0', ink: '#1d1a17', band: '#1d1a17', accent: '#5b7fc4', track: 'rgb(29 26 23 / 0.16)', play: ['#1d1a17', '#fffaf0'] }),
+  },
+  {
+    id: 'mono',
+    name: 'Black strip',
+    hint: 'A black and white booth strip with soft rounded corners.',
+    pads: { t: 0.06, r: 0.07, b: 0.06, l: 0.07 },
+    radius: 0.018,
+    swatch: ['#141210', '#f4f1ea'],
+    strip: { bg: '#141210', ink: '#f4f1ea' },
+    ui: ui({ dock: '#141210', surface: '#f4f1ea', ink: '#141210', band: '#f4f1ea', accent: '#f4f1ea', track: 'rgb(244 241 234 / 0.22)', play: ['#141210', '#f4f1ea'] }),
+  },
+  /* ---- the booth's own, ranked the same way ---- */
   {
     id: 'velvet',
     name: 'Velvet curtain',
@@ -175,16 +247,6 @@ export const BORDERS = [
     swatch: ['#6e1420', '#d9a646'],
     strip: { bg: '#6e1420', ink: '#e7c27a' },
     ui: ui({ dock: '#5a101a', surface: '#f3e3c2', ink: '#5a101a', band: '#f0d9a4', accent: '#e2b85c', track: 'rgb(240 217 164 / 0.22)', play: ['#f3e3c2', '#5a101a'] }),
-  },
-  {
-    id: 'pressed',
-    name: 'Pressed flowers',
-    hint: 'Cream card with little flowers and leaves pressed into the margin.',
-    pads: { t: 0.1, r: 0.1, b: 0.1, l: 0.1 },
-    radius: 0,
-    swatch: ['#f3ecdf', '#7d9468'],
-    strip: { bg: '#f3ecdf', ink: '#4f6b4a' },
-    ui: ui({ dock: '#f3ecdf', surface: '#fbf7ef', ink: '#3f5a3b', band: '#3f5a3b', accent: '#7d9468', track: 'rgb(63 90 59 / 0.18)', play: ['#3f5a3b', '#fbf7ef'] }),
   },
   {
     id: 'crochet',
@@ -216,9 +278,69 @@ export const BORDERS = [
     strip: { bg: '#f4ecdc', ink: '#4f6b4a' },
     ui: ui({ dock: '#9fb08d', surface: '#f7f1e4', ink: '#3f5a3b', band: '#2f4430', accent: '#f7f1e4', track: 'rgb(47 68 48 / 0.22)', play: ['#f7f1e4', '#3f5a3b'] }),
   },
+  {
+    id: 'ticket',
+    name: 'Cinema ticket',
+    hint: 'A cream admission ticket with a punched stub.',
+    pads: { t: 0.055, r: 0.055, b: 0.15, l: 0.055 },
+    radius: 0,
+    swatch: ['#efe4cf', '#33261c'],
+    strip: { bg: '#2e231b', ink: '#efe4cf' },
+    ui: ui({ dock: '#efe4cf', surface: '#f8f1e3', ink: '#33261c', band: '#33261c', accent: '#9e4330', track: 'rgb(51 38 28 / 0.2)', play: ['#33261c', '#efe4cf'], edge: 'ticket', bar: 'stitch' }),
+  },
+  {
+    id: 'stamp',
+    name: 'Postage stamp',
+    hint: 'Deep red with a perforated edge, like a stamp torn from its sheet.',
+    pads: { t: 0.06, r: 0.06, b: 0.06, l: 0.06 },
+    radius: 0,
+    swatch: ['#8c2a22', '#f6f1e7'],
+    strip: { bg: '#f1ebe0', ink: C.ink },
+    ui: ui({ dock: '#8c2a22', surface: '#f6f1e7', ink: '#8c2a22', band: '#f6f1e7', accent: '#f6f1e7', track: 'rgb(246 241 231 / 0.3)', play: ['#f6f1e7', '#8c2a22'], edge: 'perf', bar: 'perf' }),
+  },
+  {
+    id: 'pressed',
+    name: 'Pressed flowers',
+    hint: 'Cream card with little flowers and leaves pressed into the margin.',
+    pads: { t: 0.1, r: 0.1, b: 0.1, l: 0.1 },
+    radius: 0,
+    swatch: ['#f3ecdf', '#7d9468'],
+    strip: { bg: '#f3ecdf', ink: '#4f6b4a' },
+    ui: ui({ dock: '#f3ecdf', surface: '#fbf7ef', ink: '#3f5a3b', band: '#3f5a3b', accent: '#7d9468', track: 'rgb(63 90 59 / 0.18)', play: ['#3f5a3b', '#fbf7ef'] }),
+  },
+  {
+    id: 'polka',
+    name: 'Red polka',
+    hint: 'Burgundy with small cream dots and softened corners.',
+    pads: { t: 0.06, r: 0.06, b: 0.06, l: 0.06 },
+    radius: 0.03,
+    swatch: ['#6b2024', '#efe4cf'],
+    strip: { bg: '#f1ebe0', ink: C.ink },
+    ui: ui({ dock: '#6b2024', surface: '#efe4cf', ink: '#6b2024', band: '#efe4cf', accent: '#efe4cf', track: 'rgb(239 228 207 / 0.28)', play: ['#efe4cf', '#6b2024'], bar: 'dots' }),
+  },
+  {
+    id: 'stripe',
+    name: 'Linen stripe',
+    hint: 'Pale linen with fine brown pinstripes and a little oval label.',
+    pads: { t: 0.055, r: 0.055, b: 0.055, l: 0.055 },
+    radius: 0.022,
+    swatch: ['#ece3d3', '#7b5a42'],
+    strip: { bg: '#ece3d3', ink: C.ink, stripes: true },
+    ui: ui({ dock: '#ece3d3', surface: '#f6efe3', ink: '#5a3f2c', band: '#33261c', accent: '#7b5a42', track: 'rgb(123 90 66 / 0.22)', play: ['#7b5a42', '#f6efe3'], edge: 'stitch', bar: 'pin' }),
+  },
+  {
+    id: 'booth',
+    name: 'Booth white',
+    hint: 'The plain white edge of a real photobooth print, stamped at the bottom.',
+    pads: { t: 0.04, r: 0.04, b: 0.085, l: 0.04 },
+    radius: 0,
+    swatch: ['#f6f1e7', '#d8d0c3'],
+    strip: { bg: '#f6f1e7', ink: C.ink },
+    ui: ui({ dock: '#f6f1e7', surface: '#ece4d6', ink: '#33261c', band: '#33261c', accent: '#33261c', track: 'rgb(51 38 28 / 0.16)', play: ['#33261c', '#f6f1e7'] }),
+  },
 ];
 
-export const borderById = (id) => BORDERS.find((b) => b.id === id) ?? BORDERS[1];
+export const borderById = (id) => BORDERS.find((b) => b.id === id) ?? (id === 'custom' ? CUSTOM.border : null) ?? BORDERS[1];
 
 export function frameUnits(border, aspect) {
   const { t, r, b, l } = border.pads;
@@ -248,23 +370,12 @@ export function frameLayout(border, aspect, pxWidth) {
   };
 }
 
+/** The opening the picture shows through: always a straight-edged rectangle, so nothing crops the film. */
 export function windowPath(ctx, win) {
+  const { x, y, w, h } = win;
   ctx.beginPath();
-  if (win.r > 0 && ctx.roundRect) ctx.roundRect(win.x, win.y, win.w, win.h, win.r);
-  else ctx.rect(win.x, win.y, win.w, win.h);
-}
-
-function fitText(ctx, text, maxWidth, font, sizePx, minPx) {
-  let size = sizePx;
-  ctx.font = font.replace('{s}', `${size}px`);
-  while (ctx.measureText(text).width > maxWidth && size > minPx) {
-    size -= 1;
-    ctx.font = font.replace('{s}', `${size}px`);
-  }
-  if (ctx.measureText(text).width <= maxWidth) return text;
-  let t = text;
-  while (t.length > 1 && ctx.measureText(`${t}…`).width > maxWidth) t = t.slice(0, -1);
-  return `${t}…`;
+  if (win.r > 0 && ctx.roundRect) ctx.roundRect(x, y, w, h, win.r);
+  else ctx.rect(x, y, w, h);
 }
 
 function woodGrain(ctx, x, y, w, h, scale) {
@@ -1467,6 +1578,646 @@ function checkerBack(ctx, L) {
   }
 }
 
+/* ---------- frames from the booth's own references ---------- */
+
+function grain(ctx, W, H, u, color, seed = 3, density = 700) {
+  const rnd = seeded(seed);
+  ctx.fillStyle = color;
+  const n = Math.round(((W * H) / (u * u)) * density);
+  for (let i = 0; i < n; i++) ctx.fillRect(rnd() * W, rnd() * H, u * 0.0022, u * 0.0022);
+}
+
+/** A white print edge around the picture, as on a real booth print. */
+function printEdge(ctx, win, u, color = '#ffffff', g = 0.012) {
+  if (!(win.w > 0)) return;
+  const e = u * g;
+  ctx.save();
+  ctx.shadowColor = 'rgb(0 0 0 / 0.18)';
+  ctx.shadowBlur = u * 0.01;
+  ctx.shadowOffsetY = u * 0.003;
+  ctx.fillStyle = color;
+  ctx.fillRect(win.x - e, win.y - e, win.w + e * 2, win.h + e * 2);
+  ctx.restore();
+}
+
+/** Loose scrollwork curls. */
+function swirl(ctx, x, y, r, rot, color) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rot);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = Math.max(1, r * 0.09);
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  for (let t = 0; t < Math.PI * 3.2; t += 0.12) {
+    const rr = r * (1 - t / (Math.PI * 3.6));
+    const px = Math.cos(t) * rr;
+    const py = Math.sin(t) * rr;
+    if (t === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.bezierCurveTo(r * 1.8, r * 0.2, r * 2.2, -r * 0.9, r * 3, -r * 0.4);
+  ctx.stroke();
+  ctx.restore();
+}
+
+const PIXEL_FLOWER = [
+  '..##.##..',
+  '.#######.',
+  '###...###',
+  '.##.#.##.',
+  '###...###',
+  '.#######.',
+  '..##.##..',
+  '....#....',
+  '.##.#....',
+  '..###.##.',
+  '....###..',
+  '....#....',
+];
+
+function pixelArt(ctx, rows, cx, cy, cell, color) {
+  const w = rows[0].length * cell;
+  const h = rows.length * cell;
+  ctx.fillStyle = color;
+  rows.forEach((row, j) => {
+    [...row].forEach((c, i) => {
+      if (c === '#') ctx.fillRect(cx - w / 2 + i * cell, cy - h / 2 + j * cell, cell * 0.92, cell * 0.92);
+    });
+  });
+}
+
+function lavenderBack(ctx, L) {
+  const { u, win, W, H } = L;
+  const g = ctx.createLinearGradient(0, 0, W * 0.4, H);
+  g.addColorStop(0, '#c7b7dd');
+  g.addColorStop(1, '#ad9ac6');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+  grain(ctx, W, H, u, 'rgb(255 255 255 / 0.18)', 4, 900);
+  const rnd = seeded(9);
+  for (let i = 0; i < ((W * H) / (u * u)) * 16; i++) swirl(ctx, rnd() * W, rnd() * H, u * (0.024 + rnd() * 0.03), rnd() * 6.28, 'rgb(255 255 255 / 0.42)');
+  printEdge(ctx, win, u);
+}
+
+function lavenderFront(ctx, L) {
+  const { u, win, H } = L;
+  if (!(win.w > 0)) return;
+  const room = H - (win.y + win.h);
+  const cell = Math.min(u * 0.012, (room * 0.8) / PIXEL_FLOWER.length);
+  pixelArt(ctx, PIXEL_FLOWER, win.x + win.w / 2, win.y + win.h + room * 0.52, cell, '#6d5a8e');
+}
+
+const PIXEL_HEART = ['.##...##.', '####.####', '#########', '#########', '.#######.', '..#####..', '...###...', '....#....'];
+
+function pixelBack(ctx, L) {
+  const { u, win, W, H } = L;
+  ctx.fillStyle = '#a99bc0';
+  ctx.fillRect(0, 0, W, H);
+  grain(ctx, W, H, u, 'rgb(255 255 255 / 0.14)', 6, 800);
+  const rnd = seeded(12);
+  for (let i = 0; i < ((W * H) / (u * u)) * 6; i++) swirl(ctx, rnd() * W, rnd() * H, u * 0.03, rnd() * 6.28, 'rgb(255 255 255 / 0.18)');
+  // a heart in white dots, the way a dot-matrix sign draws it
+  const lw = win.w > 0 ? win.x : W * 0.25;
+  const sc = 2;
+  const cols = PIXEL_HEART[0].length * sc;
+  const dot = Math.min((lw * 0.78) / (cols * 1.25), u * 0.014);
+  const cx = lw * 0.5;
+  const cy = H * 0.5;
+  ctx.fillStyle = 'rgb(255 255 255 / 0.92)';
+  PIXEL_HEART.forEach((row, j) => {
+    [...row].forEach((c, i) => {
+      if (c !== '#') return;
+      for (let a = 0; a < sc; a++) {
+        for (let b = 0; b < sc; b++) {
+          ctx.beginPath();
+          ctx.arc(cx + (i * sc + a - (row.length * sc) / 2) * dot * 1.25, cy + (j * sc + b - (PIXEL_HEART.length * sc) / 2) * dot * 1.25, dot * 0.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    });
+  });
+  printEdge(ctx, win, u, '#ffffff', 0.01);
+}
+
+const STAR_COLORS = ['#e0463c', '#2f6fd6', '#2e9a54', '#f0b429', '#8b5cc8', '#e86aa6', '#3cb6c4'];
+
+function confettiBack(ctx, L) {
+  const { u, win, W, H } = L;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, W, H);
+  grain(ctx, W, H, u, 'rgb(0 0 0 / 0.025)', 2, 600);
+  printEdge(ctx, win, u, '#ffffff', 0.006);
+}
+
+function confettiFront(ctx, L) {
+  const { u, win, W, H } = L;
+  const rnd = seeded(21);
+  const star = (x, y, R) => {
+    ctx.save();
+    ctx.shadowColor = 'rgb(0 0 0 / 0.22)';
+    ctx.shadowBlur = R * 0.35;
+    ctx.shadowOffsetY = R * 0.15;
+    starPath(ctx, x, y, R, R * 0.5, rnd() * 6.28);
+    ctx.fillStyle = STAR_COLORS[Math.floor(rnd() * STAR_COLORS.length)];
+    ctx.fill();
+    ctx.restore();
+    starPath(ctx, x - R * 0.15, y - R * 0.15, R * 0.38, R * 0.17, 0.3);
+    ctx.fillStyle = 'rgb(255 255 255 / 0.5)';
+    ctx.fill();
+  };
+  if (!(win.w > 0)) {
+    for (let i = 0; i < ((W * H) / (u * u)) * 30; i++) star(rnd() * W, rnd() * H, u * (0.012 + rnd() * 0.01));
+    return;
+  }
+  // a loose ring through the margin, a few stars stuck over the picture's edge
+  const cx = win.x + win.w / 2;
+  const cy = win.y + win.h / 2;
+  const rx = win.w / 2 + win.x * 0.5;
+  const ry = win.h / 2 + win.y * 0.5;
+  const n = Math.round((2 * Math.PI * Math.sqrt((rx * rx + ry * ry) / 2)) / (u * 0.055));
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2 + (rnd() - 0.5) * 0.12;
+    // a rounded rectangle path instead of an ellipse, so corners get stars too
+    const c = Math.cos(a);
+    const sn = Math.sin(a);
+    const k = 1 / Math.max(Math.abs(c) / rx, Math.abs(sn) / ry);
+    const jitter = (rnd() - 0.5) * Math.min(win.x, win.y) * 0.5;
+    star(cx + c * (k + jitter), cy + sn * (k + jitter), u * (0.013 + rnd() * 0.012));
+  }
+}
+
+function doodleHeart(ctx, cx, cy, r, color, filled, rot = 0) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rot);
+  ctx.beginPath();
+  ctx.moveTo(0, r * 0.9);
+  ctx.bezierCurveTo(-r * 1.6, -r * 0.2, -r * 0.7, -r * 1.3, 0, -r * 0.45);
+  ctx.bezierCurveTo(r * 0.7, -r * 1.3, r * 1.6, -r * 0.2, 0, r * 0.9);
+  if (filled) {
+    ctx.fillStyle = color;
+    ctx.fill();
+  } else {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = Math.max(1, r * 0.14);
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/** A record: grooves, a label, a hole. Clear vinyl lets the paper show through. */
+function record(ctx, cx, cy, R, clear) {
+  ctx.save();
+  ctx.shadowColor = 'rgb(0 0 0 / 0.35)';
+  ctx.shadowBlur = R * 0.08;
+  ctx.shadowOffsetY = R * 0.03;
+  ctx.fillStyle = clear ? 'rgb(240 234 226 / 0.86)' : '#16120f';
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle = clear ? 'rgb(150 130 120 / 0.25)' : 'rgb(255 255 255 / 0.07)';
+  ctx.lineWidth = Math.max(1, R * 0.006);
+  for (let r = R * 0.42; r < R * 0.97; r += R * 0.035) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  const sheen = ctx.createLinearGradient(cx - R, cy - R, cx + R, cy + R);
+  sheen.addColorStop(0.3, 'rgb(255 255 255 / 0)');
+  sheen.addColorStop(0.5, `rgb(255 255 255 / ${clear ? 0.25 : 0.12})`);
+  sheen.addColorStop(0.7, 'rgb(255 255 255 / 0)');
+  ctx.fillStyle = sheen;
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = clear ? '#d9c7b6' : '#c2363e';
+  ctx.beginPath();
+  ctx.arc(cx, cy, R * 0.32, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = clear ? '#8e1f26' : '#f1e8d8';
+  ctx.beginPath();
+  ctx.arc(cx, cy, R * 0.12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#111';
+  ctx.beginPath();
+  ctx.arc(cx, cy, R * 0.035, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+const VINYL = {
+  vinyl: { bg: '#f1e8d8', grain: 'rgb(90 60 40 / 0.06)', heart: '#b8252f', soft: null, clear: false, mark: '#33261c' },
+  vinylpink: { bg: '#f2cfd3', grain: 'rgb(255 255 255 / 0.2)', heart: '#ffffff', soft: 'rgb(255 255 255 / 0.4)', clear: false, mark: '#3a2528' },
+  vinylred: { bg: '#8e1f26', grain: 'rgb(0 0 0 / 0.12)', heart: '#ffffff', soft: 'rgb(255 255 255 / 0.08)', clear: true, mark: '#f6ece2' },
+};
+
+function vinylPainters(id) {
+  const P = VINYL[id];
+  const back = (ctx, L) => {
+    const { u, win, W, H } = L;
+    ctx.fillStyle = P.bg;
+    ctx.fillRect(0, 0, W, H);
+    grain(ctx, W, H, u, P.grain, 8, 1100);
+    if (P.soft) {
+      const rnd = seeded(31);
+      for (let i = 0; i < ((W * H) / (u * u)) * 7; i++) doodleHeart(ctx, rnd() * W, rnd() * H, u * (0.03 + rnd() * 0.03), P.soft, false, (rnd() - 0.5) * 0.8);
+    }
+    if (win.w > 0) {
+      const rx = win.x + win.w + (W - win.x - win.w) * 0.42;
+      const R = Math.min((W - win.x - win.w) * 0.62, win.h * 0.44);
+      record(ctx, rx, win.y + win.h * 0.38, R, P.clear);
+    }
+    printEdge(ctx, win, u, P.clear ? '#f6ece2' : '#ffffff', 0.006);
+  };
+  const front = (ctx, L) => {
+    const { u, win, W } = L;
+    if (!(win.w > 0)) return;
+    const right = win.x + win.w;
+    const x = right + (W - right) * 0.62;
+    doodleHeart(ctx, x, win.y + win.h * 0.78, u * 0.026, P.heart, false, -0.2);
+    doodleHeart(ctx, x + u * 0.04, win.y + win.h * 0.88, u * 0.017, P.heart, false, 0.25);
+    // a little barcode sticker on the picture's corner
+    const bx = win.x + u * 0.018;
+    const by = win.y + win.h - u * 0.05;
+    ctx.fillStyle = '#f6ece2';
+    ctx.fillRect(bx - u * 0.006, by - u * 0.006, u * 0.1, u * 0.036);
+    let x0 = bx;
+    for (let i = 0; i < 22; i++) {
+      const bw = u * (i % 3 === 0 ? 0.003 : 0.0015);
+      ctx.fillStyle = '#8e1f26';
+      ctx.fillRect(x0, by, bw, u * 0.024);
+      x0 += bw + u * 0.0016;
+    }
+  };
+  return [back, front];
+}
+
+function monoBack(ctx, L) {
+  const { u, win, W, H } = L;
+  ctx.fillStyle = '#141210';
+  ctx.fillRect(0, 0, W, H);
+  grain(ctx, W, H, u, 'rgb(255 255 255 / 0.05)', 14, 1200);
+  if (win.w > 0) {
+    ctx.strokeStyle = 'rgb(244 241 234 / 0.85)';
+    ctx.lineWidth = Math.max(1, u * 0.004);
+    const g = u * 0.008;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(win.x - g, win.y - g, win.w + g * 2, win.h + g * 2, (win.r || 0) + g);
+    else ctx.rect(win.x - g, win.y - g, win.w + g * 2, win.h + g * 2);
+    ctx.stroke();
+  }
+}
+
+/** Wobbly pen strokes. */
+function pen(ctx, pts, width, color, seed = 1) {
+  const rnd = seeded(seed);
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  pts.forEach(([x, y], i) => {
+    const jx = x + (rnd() - 0.5) * width * 0.6;
+    const jy = y + (rnd() - 0.5) * width * 0.6;
+    if (i) ctx.lineTo(jx, jy);
+    else ctx.moveTo(jx, jy);
+  });
+  ctx.stroke();
+  ctx.restore();
+}
+
+function butterBack(ctx, L) {
+  const { u, win, W, H } = L;
+  ctx.fillStyle = '#f8f0bf';
+  ctx.fillRect(0, 0, W, H);
+  grain(ctx, W, H, u, 'rgb(140 110 40 / 0.06)', 17, 900);
+  printEdge(ctx, win, u, '#fffbe8', 0.008);
+}
+
+function butterFront(ctx, L) {
+  const { u, win, W, H } = L;
+  if (!(win.w > 0)) return;
+  const blue = '#5b7fc4';
+  const w = Math.max(1.2, u * 0.0045);
+  const by = win.y + win.h + (H - win.y - win.h) * 0.5;
+  // a coffee cup
+  const cx = win.x + win.w - u * 0.17;
+  const s = u * 0.035;
+  pen(ctx, [[cx - s, by - s * 0.6], [cx - s * 0.8, by + s * 0.7], [cx + s * 0.6, by + s * 0.7], [cx + s * 0.8, by - s * 0.6], [cx - s, by - s * 0.6]], w, blue, 2);
+  pen(ctx, [[cx + s * 0.75, by - s * 0.3], [cx + s * 1.25, by - s * 0.2], [cx + s * 1.2, by + s * 0.3], [cx + s * 0.65, by + s * 0.35]], w, blue, 3);
+  pen(ctx, [[cx - s * 0.3, by - s], [cx - s * 0.15, by - s * 1.5], [cx - s * 0.3, by - s * 1.9]], w * 0.8, blue, 4);
+  pen(ctx, [[cx + s * 0.2, by - s], [cx + s * 0.35, by - s * 1.5], [cx + s * 0.2, by - s * 1.9]], w * 0.8, blue, 5);
+  // a record
+  const rx = win.x + win.w - u * 0.06;
+  ctx.save();
+  ctx.fillStyle = '#2b2a33';
+  ctx.beginPath();
+  ctx.arc(rx, by, s * 1.1, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#f8f0bf';
+  ctx.beginPath();
+  ctx.arc(rx, by, s * 0.32, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  // a heart and a scribbled underline on the left
+  doodleHeart(ctx, win.x + u * 0.05, by - s * 0.2, u * 0.022, blue, false, -0.15);
+  const pts = [];
+  for (let i = 0; i <= 20; i++) pts.push([win.x + u * 0.1 + i * u * 0.012, by + Math.sin(i * 0.9) * u * 0.008]);
+  pen(ctx, pts, w, blue, 7);
+  doodleHeart(ctx, win.x + win.w - u * 0.035, win.y + u * 0.035, u * 0.02, '#7d9edb', true, 0.2);
+}
+
+function crinkle(ctx, W, H, u, seed) {
+  const rnd = seeded(seed);
+  for (let i = 0; i < ((W * H) / (u * u)) * 40; i++) {
+    const x = rnd() * W;
+    const y = rnd() * H;
+    const a = rnd() * Math.PI;
+    const l = u * (0.03 + rnd() * 0.08);
+    ctx.strokeStyle = rnd() > 0.5 ? 'rgb(255 255 255 / 0.22)' : 'rgb(120 40 70 / 0.1)';
+    ctx.lineWidth = Math.max(1, u * 0.002);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l);
+    ctx.stroke();
+  }
+}
+
+/**
+ * Points spread evenly around the margin, each in the middle of its band,
+ * so stickers never cross into the picture whatever its shape or size.
+ */
+function marginSpots(L, n, seed) {
+  const { win, W, H } = L;
+  const rnd = seeded(seed);
+  const top = win.y / 2;
+  const bottom = win.y + win.h + (H - win.y - win.h) / 2;
+  const left = win.x / 2;
+  const right = win.x + win.w + (W - win.x - win.w) / 2;
+  const sides = [
+    [left, top, right, top, win.y],
+    [right, top, right, bottom, W - win.x - win.w],
+    [right, bottom, left, bottom, H - win.y - win.h],
+    [left, bottom, left, top, win.x],
+  ];
+  const lens = sides.map(([x0, y0, x1, y1]) => Math.hypot(x1 - x0, y1 - y0));
+  const total = lens.reduce((a, b) => a + b, 0);
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    let d = ((i + 0.5 + (rnd() - 0.5) * 0.5) / n) * total;
+    let k = 0;
+    while (k < 3 && d > lens[k]) d -= lens[k++];
+    const [x0, y0, x1, y1, band] = sides[k];
+    const t = Math.min(1, Math.max(0, d / lens[k]));
+    out.push({ x: x0 + (x1 - x0) * t, y: y0 + (y1 - y0) * t, band, r: rnd(), r2: rnd() });
+  }
+  return out;
+}
+
+/** A paper heart cut with scissors: a white rim, a soft shadow, a fill. */
+function paperHeart(ctx, cx, cy, r, fill, rot, u) {
+  ctx.save();
+  ctx.shadowColor = 'rgb(90 30 50 / 0.22)';
+  ctx.shadowBlur = u * 0.006;
+  ctx.shadowOffsetY = u * 0.003;
+  doodleHeart(ctx, cx, cy, r * 1.16, '#ffffff', true, rot);
+  ctx.restore();
+  doodleHeart(ctx, cx, cy, r, fill, true, rot);
+}
+
+function heartBack(ctx, L) {
+  const { u, win, W, H } = L;
+  ctx.fillStyle = '#f2b8c6';
+  ctx.fillRect(0, 0, W, H);
+  crinkle(ctx, W, H, u, 41);
+  if (win.w > 0) {
+    // a white deckled mat, straight-edged so the picture stays a clean rectangle
+    const m = u * 0.016;
+    ctx.save();
+    ctx.shadowColor = 'rgb(120 40 70 / 0.18)';
+    ctx.shadowBlur = u * 0.01;
+    ctx.fillStyle = '#fff8fa';
+    ctx.fillRect(win.x - m, win.y - m, win.w + m * 2, win.h + m * 2);
+    ctx.restore();
+  }
+}
+
+function heartFront(ctx, L) {
+  const { u, win } = L;
+  if (!(win.w > 0)) return;
+  const fills = ['#e2556f', '#ffffff', '#f7d9e1', '#c93a58', '#ffffff'];
+  marginSpots(L, 14, 43).forEach((p, i) => {
+    const r = Math.min(p.band * 0.3, u * 0.034) * (0.7 + p.r * 0.45);
+    if (i % 3 === 2) doodleHeart(ctx, p.x, p.y, r * 0.9, '#5b7fc4', false, (p.r2 - 0.5) * 0.8);
+    else paperHeart(ctx, p.x, p.y, r, fills[i % fills.length], (p.r2 - 0.5) * 0.7, u);
+  });
+}
+
+/** A jagged starburst sticker. */
+function burst(ctx, cx, cy, R, color, edge) {
+  ctx.save();
+  ctx.beginPath();
+  const n = 14;
+  for (let i = 0; i <= n * 2; i++) {
+    const a = (i / (n * 2)) * Math.PI * 2;
+    const r = i % 2 ? R * 0.72 : R;
+    ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+  }
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.strokeStyle = edge;
+  ctx.lineWidth = Math.max(1, R * 0.06);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/** Halftone dots that grow toward one corner, like cheap comic print. */
+function halftone(ctx, x, y, w, h, step, color, fromX, fromY) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  ctx.clip();
+  ctx.fillStyle = color;
+  const far = Math.hypot(w, h);
+  for (let j = 0, yy = y; yy < y + h + step; yy += step, j++) {
+    for (let xx = x + (j % 2) * step * 0.5; xx < x + w + step; xx += step) {
+      const k = 1 - Math.hypot(xx - fromX, yy - fromY) / far;
+      const r = step * 0.42 * Math.max(0, k);
+      if (r < 0.4) continue;
+      ctx.beginPath();
+      ctx.arc(xx, yy, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+/** A rectangle with wavy sides: the edge waves, the opening inside stays straight. */
+function wavyRect(ctx, x, y, w, h, amp, wave) {
+  ctx.beginPath();
+  const side = (x0, y0, x1, y1, nx, ny) => {
+    const len = Math.hypot(x1 - x0, y1 - y0);
+    const n = Math.max(4, Math.round(len / wave)) * 8;
+    for (let i = 0; i <= n; i++) {
+      const t = i / n;
+      const o = Math.sin(t * (n / 8) * Math.PI * 2) * amp;
+      ctx.lineTo(x0 + (x1 - x0) * t + nx * o, y0 + (y1 - y0) * t + ny * o);
+    }
+  };
+  side(x, y, x + w, y, 0, -1);
+  side(x + w, y, x + w, y + h, 1, 0);
+  side(x + w, y + h, x, y + h, 0, 1);
+  side(x, y + h, x, y, -1, 0);
+  ctx.closePath();
+}
+
+function comicBack(ctx, L) {
+  const { u, win, W, H } = L;
+  const cx = win.w > 0 ? win.x + win.w / 2 : W / 2;
+  const cy = win.w > 0 ? win.y + win.h / 2 : H / 2;
+  const ink = '#2f2620';
+  const blocks = [['#7fa6d6', 0, 0, cx, cy], ['#a8c48f', cx, 0, W - cx, cy], ['#f2c9a8', 0, cy, cx, H - cy], ['#f4d35e', cx, cy, W - cx, H - cy]];
+  blocks.forEach(([c, x, y, w, h], i) => {
+    ctx.fillStyle = c;
+    ctx.fillRect(x, y, w, h);
+    const corner = [[0, 0], [W, 0], [0, H], [W, H]][i];
+    halftone(ctx, x, y, w, h, u * 0.018, 'rgb(47 38 32 / 0.16)', corner[0], corner[1]);
+  });
+  // gutters between the panels
+  ctx.strokeStyle = '#fbf7ee';
+  ctx.lineWidth = u * 0.01;
+  ctx.beginPath();
+  ctx.moveTo(cx, 0);
+  ctx.lineTo(cx, H);
+  ctx.moveTo(0, cy);
+  ctx.lineTo(W, cy);
+  ctx.stroke();
+  ctx.strokeStyle = ink;
+  ctx.lineWidth = u * 0.006;
+  ctx.strokeRect(u * 0.012, u * 0.012, W - u * 0.024, H - u * 0.024);
+  if (win.w > 0) {
+    // a cream panel with a bold ink rule: a comic box around a straight-edged picture
+    const m = u * 0.018;
+    ctx.fillStyle = '#fbf7ee';
+    ctx.fillRect(win.x - m, win.y - m, win.w + m * 2, win.h + m * 2);
+    ctx.lineWidth = u * 0.006;
+    ctx.strokeRect(win.x - m * 0.45, win.y - m * 0.45, win.w + m * 0.9, win.h + m * 0.9);
+  }
+}
+
+function comicFront(ctx, L) {
+  const { u, win, W, H } = L;
+  if (!(win.w > 0)) return;
+  const ink = '#2f2620';
+  const pad = Math.min(win.x, win.y, W - win.x - win.w, H - win.y - win.h);
+  burst(ctx, win.x + win.w + pad * 0.08, win.y - pad * 0.08, Math.min(u * 0.05, pad * 0.62), '#f0573f', ink);
+  // a speech bubble with three dots where the words would be
+  const bx = win.x - pad * 0.05 + u * 0.06;
+  const by = win.y + win.h + pad * 0.5;
+  const rx = Math.min(u * 0.05, pad * 1.1);
+  const ry = Math.min(u * 0.026, pad * 0.36);
+  ctx.save();
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = ink;
+  ctx.lineWidth = Math.max(1, u * 0.0035);
+  ctx.beginPath();
+  ctx.ellipse(bx, by, rx, ry, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = ink;
+  for (let i = -1; i <= 1; i++) {
+    ctx.beginPath();
+    ctx.arc(bx + i * rx * 0.32, by, ry * 0.16, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+  doodleHeart(ctx, W - pad * 0.5, H - pad * 0.5, pad * 0.22, '#fbf7ee', true, 0.15);
+  doodleHeart(ctx, pad * 0.5, pad * 0.5, pad * 0.18, ink, false, -0.2);
+}
+
+function ovalBack(ctx, L) {
+  const { u, win, W, H } = L;
+  ctx.fillStyle = '#a8c48f';
+  ctx.fillRect(0, 0, W, H);
+  halftone(ctx, 0, 0, W, H, u * 0.02, 'rgb(63 90 59 / 0.18)', W, H);
+  ctx.strokeStyle = '#f2c9a8';
+  ctx.lineWidth = u * 0.014;
+  ctx.strokeRect(u * 0.014, u * 0.014, W - u * 0.028, H - u * 0.028);
+  if (win.w > 0) {
+    // a wavy cream mat; only its outer edge waves, the picture stays rectangular
+    const m = u * 0.03;
+    ctx.save();
+    ctx.shadowColor = 'rgb(40 60 36 / 0.25)';
+    ctx.shadowBlur = u * 0.008;
+    ctx.fillStyle = '#fbf7ee';
+    wavyRect(ctx, win.x - m, win.y - m, win.w + m * 2, win.h + m * 2, u * 0.006, u * 0.05);
+    ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = '#3f5a3b';
+    ctx.lineWidth = Math.max(1, u * 0.003);
+    ctx.strokeRect(win.x - u * 0.006, win.y - u * 0.006, win.w + u * 0.012, win.h + u * 0.012);
+  }
+}
+
+function ovalFront(ctx, L) {
+  const { u, win, W, H } = L;
+  if (!(win.w > 0)) return;
+  const pad = Math.min(win.x, win.y, W - win.x - win.w, H - win.y - win.h);
+  burst(ctx, win.x + win.w + pad * 0.12, win.y - pad * 0.1, Math.min(u * 0.05, pad * 0.6), '#f4d35e', '#3b2f25');
+  for (const [x, y, r, c] of [[win.x - pad * 0.45, win.y + win.h + pad * 0.45, 0.24, '#fbf7ee'], [W - pad * 0.5, H * 0.6, 0.18, '#f2c9a8'], [pad * 0.5, H * 0.3, 0.16, '#fbf7ee']]) {
+    starPath(ctx, x, y, pad * r, pad * r * 0.45, -0.2);
+    ctx.fillStyle = c;
+    ctx.fill();
+  }
+}
+
+function newsBack(ctx, L) {
+  const { u, win, W, H } = L;
+  const ink = '#1d1a17';
+  ctx.fillStyle = '#f3ecdc';
+  ctx.fillRect(0, 0, W, H);
+  grain(ctx, W, H, u, 'rgb(40 30 20 / 0.06)', 33, 1000);
+  // a halftone wash rising from the bottom and a double rule all round, like old print
+  halftone(ctx, 0, H * 0.45, W, H * 0.55, u * 0.016, 'rgb(29 26 23 / 0.14)', W / 2, H * 1.4);
+  ctx.strokeStyle = ink;
+  ctx.lineWidth = Math.max(1, u * 0.006);
+  ctx.strokeRect(u * 0.016, u * 0.016, W - u * 0.032, H - u * 0.032);
+  ctx.lineWidth = Math.max(1, u * 0.002);
+  ctx.strokeRect(u * 0.028, u * 0.028, W - u * 0.056, H - u * 0.056);
+  if (!(win.w > 0)) return;
+  // the masthead band: a black bar with a row of hearts cut out of it
+  const bandH = Math.min(win.y * 0.38, u * 0.05);
+  const by = (win.y - bandH) / 2 + u * 0.008;
+  ctx.fillStyle = ink;
+  ctx.fillRect(win.x, by, win.w, bandH);
+  const n = Math.max(5, Math.round(win.w / (bandH * 1.6)));
+  for (let i = 0; i < n; i++) doodleHeart(ctx, win.x + ((i + 0.5) / n) * win.w, by + bandH / 2, bandH * 0.22, i % 4 === 1 ? '#e9a9c0' : '#f3ecdc', true);
+  ctx.lineWidth = Math.max(1, u * 0.004);
+  ctx.strokeRect(win.x - u * 0.006, win.y - u * 0.006, win.w + u * 0.012, win.h + u * 0.012);
+}
+
+function newsFront(ctx, L) {
+  const { u, win, W, H } = L;
+  if (!(win.w > 0)) return;
+  const pad = Math.min(win.x, H - win.y - win.h);
+  burst(ctx, win.x + u * 0.01, win.y + u * 0.01, Math.min(u * 0.04, pad * 0.7), '#5b7fc4', '#1d1a17');
+  paperHeart(ctx, win.x + win.w + pad * 0.05, win.y + win.h * 0.66, Math.min(u * 0.032, pad * 0.5), '#e9a9c0', 0.12, u);
+  marginSpots(L, 9, 37).forEach((p, i) => {
+    if (p.y < win.y) return; // keep the masthead clean
+    const r = Math.min(p.band * 0.22, u * 0.013);
+    starPath(ctx, p.x, p.y, r, r * 0.42, p.r);
+    ctx.fillStyle = ['#5b7fc4', '#e9a9c0', '#1d1a17', '#f0b429'][i % 4];
+    ctx.fill();
+  });
+}
+
 /** Photostrip backings for frames whose texture should carry onto the strip. */
 const STRIP_PAINT = {
   denim: (ctx, w, h) => {
@@ -1493,6 +2244,18 @@ const STRIP_PAINT = {
   crochet: (ctx, w, h) => crochetBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
   starry: (ctx, w, h) => starryBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
   checker: (ctx, w, h) => checkerBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  lavender: (ctx, w, h) => lavenderBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  pixel: (ctx, w, h) => pixelBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  confetti: (ctx, w, h) => confettiBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  mono: (ctx, w, h) => monoBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  butter: (ctx, w, h) => butterBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  heart: (ctx, w, h) => heartBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  comic: (ctx, w, h) => comicBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  oval: (ctx, w, h) => ovalBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  news: (ctx, w, h) => newsBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  vinyl: (ctx, w, h) => vinylPainters('vinyl')[0](ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  vinylpink: (ctx, w, h) => vinylPainters('vinylpink')[0](ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
+  vinylred: (ctx, w, h) => vinylPainters('vinylred')[0](ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
 };
 
 const PAINTERS = {
@@ -1514,7 +2277,57 @@ const PAINTERS = {
   crochet: [crochetBack, () => {}],
   starry: [starryBack, starryFront],
   checker: [checkerBack, () => {}],
+  lavender: [lavenderBack, lavenderFront],
+  pixel: [pixelBack, () => {}],
+  confetti: [confettiBack, confettiFront],
+  vinyl: vinylPainters('vinyl'),
+  vinylpink: vinylPainters('vinylpink'),
+  vinylred: vinylPainters('vinylred'),
+  mono: [monoBack, () => {}],
+  butter: [butterBack, butterFront],
+  heart: [heartBack, heartFront],
+  comic: [comicBack, comicFront],
+  oval: [ovalBack, ovalFront],
+  news: [newsBack, newsFront],
 };
+
+/**
+ * A frame made from a picture someone brings (the showcase page): stretched
+ * to the frame, or tiled across it. The picture's own window is cut out.
+ */
+export const CUSTOM = { border: null };
+export function setCustomBorder({ image, mode = 'fit', pad = 0.1, tone = null }) {
+  CUSTOM.border = {
+    id: 'custom',
+    name: 'Your frame',
+    hint: 'A frame from your own picture.',
+    pads: { t: pad, r: pad, b: pad, l: pad },
+    radius: 0,
+    swatch: ['#ffffff', '#33261c'],
+    strip: { bg: '#ffffff', ink: '#33261c' },
+    // the keys take the picture's own average colour for their dock when it is known
+    ui: ui({ dock: tone ?? '#ffffff', surface: '#fbf7ef', ink: '#33261c', band: '#33261c', accent: '#cf6a4c', track: 'rgb(51 38 28 / 0.18)', play: ['#33261c', '#fbf7ef'] }),
+    swatchTone: tone,
+    image,
+    mode,
+  };
+  PAINTERS.custom = [
+    (ctx, L) => {
+      if (mode === 'tile') {
+        const tw = Math.max(24, L.u * 0.22);
+        const th = (tw * image.height) / image.width;
+        const t = document.createElement('canvas');
+        t.width = Math.round(tw);
+        t.height = Math.round(th);
+        t.getContext('2d').drawImage(image, 0, 0, t.width, t.height);
+        ctx.fillStyle = ctx.createPattern(t, 'repeat');
+        ctx.fillRect(0, 0, L.W, L.H);
+      } else ctx.drawImage(image, 0, 0, L.W, L.H);
+    },
+    () => {},
+  ];
+  return CUSTOM.border;
+}
 
 /** No frame: nothing around the picture, a dark bar under it for the controls. */
 function noneBack(ctx, L) {

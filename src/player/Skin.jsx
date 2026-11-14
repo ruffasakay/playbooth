@@ -14,7 +14,8 @@ import {
   useHotkey,
 } from '@videojs/react';
 import { useApp, movieById } from '../store.js';
-import { BORDERS, borderById, formatTimecode, frameLayout, paintComposite, paintOverlay } from '../data/borders.js';
+import { BORDERS, CUSTOM, borderById, formatTimecode, frameLayout, paintComposite, paintOverlay } from '../data/borders.js';
+import { MOVIES } from '../data/movies.js';
 import { snapPhoto } from '../lib/printFlow.js';
 import { sfx } from '../lib/sfx.js';
 import { usePlayer } from './core.js';
@@ -108,7 +109,8 @@ function computeLayout({ border, aspect, sw, sh, fs, picker, shown }) {
   }
 
   const titleH = !fs && sh >= 540 ? 40 : 0;
-  const rail = !picker;
+  // the rail mirrors the dock; on a very narrow player there is only room for one of them
+  const rail = !picker && sw - m * 2 - (gap + dockWidth(dockSpec(sh - m * 2))) * 2 >= 200;
   if (!shown) {
     const f = fs ? fillFrame(border, aspect, sw, sh) : fitFrame(border, aspect, sw - m * 2, sh - m * 2);
     return { portrait, frame: { ...f, x: (sw - f.W) / 2, y: (sh - f.H) / 2 } };
@@ -201,7 +203,7 @@ function useFullscreen() {
   useEffect(() => {
     const on = () => {
       const el = document.fullscreenElement ?? document.webkitFullscreenElement;
-      const yes = !!el && !!el.closest?.('.faceplate, .pb-skin');
+      const yes = !!el && !!el.closest?.('[data-fs-root], .pb-skin');
       setNative(yes);
       if (!yes) {
         setLockFailed(false);
@@ -230,7 +232,7 @@ function useFullscreen() {
 
   const enter = useCallback(async () => {
     const forcePseudo = import.meta.env.DEV && location.search.includes('pseudofs');
-    const el = document.querySelector('.faceplate');
+    const el = document.querySelector('[data-fs-root]');
     if (el && canElementFullscreen() && !forcePseudo) {
       try {
         await (el.requestFullscreen ? el.requestFullscreen({ navigationUI: 'hide' }) : el.webkitRequestFullscreen());
@@ -276,6 +278,8 @@ export function PlayboothSkin({ children }) {
   const paused = usePlayer((s) => s.paused);
   const fs = useFullscreen();
   const pseudo = useApp((s) => s.pseudoFs);
+  const calm = useApp((s) => s.reducedMotion);
+  useApp((s) => s.borderRev); // a new picture for "your frame" repaints under the same id
   const playing = deck === 'playing';
   const picker = deck === 'frame';
   const border = borderById(borderId);
@@ -412,7 +416,7 @@ export function PlayboothSkin({ children }) {
       return;
     }
     if (document.fullscreenElement || document.webkitFullscreenElement) return;
-    if (useApp.getState().station === 'watch') {
+    if (useApp.getState().host === 'booth' && useApp.getState().station === 'watch') {
       e.preventDefault();
       useApp.getState().goStation('player');
     }
@@ -488,6 +492,7 @@ export function PlayboothSkin({ children }) {
       data-portrait={geo?.portrait || undefined}
       data-idle={(!shown && !locked) || undefined}
       data-locked={locked || undefined}
+      data-calm={calm || undefined}
       style={theme}
       aria-label={movie ? `PLAYBOOTH player, ${movie.title}` : 'PLAYBOOTH player'}
       onKeyDown={onKeyDown}
@@ -518,7 +523,6 @@ export function PlayboothSkin({ children }) {
                 <Poster.Root className="pb-poster">
                   <Poster.Image className="pb-poster-img" alt="" />
                 </Poster.Root>
-                <CaptionLayer />
                 <BufferingIndicator className="pb-buffering" render={(props) => <div {...props}><span className="pb-spinner" /></div>} />
                 <Flash />
                 <ErrorDialog.Root>
@@ -530,6 +534,9 @@ export function PlayboothSkin({ children }) {
                 </ErrorDialog.Root>
               </div>
               <FrameArt border={border} frame={geo.frame} />
+              <div className="pb-capbox" style={{ left: geo.frame.win.x, top: geo.frame.win.y, width: geo.frame.win.w, height: geo.frame.win.h }}>
+                <CaptionLayer />
+              </div>
             </div>
             {shownGeo.dock && (
               <Dock
@@ -610,7 +617,73 @@ function Flash() {
 
 /* ---------- the booth rail: back, snaps, album, eject ---------- */
 
-function Rail({ geo, movie, hidden, portrait, fs, hover }) {
+function Rail(props) {
+  const host = useApp((s) => s.host);
+  return host === 'showcase' ? <ShowcaseRail {...props} /> : <BoothRail {...props} />;
+}
+
+/**
+ * Outside the booth the left keys do what a demo needs: open the frames,
+ * change the film, surprise me with a frame. Same places, same rhythm.
+ */
+function ShowcaseRail({ geo, movie, hidden, portrait, fs, hover }) {
+  const v = geo.orient === 'v';
+  const frames = () => {
+    useApp.setState({ deck: 'frame' });
+    sfx('tap');
+  };
+  const nextFilm = () => {
+    const s = useApp.getState();
+    const i = MOVIES.findIndex((m) => m.id === s.insertedTapeId);
+    const next = MOVIES[(i + 1) % MOVIES.length];
+    useApp.setState({ insertedTapeId: next.id, deck: 'playing' });
+    s.announce(`${next.title}.`);
+    sfx('tap');
+  };
+  const shuffle = () => {
+    const s = useApp.getState();
+    const pool = BORDERS.filter((b) => b.id !== s.borderId && b.id !== 'none');
+    const b = pool[Math.floor(Math.random() * pool.length)];
+    useApp.setState({ borderId: b.id });
+    s.announce(`${b.name} frame.`);
+    sfx('paper');
+  };
+  const dice = (
+    <button type="button" className="pb-btn pb-rail-key" aria-label="Surprise frame" data-tip="Surprise frame" onClick={shuffle}>
+      <I.Shuffle />
+    </button>
+  );
+  return (
+    <nav
+      className="pb-rail"
+      data-orient={geo.orient}
+      data-tip-side={v ? 'right' : 'bottom'}
+      data-hidden={hidden || undefined}
+      aria-label="Frames and films"
+      style={{ left: geo.x, top: geo.y, width: geo.w, height: geo.h, '--key': geo.key ? `${geo.key}px` : undefined, '--rail-top': geo.top ? `${geo.top}px` : undefined }}
+      inert={hidden || undefined}
+      {...hover}
+    >
+      <button type="button" className="pb-btn pb-rail-key" aria-label="Choose a frame" data-tip="Frames" onClick={frames}>
+        <I.Frames />
+      </button>
+      {portrait && !fs && (
+        <p className="pb-rail-title">
+          <span className="pb-title-name">{movie?.title}</span>
+        </p>
+      )}
+      <div className="pb-rail-group">
+        <button type="button" className="pb-btn pb-rail-key" aria-label="Next film" data-tip="Next film" onClick={nextFilm}>
+          <I.Tape />
+        </button>
+        {!v && dice}
+      </div>
+      {v && dice}
+    </nav>
+  );
+}
+
+function BoothRail({ geo, movie, hidden, portrait, fs, hover }) {
   const snaps = useApp((s) => s.snaps.length);
   const total = useApp((s) => s.collection.length);
   const v = geo.orient === 'v';
@@ -899,7 +972,7 @@ function Scrubber({ orient, movie, win, aspect, onScrub }) {
   const f = drag ? drag.f : duration ? time / duration : 0;
   const bufEnd = buffered?.length ? Math.max(...buffered.map((b) => b[1])) : 0;
   const bf = duration ? clamp(bufEnd / duration, 0, 1) : 0;
-  const reel = !drag && hover ? { ...hover, mode: 'hover' } : null;
+  const reel = drag ? { ...drag, mode: 'drag' } : hover ? { ...hover, mode: 'hover' } : null;
 
   return (
     <div
@@ -929,7 +1002,6 @@ function Scrubber({ orient, movie, win, aspect, onScrub }) {
         <div className="pb-scrub-fill" />
       </div>
       <div className="pb-scrub-thumb" />
-      {drag && <span className="pb-scrub-time">{formatTimecode(f * (duration || 0))}</span>}
       {reel && duration > 0 && <Reel orient={orient} reel={reel} duration={duration} movie={movie} win={win} aspect={aspect} />}
     </div>
   );
@@ -1307,7 +1379,7 @@ function CaptionLayer() {
 
 /* ---------- frame picker ---------- */
 
-function FrameThumb({ border }) {
+export function FrameThumb({ border }) {
   const ref = useRef(null);
   useEffect(() => {
     const el = ref.current;
@@ -1366,7 +1438,8 @@ function FramePicker({ active }) {
   const setBorder = useApp((s) => s.setBorder);
   const group = useRef(null);
   const selected = borderById(borderId);
-  const grid = useFrameGrid(group, BORDERS.length);
+  const list = useMemo(() => (borderId === 'custom' && CUSTOM.border ? [...BORDERS, CUSTOM.border] : BORDERS), [borderId]);
+  const grid = useFrameGrid(group, list.length);
 
   useEffect(() => {
     if (!active) return undefined;
@@ -1380,8 +1453,8 @@ function FramePicker({ active }) {
     sfx('paper');
   };
   const move = (dir) => {
-    const i = BORDERS.findIndex((b) => b.id === borderId);
-    const next = BORDERS[(i + dir + BORDERS.length) % BORDERS.length];
+    const i = list.findIndex((b) => b.id === borderId);
+    const next = list[(i + dir + list.length) % list.length];
     choose(next.id);
     requestAnimationFrame(() => group.current?.querySelector(`[data-id="${next.id}"]`)?.focus());
   };
@@ -1408,7 +1481,7 @@ function FramePicker({ active }) {
           }
         }}
       >
-        {BORDERS.map((b) => {
+        {list.map((b) => {
           const on = b.id === borderId;
           return (
             <button key={b.id} type="button" role="radio" aria-checked={on} aria-label={b.name} tabIndex={on ? 0 : -1} data-id={b.id} className="frame-opt" onClick={() => choose(b.id)}>
@@ -1418,7 +1491,15 @@ function FramePicker({ active }) {
         })}
       </div>
       <div className="pb-picker-actions">
-        <button type="button" className="btn" onClick={() => useApp.getState().goStation('player')}>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => {
+            const s = useApp.getState();
+            if (s.host === 'showcase') useApp.setState({ deck: 'playing' });
+            else s.goStation('player');
+          }}
+        >
           Back
         </button>
         <button

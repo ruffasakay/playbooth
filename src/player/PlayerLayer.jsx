@@ -20,7 +20,7 @@ export function PlayerLayer() {
   const movie = movieById(inserted);
 
   return (
-    <div className="faceplate" data-open={open || undefined} inert={!open || undefined}>
+    <div className="faceplate" data-fs-root data-open={open || undefined} inert={!open || undefined}>
       <Player>
         <PlayboothSkin>
           <Media />
@@ -32,7 +32,7 @@ export function PlayerLayer() {
   );
 }
 
-function Media() {
+export function Media() {
   const movie = useApp((s) => movieById(s.insertedTapeId));
   const setVideoEl = useApp((s) => s.setVideoEl);
   const ref = useCallback((el) => {

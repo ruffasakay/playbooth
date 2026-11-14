@@ -6,7 +6,7 @@ import { deletePhoto, downloadPhoto, sharePhoto } from '../lib/photos.js';
 import { printEach, printStrip } from '../lib/printFlow.js';
 import * as I from '../player/icons.jsx';
 
-function useModal(open, onClose) {
+export function useModal(open, onClose) {
   const ref = useRef(null);
   useEffect(() => {
     const d = ref.current;
@@ -26,7 +26,7 @@ function useModal(open, onClose) {
 
 /* ---------- shared pieces: one panel, one Back key, one gallery ---------- */
 
-function BackKey({ onClick, label = 'Back' }) {
+export function BackKey({ onClick, label = 'Back' }) {
   return (
     <button type="button" className="float-btn panel-back" onClick={onClick} data-tip={label} data-key="Esc">
       <I.Back />

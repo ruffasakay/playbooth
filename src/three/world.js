@@ -129,7 +129,15 @@ export const motion = {
 };
 
 /** Set by 3D objects on pointerdown so a drag on them doesn't also turn the camera. */
-export const interaction = { grabbed: false };
+export const interaction = {
+  grabbed: false,
+  /** the tape shown in the close-up overlay (hidden on the shelf meanwhile) */
+  inspecting: null,
+  /** id -> () => its rectangle on screen, so the close-up can fly from and back to it */
+  tapeRects: {},
+  /** 0..1, how far the VCR's flap is held open by a tape passing through */
+  flap: 0,
+};
 
 export function smoothstep(a, b, x) {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));

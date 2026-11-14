@@ -26,8 +26,22 @@ Node 20.19 or newer.
 
 Useful links for judges:
 
-- `https://playbooth.vercel.app/` — the full experience
-- `https://playbooth.vercel.app/#player` — skips the walk in and opens the player with Charge loaded (for judges short on time)
+- `https://playbooth.vercel.app/` — the full experience (the **Live site URL**)
+- `https://playbooth.vercel.app/player/` — the skin on its own, a Video.js sandbox for judges (the **Project URL**). It is a second page of the same build, not linked from the booth.
+- `https://playbooth.vercel.app/#player` — skips the walk in and opens the player with Charge loaded
+
+Replace `playbooth.vercel.app` with your own Vercel domain.
+
+## The showcase page (`/player/`)
+
+`player/index.html` → `src/showcase/`. The same `PlayboothSkin`, mounted in a box you size yourself:
+
+- **Size**: six shapes (desktop 16:9, laptop 16:10, tablet 4:3, square, phone sideways 19.5:9, phone upright 9:19.5) and a width slider. The skin lays itself out from the box's own size, so this is a real test, not a zoom. Shapes with keys on both sides start at 600–667 px; narrower than the screen scrolls sideways.
+- **Film**, **Frame** (all 30, ranked) and **Your own frame**: drop or choose a picture, fit or tile it, set the margin. The keys take the picture's average colour for their dock.
+- **Playback**: autoplay (muted), loop, calm motion, key sounds.
+- The left keys in the player become Frames, Next film and Surprise frame (there is no booth to go back to).
+- Below: the idea (Play ×2, vertical controls, the clip reel, frames as themes), the minimum requirements and accessibility tips with live measurements (key contrast for the current frame, smallest key on screen), and every keyboard shortcut.
+- The Video.js mark is the official one from the `videojs/video.js` repository (`site/public/favicon.svg`).
 
 ## Mux bonus
 
@@ -41,11 +55,13 @@ Playback uses Video.js's `MuxVideo` with `preferPlayback: 'mse'` and `crossOrigi
 | --- | --- |
 | `src/player/Skin.jsx` | **The skin.** Frame on the left, dock on the right: a full-height vertical progress groove (drag: the picture scrubs with the time beside the thumb; hover: three floating clips, the current one outlined) and one column of keys: time, lock, settings, captions on/off, sound, ±10 s, play, Snap, full screen. The booth's own actions (back, snaps, album, eject) sit in a column on the left that mirrors the player's keys across the frame, so both sides balance; every key is its own solid circle, with no panel behind. While you choose a frame, only the framed picture shows; the controls arrive with the film. Dragging the progress scrubs the picture itself with the time beside the thumb; hovering floats three clips. Controls step away after a few seconds of play and the picture grows (an animated FLIP). Lock hides everything until the unlock key. Settings has playback speed, subtitle style (font, size, color, outline or box) and picture-in-picture. Upright phones lay the dock under the picture. Full screen fills the screen with the frame's own paper, and on phones lands in landscape (screen orientation lock, or a CSS turn where the browser can't lock, such as iPhone Safari). Video.js `Container`, `PlayButton`, `SeekButton`, `Time`, `MuteButton`, `VolumeSlider`, `Poster`, `BufferingIndicator`, `ErrorDialog`, `Hotkey`s, `StatusAnnouncer` and the player store |
 | `src/styles/skin.css` | Skin styles. Each frame sets theme tokens (`--k-dock`, `--k-surface`, `--k-ink`, `--k-band`, `--k-accent`, `--k-track`, `--k-play-bg`) that color its dock, keys and progress groove. Keys show state by filling in, never by a ring drawn around them |
-| `src/data/borders.js` | The 18 photo frames (pictures only, no words or numbers), their control colors, and the single painter used for the player, prints and photostrips |
+| `src/data/borders.js` | The 30 photo frames (graphics only: no words, numbers or lettering, and always a straight-edged rectangular window so nothing crops the film), their control colors, the painter used for the player, prints and photostrips, and `setCustomBorder` for a frame made from your own picture |
 | `src/ui/Hint.jsx` | Hover hints like a game's key prompts: rest the mouse on a control and a small card names it with its key ("Snap this frame  S"). Mouse only, nothing on touch |
 | `src/ui/Dialogs.jsx` | Snaps, Album and the photo viewer as full-screen panels with a Back key: every picture fits the screen without scrolling, and turns into pages only when there are too many |
 | `src/lib/sfx.js` | Every sound, synthesized with WebAudio (no audio files). The sound toggle mutes them |
-| `src/three/Machine.jsx` | The television: a bouncing PLAYBOOTH logo while it waits, a VCR loading screen (turning reels, a filling bar, READY) while a tape goes in, then the film in its frame |
+| `src/three/Machine.jsx` | The TV corner: the television (a bouncing PLAYBOOTH logo while it waits; a loading screen in the booth's colours with a cream cassette whose reels turn and a filling bar while a tape goes in; then the film in its frame), the VCR standing on its own shelf, and the printer. At night the screen lights the room, the VCR's figures and the printer's lamp glow green, and a neon line runs under the cabinet top |
+| `src/three/Tape.jsx`, `src/three/Inspect.jsx` | Tapes on keyframed paths: inserting slides the case out of its cubby, lifts and turns it flat on the way over, lines it up in front of the slot (the flap opens) and the deck draws it in; ejecting plays the same story backwards with a beat at the slot. Clicking a tape flies it from the shelf into the close-up and back again when you leave |
+| `src/ui/About.jsx`, `src/ui/Credit.jsx` | The About card (the name, the idea, the controls, the credit), opened from the hero's About key, the PLAYBOOTH name in the booth's corner, or `?` |
 | `src/three/*` | The booth: exterior, curtains, interior, cabinet, tapes with magnetic snapping, machine, printer, prints, camera rig, keyboard hotspots |
 | `src/lib/photos.js` | Capture, IndexedDB storage, download and share |
 
@@ -57,7 +73,7 @@ The skin supports the same public CSS properties as the Video.js skins: `--media
 - **Essential controls**: play/pause, a vertical seek groove with clip previews, current time and duration, mute and volume, full screen (no black bars; landscape on phones). Also ±10 s, captions on/off, a settings menu (speed, subtitle style, picture-in-picture), a lock, Snap, Snaps compiler, album, eject.
 - **Sound**: synthesized key clicks with a felt low thock, a shutter, paper, tape clunk and eject, curtain and light switch sounds. One toggle mutes them all.
 - **Day and night**: the sun/moon toggle in the corner of the screen (from the street to inside the booth), the switch on the booth's back wall, or L turns the whole booth to night: street lamps, shop windows and string lights come on, the room dims to lamp light, and the interface switches to its dark palette. At night the PLAYBOOTH sign lights up like neon, two street lamps and most windows come on, and the room keeps warm lamp light, so everything stays visible. A light night layer over the 3D view keeps the change clear on phones, where the renderer runs lean.
-- **Frames**: 18, all pure graphics: No frame, Booth white, Lace, Postage stamp, Cinema ticket, Denim & lace, Red knit, Cocoa bow, Red film, Airmail, Matinee, Red polka, Linen stripe, Velvet curtain, Pressed flowers, Granny squares, Starry night and Sage checker. Each one colors its own controls. The picker always fills its panel: its column count divides 18, so no row is half empty.
+- **Frames**: 30, all pure graphics with rectangular windows, ranked by design and uniqueness. After No frame, first the frames drawn from the references: Vinyl cream, Star confetti, Comic blocks, Lace, Red film, Lavender swirl, Red knit, Paper hearts, Airmail, Matinee, Denim & lace, Vinyl red, Comic wave, Butter doodle, Pixel lilac, Cocoa bow, Vinyl pink, Newsprint, Black strip; then the booth's own: Velvet curtain, Granny squares, Starry night, Sage checker, Cinema ticket, Postage stamp, Pressed flowers, Red polka, Linen stripe, Booth white. Each one colors its own controls, and all are drawn relative to the picture's width, so they hold up from a phone to a TV. The picker always fills its panel: its column count divides 30, so no row is half empty.
 - **Snap flow**: each snap downloads the clean frame immediately and joins the Snaps compiler; print singles in any frame, or 2 to 6 as a framed photostrip.
 - **Responsive**: tested at 1440×900, 1280×760, 1180×820, 820×1180, 412×915, 390×844 and 844×390, plus full screen on each. On tall phones the walk in ends facing the tapes.
 - **Keyboard**: every 3D object has a focusable hotspot (tapes, slot, screen, eject, prints, album). Escape puts a tape back, steps back out of a view, or stands up from the deck. Player shortcuts (working, never printed on screen): Space/K, M, F, C, ←/→, J/L, ↑/↓, 0–9, Home/End, `<`/`>`, and S for a photo. The progress groove takes ↑/↓, Page Up/Down, Home and End when focused.
@@ -67,6 +83,9 @@ The skin supports the same public CSS properties as the Video.js skins: `--media
 - Also handles `prefers-reduced-transparency`, `prefers-contrast: more`, `forced-colors`, RTL arrow keys in the frame picker, and a no-WebGL fallback (tapes become buttons; force it with `?flat`).
 
 ## Credits and licenses
+
+Made with love by [@ruffasakay](https://contra.com/ruffasakay). The credit is on the About card in the booth and in the footer of the showcase page.
+
 
 Films, all by the Blender Foundation, hosted on Mux:
 

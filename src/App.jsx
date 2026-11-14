@@ -5,6 +5,7 @@ import { bindSounds } from './lib/sfx.js';
 import { PlayerLayer } from './player/PlayerLayer.jsx';
 import { Announcer, Hero, Preloader, RoomUI, deepLinkToPlayer } from './ui/Screens.jsx';
 import { AlbumDialog, CompilerDialog, FlatShelf, PhotoDialog } from './ui/Dialogs.jsx';
+import { AboutDialog } from './ui/About.jsx';
 import { Hint } from './ui/Hint.jsx';
 import { hotspotPortal } from './three/portal.js';
 
@@ -65,7 +66,7 @@ function useEnvironment() {
     const onKey = (e) => {
       if (e.key !== 'Escape' || e.defaultPrevented) return;
       const s = useApp.getState();
-      if (s.phase !== 'inside' || s.station === 'watch' || s.albumOpen || s.lightboxId || s.inspectId || s.compilerOpen) return;
+      if (s.phase !== 'inside' || s.station === 'watch' || s.albumOpen || s.aboutOpen || s.lightboxId || s.inspectId || s.compilerOpen) return;
       if (s.station !== 'booth') s.goStation('booth');
     };
     window.addEventListener('keydown', onKey);
@@ -112,6 +113,7 @@ export default function App() {
       </main>
       <CompilerDialog />
       <AlbumDialog />
+      <AboutDialog />
       <PhotoDialog />
       <Announcer />
       <Preloader />

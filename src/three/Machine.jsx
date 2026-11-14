@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import { RoundedBox, Text } from '@react-three/drei';
 import { useApp, movieById } from '../store.js';
-import { FONT_MONO, FONT_SERIF, MACHINE, PAL, PRINTER, SCREEN, SLOT, TABLE, TRAY, TV, VCR, damp, interaction, mat } from './world.js';
+import { FONT_MONO, FONT_SERIF, MACHINE, PAL, PRINTER, SCREEN, SLOT, TABLE, TRAY, TV, VCR, damp, dayNight, interaction, light, mat } from './world.js';
 import { FONT_MONO as CSS_MONO, FONT_SERIF as CSS_SERIF, borderById, frameLayout, paintOverlay } from '../data/borders.js';
 
 export function Machine() {
@@ -60,6 +60,14 @@ function Console() {
       <mesh position={[x, h / 2 + 0.05, z - d / 2 + 0.01]} material={dark}>
         <boxGeometry args={[w - 0.06, h - 0.1, 0.02]} />
       </mesh>
+      {/* the middle shelf the VCR stands on */}
+      <RoundedBox args={[w - 0.08, 0.035, d - 0.02]} radius={0.008} smoothness={2} position={[x, VCR.y - VCR.h / 2 - 0.0175 - 0.012, z + 0.005]} castShadow receiveShadow material={wood} />
+      {/* a thin neon line under the top, lit at night */}
+      <mesh position={[x, h - 0.06, z + d / 2 + 0.002]}>
+        <planeGeometry args={[w - 0.12, 0.008]} />
+        <meshStandardMaterial color="#2c6658" emissive="#5ff0d0" emissiveIntensity={0} toneMapped={false} ref={dayNight('emissiveIntensity', 0, 2.4)} />
+      </mesh>
+      <pointLight position={[x, 0.35, z + d / 2 + 0.25]} color="#7ff3dc" intensity={0} distance={1.6} decay={1.6} ref={dayNight('intensity', 0, 0.9)} />
       {/* tapered legs */}
       {[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([sx, sz], i) => (
         <mesh key={i} position={[x + sx * (w / 2 - 0.08), 0.07, z + sz * (d / 2 - 0.08)]} rotation={[sz * 0.08, 0, -sx * 0.08]} castShadow material={dark}>
@@ -126,7 +134,10 @@ class ScreenPainter {
   /** No tape: the PLAYBOOTH mark drifts and bounces, changing color at each wall, like an old player waiting. */
   paintIdle(dt) {
     const { ctx, width: w, height: h } = this;
-    ctx.fillStyle = '#101320';
+    const bg = ctx.createRadialGradient(w / 2, h / 2, 40, w / 2, h / 2, w * 0.75);
+    bg.addColorStop(0, '#2a211b');
+    bg.addColorStop(1, '#120d0a');
+    ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
     const lw = 360;
     const lh = 120;
@@ -170,54 +181,86 @@ class ScreenPainter {
     this.tube();
   }
 
-  /** A tape going in: the VCR's blue screen, two reels turning and a bar filling up. */
+  /** A tape going in: a cream cassette with its reels turning, a bar filling, then READY. */
   paintReading(time, movie, progress) {
     const { ctx, width: w, height: h } = this;
-    ctx.fillStyle = '#2f4a8c';
+    const bg = ctx.createRadialGradient(w / 2, h * 0.45, 40, w / 2, h / 2, w * 0.75);
+    bg.addColorStop(0, '#3a2b20');
+    bg.addColorStop(1, '#17110d');
+    ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = '#eef2ff';
-    ctx.font = `bold 50px ${CSS_MONO}`;
-    ctx.textBaseline = 'top';
+    // the mark and the name, top left
+    ctx.strokeStyle = '#f4ede0';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(60, 54, 22, 50);
+    [0.1, 0.4, 0.7].forEach((f, i) => {
+      ctx.fillStyle = i === 1 ? '#cf6a4c' : '#f4ede0';
+      ctx.fillRect(65, 54 + 50 * f, 12, 10);
+    });
+    ctx.fillStyle = '#f4ede0';
+    ctx.font = `600 34px ${CSS_SERIF}`;
+    ctx.textBaseline = 'middle';
     ctx.textAlign = 'left';
-    ctx.fillText(Math.floor(time * 2) % 2 ? 'PLAY ▶' : 'PLAY', 64, 52);
-    ctx.font = `38px ${CSS_MONO}`;
-    ctx.textAlign = 'right';
-    ctx.fillText('SP', w - 64, 52);
-    // two reels turning
-    const cy = h * 0.42;
-    for (const cx of [w / 2 - 120, w / 2 + 120]) {
+    ctx.fillText('PLAYBOOTH', 100, 80);
+    // the cassette
+    const cw = 420;
+    const ch = 250;
+    const cx = (w - cw) / 2;
+    const cy = h * 0.2;
+    ctx.fillStyle = '#efe4cf';
+    ctx.beginPath();
+    ctx.roundRect(cx, cy, cw, ch, 18);
+    ctx.fill();
+    ctx.fillStyle = '#cf6a4c';
+    ctx.fillRect(cx + 26, cy + 24, cw - 52, 30);
+    ctx.fillStyle = '#2a211b';
+    ctx.beginPath();
+    ctx.roundRect(cx + 70, cy + 82, cw - 140, 96, 48);
+    ctx.fill();
+    for (const rx of [cx + 130, cx + cw - 130]) {
       ctx.save();
-      ctx.translate(cx, cy);
-      ctx.rotate(time * 3.2);
-      ctx.strokeStyle = '#eef2ff';
-      ctx.lineWidth = 8;
+      ctx.translate(rx, cy + 130);
+      ctx.rotate(time * 3);
+      ctx.fillStyle = '#f4ede0';
       ctx.beginPath();
-      ctx.arc(0, 0, 66, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.fillStyle = '#eef2ff';
-      for (let i = 0; i < 3; i++) {
-        ctx.rotate((Math.PI * 2) / 3);
-        ctx.fillRect(-7, 18, 14, 40);
+      ctx.arc(0, 0, 34, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#2a211b';
+      for (let i = 0; i < 6; i++) {
+        ctx.rotate(Math.PI / 3);
+        ctx.fillRect(-4, 14, 8, 14);
       }
       ctx.beginPath();
-      ctx.arc(0, 0, 14, 0, Math.PI * 2);
+      ctx.arc(0, 0, 9, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
-    ctx.fillRect(w / 2 - 54, cy - 4, 108, 8);
-    // progress
-    const bw = w * 0.56;
+    ctx.fillStyle = '#d8ccb6';
+    ctx.beginPath();
+    ctx.moveTo(cx + 110, cy + ch);
+    ctx.lineTo(cx + 140, cy + ch - 40);
+    ctx.lineTo(cx + cw - 140, cy + ch - 40);
+    ctx.lineTo(cx + cw - 110, cy + ch);
+    ctx.fill();
+    // the bar
+    const bw = w * 0.5;
     const bx = (w - bw) / 2;
     const by = h * 0.68;
-    ctx.strokeStyle = '#eef2ff';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(bx, by, bw, 34);
-    ctx.fillRect(bx + 7, by + 7, (bw - 14) * progress, 20);
+    ctx.fillStyle = 'rgb(244 237 224 / 0.18)';
+    ctx.beginPath();
+    ctx.roundRect(bx, by, bw, 18, 9);
+    ctx.fill();
+    ctx.fillStyle = progress >= 0.99 ? '#4fa592' : '#cf6a4c';
+    ctx.beginPath();
+    ctx.roundRect(bx, by, Math.max(18, bw * progress), 18, 9);
+    ctx.fill();
     ctx.textAlign = 'center';
-    ctx.font = `34px ${CSS_MONO}`;
-    ctx.fillText(progress >= 0.99 ? 'READY' : 'LOADING', w / 2, by + 52);
-    ctx.font = `40px ${CSS_MONO}`;
-    ctx.fillText((movie?.title ?? '').toUpperCase(), w / 2, h - 110);
+    ctx.fillStyle = '#f4ede0';
+    ctx.font = `600 44px ${CSS_SERIF}`;
+    ctx.fillText(progress >= 0.99 ? 'Ready' : 'Loading the tape', w / 2, by + 70);
+    ctx.font = `30px ${CSS_MONO}`;
+    ctx.fillStyle = 'rgb(244 237 224 / 0.7)';
+    ctx.fillText(movie?.title ?? '', w / 2, by + 122);
     this.tube();
   }
 
@@ -313,6 +356,7 @@ function Television() {
         <planeGeometry args={[SCREEN.w, SCREEN.h]} />
         <meshBasicMaterial map={painter.texture} toneMapped={false} />
       </mesh>
+      <pointLight position={[SCREEN.x, SCREEN.y, SCREEN.z + 0.5]} color="#c9d6ff" intensity={0} distance={3} decay={1.6} ref={dayNight('intensity', 0, 2.2)} />
       <Text font={FONT_SERIF} fontSize={0.03} letterSpacing={0.25} color="#6a6157" position={[SCREEN.x, TV.y - TV.h / 2 + 0.07, TV.front + 0.002]} anchorX="center">
         PLAYBOOTH
       </Text>
@@ -325,7 +369,7 @@ function Vcr() {
   useFrame((_, dt) => {
     const s = useApp.getState();
     if (flap.current) {
-      const open = s.insertingId ? 1 : s.dragging ? s.attraction : 0;
+      const open = Math.max(interaction.flap, s.dragging ? s.attraction : 0);
       flap.current.rotation.x = damp(flap.current.rotation.x, -open * 1.2, 12, Math.min(dt, 0.05));
     }
   });
@@ -347,13 +391,30 @@ function Vcr() {
           </mesh>
         </group>
       </group>
-      {/* display */}
-      <mesh position={[VCR.x + 0.2, VCR.y + 0.01, VCR.front + 0.002]} material={mat('#121a16')}>
+      {/* feet, so it stands on the shelf */}
+      {[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([sx, sz], i) => (
+        <mesh key={i} position={[VCR.x + sx * (VCR.w / 2 - 0.05), VCR.y - VCR.h / 2 - 0.006, VCR.z + sz * (VCR.d / 2 - 0.05)]} material={mat('#141312')}>
+          <cylinderGeometry args={[0.016, 0.016, 0.012, 10]} />
+        </mesh>
+      ))}
+      {/* a groove along the front and three small keys */}
+      <mesh position={[VCR.x, VCR.y - VCR.h / 2 + 0.025, VCR.front + 0.002]} material={mat('#1c1a18')}>
+        <planeGeometry args={[VCR.w - 0.04, 0.004]} />
+      </mesh>
+      {[0, 1, 2].map((i) => (
+        <mesh key={i} position={[VCR.x + 0.07 + i * 0.035, VCR.y - 0.035, VCR.front + 0.004]} material={mat('#56514b', { roughness: 0.4, metalness: 0.3 })}>
+          <boxGeometry args={[0.026, 0.012, 0.006]} />
+        </mesh>
+      ))}
+      {/* display: green figures that glow like a real deck's at night */}
+      <mesh position={[VCR.x + 0.2, VCR.y + 0.01, VCR.front + 0.002]} material={mat('#0c1410')}>
         <planeGeometry args={[0.15, 0.05]} />
       </mesh>
-      <Text font={FONT_MONO} fontSize={0.03} color="#7fe0b4" position={[VCR.x + 0.2, VCR.y + 0.008, VCR.front + 0.004]} anchorX="center" anchorY="middle">
+      <Text font={FONT_MONO} fontSize={0.03} position={[VCR.x + 0.2, VCR.y + 0.008, VCR.front + 0.004]} anchorX="center" anchorY="middle">
         {status}
+        <meshBasicMaterial toneMapped={false} color="#7fe0b4" ref={dayNight('color', '#6fcfa5', '#b4ffd9')} />
       </Text>
+      <pointLight position={[VCR.x + 0.2, VCR.y + 0.01, VCR.front + 0.08]} color="#8affc8" intensity={0} distance={0.4} decay={2} ref={dayNight('intensity', 0, 0.18)} />
     </group>
   );
 }
@@ -378,7 +439,8 @@ function Printer() {
   useFrame(({ clock }, dt) => {
     const s = useApp.getState();
     if (!lamp.current) return;
-    const target = s.printing ? 1.6 + (s.reducedMotion ? 0 : Math.sin(clock.elapsedTime * 6) * 0.6) : 0.25;
+    const idle = 0.25 + light.t * 2.2; // a steady green glow at night
+    const target = s.printing ? 2.4 + (s.reducedMotion ? 0 : Math.sin(clock.elapsedTime * 6) * 0.8) : idle;
     lamp.current.emissiveIntensity = damp(lamp.current.emissiveIntensity, target, 10, Math.min(dt, 0.05));
   });
   return (
@@ -391,6 +453,7 @@ function Printer() {
         <circleGeometry args={[0.009, 12]} />
         <meshStandardMaterial ref={lamp} color="#7fe0b4" emissive="#7fe0b4" emissiveIntensity={0.25} toneMapped={false} />
       </mesh>
+      <pointLight position={[PRINTER.x + 0.17, PRINTER.y + 0.08, PRINTER.front + 0.06]} color="#8affc8" intensity={0} distance={0.5} decay={2} ref={dayNight('intensity', 0, 0.35)} />
       <Text font={FONT_SERIF} fontSize={0.022} letterSpacing={0.2} color="#6a6157" position={[PRINTER.x - 0.12, PRINTER.y + 0.08, PRINTER.front + 0.002]} anchorX="center">
         PRINTS
       </Text>

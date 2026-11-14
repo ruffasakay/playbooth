@@ -92,6 +92,28 @@ function Tape({ movie, cubby }) {
     group.current?.quaternion.copy(home.quat);
   }, [home]);
 
+  // where the case sits on screen, for the close-up to fly out of and back into
+  const { gl } = useThree();
+  useEffect(() => {
+    interaction.tapeRects[id] = () => {
+      const g = group.current;
+      if (!g) return null;
+      g.updateWorldMatrix(true, false);
+      const box = gl.domElement.getBoundingClientRect();
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const sx of [-1, 1]) for (const sy of [-1, 1]) for (const sz of [-1, 1]) {
+        tmpV.set((sx * TAPE.w) / 2, (sy * TAPE.h) / 2, (sz * TAPE.d) / 2).applyMatrix4(g.matrixWorld).project(camera);
+        const x = box.left + ((tmpV.x + 1) / 2) * box.width;
+        const y = box.top + ((1 - tmpV.y) / 2) * box.height;
+        x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+      }
+      return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+    };
+    return () => {
+      delete interaction.tapeRects[id];
+    };
+  }, [id, camera, gl]);
+
   const canInteract = () => {
     const s = useApp.getState();
     return s.phase === 'inside' && s.station !== 'watch' && !s.insertingId && !s.inspectId && ['shelf', 'drag'].includes(st.current.mode) && s.insertedTapeId !== id;
@@ -189,17 +211,17 @@ function Tape({ movie, cubby }) {
 
     if (s.insertingId === id && local.mode !== 'insert' && local.mode !== 'inside') {
       local.mode = 'insert';
-      local.t = reduced ? 1 : 0;
-      local.from.pos.copy(g.position);
-      local.from.quat.copy(g.quaternion);
+      local.path = reduced ? null : insertPath(g, home);
+      local.t = 0;
     } else if (s.insertedTapeId === id && !['insert', 'inside'].includes(local.mode)) {
       local.mode = 'inside';
     } else if (local.mode === 'inside' && s.insertedTapeId !== id) {
       local.mode = 'eject';
-      local.t = reduced ? 1 : 0;
+      local.path = reduced ? null : ejectPath(home);
+      local.t = 0;
     }
 
-    g.visible = s.inspectId !== id && local.mode !== 'inside';
+    g.visible = interaction.inspecting !== id && local.mode !== 'inside';
     highlight.current = local.hover || s.focusedTapeId === id || local.mode === 'drag';
 
     switch (local.mode) {
@@ -230,19 +252,10 @@ function Tape({ movie, cubby }) {
         break;
       }
       case 'insert': {
-        local.t = Math.min(1, local.t + dt / 1.0);
-        const t = local.t;
-        if (t < 0.6) {
-          const k = easeInOut(t / 0.6);
-          g.position.lerpVectors(local.from.pos, SLOT_ENTRY.position, k);
-          g.position.y += Math.sin(k * Math.PI) * 0.12;
-          g.quaternion.slerpQuaternions(local.from.quat, SLOT_ENTRY.quaternion, k);
-        } else {
-          const k = easeIn((t - 0.6) / 0.4);
-          g.position.lerpVectors(SLOT_ENTRY.position, SLOT_INSIDE, k);
-          g.quaternion.copy(SLOT_ENTRY.quaternion);
-        }
-        if (t >= 1) {
+        local.t += dt;
+        const done = !local.path || runPath(g, local.path, local.t);
+        if (done) {
+          interaction.flap = 0;
           local.mode = 'inside';
           s.insertTape(id);
         }
@@ -254,10 +267,14 @@ function Tape({ movie, cubby }) {
         break;
       }
       case 'eject': {
-        local.t = Math.min(1, local.t + dt / 0.55);
-        g.position.lerpVectors(SLOT_INSIDE, SLOT_ENTRY.position, easeOut(local.t));
-        g.quaternion.copy(SLOT_ENTRY.quaternion);
-        if (local.t >= 1) local.mode = 'shelf';
+        local.t += dt;
+        const done = !local.path || runPath(g, local.path, local.t);
+        if (done) {
+          interaction.flap = 0;
+          g.position.copy(home.pos);
+          g.quaternion.copy(home.quat);
+          local.mode = 'shelf';
+        }
         break;
       }
       default:
@@ -293,6 +310,60 @@ function follow(obj, pos, quat, lambda, dt) {
   obj.quaternion.slerp(quat, k);
 }
 
+/*
+ * Insert and eject run along short keyframed paths, so every step reads:
+ * the case slides out of its cubby, lifts and turns flat on its way over,
+ * lines up in front of the slot, and the deck draws it in. Ejecting plays
+ * the same story backwards with a beat at the slot so you see it come out.
+ */
+const PRE_SLOT = SLOT_ENTRY.position.clone().add(new THREE.Vector3(0, 0.015, 0.14));
+
+function insertPath(g, home) {
+  const start = { pos: g.position.clone(), quat: g.quaternion.clone() };
+  const fromSlot = start.pos.distanceTo(SLOT_ENTRY.position) < 0.35; // dropped on the slot by a drag
+  const legs = [];
+  if (!fromSlot) {
+    legs.push({ pos: home.pos.clone().add(new THREE.Vector3(0, 0.02, 0.16)), quat: home.quat, dur: 0.32, ease: easeOut });
+    legs.push({ pos: PRE_SLOT, quat: SLOT_ENTRY.quaternion, dur: 0.85, ease: easeInOut, arc: 0.16 });
+  }
+  legs.push({ pos: SLOT_ENTRY.position, quat: SLOT_ENTRY.quaternion, dur: fromSlot ? 0.18 : 0.28, ease: easeInOut, flap: 1 });
+  legs.push({ pos: SLOT_INSIDE, quat: SLOT_ENTRY.quaternion, dur: 0.62, ease: easeInOut, flap: 1 });
+  return { start, legs };
+}
+
+function ejectPath(home) {
+  const start = { pos: SLOT_INSIDE.clone(), quat: SLOT_ENTRY.quaternion.clone() };
+  return {
+    start,
+    legs: [
+      { pos: SLOT_ENTRY.position, quat: SLOT_ENTRY.quaternion, dur: 0.6, ease: easeOut, flap: 1 },
+      { pos: PRE_SLOT, quat: SLOT_ENTRY.quaternion, dur: 0.35, ease: easeInOut, flap: 1 },
+      { pos: PRE_SLOT, quat: SLOT_ENTRY.quaternion, dur: 0.15, ease: (t) => t },
+      { pos: home.pos.clone().add(new THREE.Vector3(0, 0.02, 0.16)), quat: home.quat, dur: 0.9, ease: easeInOut, arc: 0.16 },
+      { pos: home.pos, quat: home.quat, dur: 0.32, ease: easeInOut },
+    ],
+  };
+}
+
+/** Place `g` at time `t` along the path; true when it has arrived. */
+function runPath(g, path, t) {
+  let from = path.start;
+  for (const leg of path.legs) {
+    if (t < leg.dur) {
+      const k = leg.ease(Math.max(0, t / leg.dur));
+      g.position.lerpVectors(from.pos, leg.pos, k);
+      if (leg.arc) g.position.y += Math.sin(k * Math.PI) * leg.arc;
+      g.quaternion.slerpQuaternions(from.quat, leg.quat, k);
+      interaction.flap = leg.flap ?? 0;
+      return false;
+    }
+    t -= leg.dur;
+    from = leg;
+  }
+  g.position.copy(from.pos);
+  g.quaternion.copy(from.quat);
+  return true;
+}
+
 const easeInOut = (t) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
-const easeIn = (t) => t * t * t;
 const easeOut = (t) => 1 - (1 - t) ** 3;

@@ -14,14 +14,14 @@ export const Pause = () => (
 export const Replay = () => (
   <svg {...base}><path {...line} d="M4.6 12a7.4 7.4 0 1 0 2.2-5.3" /><path {...line} d="M4.4 4.2v3.6H8" /></svg>
 );
-/** Circular arrow with the step written inside, like a remote's skip key. */
+/** An open circle with its arrowhead at the top, the step written inside (the usual skip glyph). */
 export const Seek = ({ back }) => (
   <svg {...base}>
-    <g transform={back ? 'translate(24 0) scale(-1 1)' : undefined}>
-      <path {...line} d="M12 4.2a7.8 7.8 0 1 1-7.1 4.6" />
-      <path {...line} d="M12 1.8l2.6 2.4L12 6.6" />
+    <g transform={back ? undefined : 'translate(24 0) scale(-1 1)'} {...line} strokeWidth="1.8">
+      <path d="M4.55 7.7A8.6 8.6 0 1 1 4.55 16.3" />
+      <path d="M3.3 3.9 4.5 8.2 8.7 7.2" />
     </g>
-    <text x="12" y="15.4" textAnchor="middle" fontSize="7.4" fontFamily="'DM Mono', monospace" fontWeight="500" fill="currentColor">10</text>
+    <text x="12.3" y="15.5" textAnchor="middle" fontSize="8.2" fontFamily="'DM Mono', ui-monospace, monospace" fontWeight="600" letterSpacing="-0.3" fill="currentColor">10</text>
   </svg>
 );
 export const Volume = ({ level = 'high' }) => (
@@ -107,4 +107,23 @@ export const Share = () => (
 );
 export const Trash = () => (
   <svg {...base}><path {...line} d="M4.5 7h15M9.5 7V5.2c0-.7.5-1.2 1.2-1.2h2.6c.7 0 1.2.5 1.2 1.2V7M6.5 7l.8 11.6c.1.8.7 1.4 1.5 1.4h6.4c.8 0 1.4-.6 1.5-1.4L17.5 7" /></svg>
+);
+
+/** A frame inside a frame: the frames menu. */
+export const Frames = () => (
+  <svg {...base}>
+    <g {...line}>
+      <rect x="3.5" y="5" width="17" height="14" rx="1.6" />
+      <rect x="7" y="8.5" width="10" height="7" rx="0.6" />
+    </g>
+  </svg>
+);
+/** A die showing five: a frame picked at random. */
+export const Shuffle = () => (
+  <svg {...base}>
+    <rect x="4" y="4" width="16" height="16" rx="3.6" {...line} />
+    {[[8.6, 8.6], [15.4, 8.6], [12, 12], [8.6, 15.4], [15.4, 15.4]].map(([x, y]) => (
+      <circle key={`${x}${y}`} cx={x} cy={y} r="1.35" fill="currentColor" />
+    ))}
+  </svg>
 );

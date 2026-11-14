@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { MOVIES } from '../data/movies.js';
 import { useApp } from '../store.js';
 import { Logo, Wordmark } from './Logo.jsx';
+import { useAboutKey } from './About.jsx';
 import * as I from '../player/icons.jsx';
 
 /* ---------- preloader ---------- */
@@ -49,6 +50,7 @@ export function Hero() {
   const enter = useApp((s) => s.enterBooth);
   const visible = phase === 'outside' && intro;
   const cta = useRef(null);
+  useAboutKey(visible);
 
   useEffect(() => {
     if (!visible) return undefined;
@@ -92,6 +94,9 @@ export function Hero() {
         <div className="hero-actions reveal" style={{ '--i': 5 }}>
           <button ref={cta} type="button" className="btn btn--primary btn--lg" onClick={enter} disabled={!visible} data-tip="Step inside" data-key="Enter">
             Enter to play
+          </button>
+          <button type="button" className="btn btn--lg btn--ghost" onClick={() => useApp.getState().setAboutOpen(true)} disabled={!visible} data-tip="About the booth" data-key="?">
+            About
           </button>
         </div>
       </div>
@@ -189,12 +194,15 @@ export function RoomUI() {
   );
 }
 
+/** The name, top left, is also the way to the About card, like a game's title menu. */
 function RoomBrand() {
+  useAboutKey(true);
   return (
-    <div className="room-brand" aria-hidden="true">
+    <button type="button" className="room-brand" onClick={() => useApp.getState().setAboutOpen(true)} aria-label="About PLAYBOOTH" data-tip="About" data-key="?" data-tip-side="right">
       <Logo size={24} />
       <Wordmark />
-    </div>
+      <span className="room-brand-i" aria-hidden="true">i</span>
+    </button>
   );
 }
 

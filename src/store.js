@@ -18,6 +18,9 @@ export const useApp = create((set, get) => ({
   station: 'booth',
   webgl: true,
   reducedMotion: false,
+  /** 'booth' is the app; 'showcase' is the standalone Video.js page at /player/ */
+  host: 'booth',
+  borderRev: 0,
   coarsePointer: false,
   sceneReady: false,
   veil: false, // full-screen fade used instead of camera flights for reduced motion
@@ -39,7 +42,7 @@ export const useApp = create((set, get) => ({
 
   // player
   deck: 'empty', // empty | reading | frame | playing
-  borderId: 'booth',
+  borderId: 'vinyl',
   frameLocked: false,
   videoEl: null,
   videoAspect: 16 / 9,
@@ -58,6 +61,7 @@ export const useApp = create((set, get) => ({
   printing: false,
   lightboxId: null,
   albumOpen: false,
+  aboutOpen: false,
   flashToken: 0,
 
   // announcements for the app's own live region
@@ -191,7 +195,7 @@ export const useApp = create((set, get) => ({
   },
 
   setBorder(borderId) {
-    if (get().frameLocked) return;
+    if (get().frameLocked && get().host === 'booth') return;
     set({ borderId });
   },
 
@@ -285,6 +289,9 @@ export const useApp = create((set, get) => ({
   },
   setAlbumOpen(albumOpen) {
     set({ albumOpen });
+  },
+  setAboutOpen(aboutOpen) {
+    set({ aboutOpen, hover: null });
   },
 }));
 
