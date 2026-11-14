@@ -469,7 +469,14 @@ export function PlayboothSkin({ children }) {
   const onStagePointer = (e) => {
     pointerKind.current = e.pointerType || 'mouse';
     if (locked) {
-      if (e.type === 'pointerdown' || e.pointerType === 'mouse') flashUnlock();
+      // locked: the unlock key hides; a tap, or a mouse that really moves, brings it back for a moment
+      if (e.type === 'pointerdown') flashUnlock();
+      else if (e.pointerType === 'mouse') {
+        const p = lastPoint.current;
+        const moved = !p || Math.abs(e.clientX - p.x) + Math.abs(e.clientY - p.y) > 2;
+        lastPoint.current = { x: e.clientX, y: e.clientY };
+        if (moved) flashUnlock();
+      }
       return;
     }
     if (e.type === 'pointermove') {
@@ -575,7 +582,14 @@ export function PlayboothSkin({ children }) {
                 aria-label="Unlock controls"
                 data-tip="Unlock the controls"
                 onClick={unlock}
-                onFocus={() => setUnlockShown(true)}
+                onFocus={() => {
+                  clearTimeout(unlockTimer.current);
+                  setUnlockShown(true);
+                }}
+                onBlur={flashUnlock}
+                // resting on it keeps it there; leaving starts the short countdown again
+                onPointerEnter={() => clearTimeout(unlockTimer.current)}
+                onPointerLeave={flashUnlock}
               >
                 <I.Lock />
               </button>

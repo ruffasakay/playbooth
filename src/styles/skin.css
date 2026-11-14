@@ -348,8 +348,9 @@
 
 /* ---------- locked: one key to come back ---------- */
 
-.pb-unlock { --key: 60px; position: absolute; z-index: 8; right: 18px; top: calc(50% - 30px); opacity: 0.55; transition: opacity 0.2s ease; --k-surface: #f4ede0; --k-ink: #33261c; }
-.pb-unlock[data-bright], .pb-unlock:hover, .pb-unlock:focus-visible { opacity: 1; }
+/* locked: the unlock key is gone from view until the pointer moves, the screen is tapped or it gets keyboard focus */
+.pb-unlock { --key: 60px; position: absolute; z-index: 8; right: 18px; top: calc(50% - 30px); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; --k-surface: #f4ede0; --k-ink: #33261c; }
+.pb-unlock[data-bright], .pb-unlock:focus-visible { opacity: 1; pointer-events: auto; }
 .pb-skin[data-locked] .pb-window { cursor: default; }
 
 /* ---------- frame picker ---------- */
