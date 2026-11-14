@@ -11,6 +11,9 @@ import '../styles/skin.css';
 import './showcase.css';
 import Showcase from './Showcase.jsx';
 
+// the showcase is a daylight page; the booth itself opens at night
+document.documentElement.dataset.theme = 'day';
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Showcase />

@@ -251,13 +251,11 @@
 .pb-reel { position: absolute; z-index: 6; pointer-events: none; }
 .pb-reel[data-orient='v'] { right: calc(100% + 18px); top: 16px; width: var(--w); }
 .pb-reel[data-orient='h'] { bottom: calc(100% + 14px); left: 16px; height: var(--h); }
-.pb-reel[data-mode='drag'][data-orient='v'] { -webkit-mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent); }
-.pb-reel[data-mode='drag'][data-orient='h'] { -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
-.pb-clip { position: absolute; width: var(--w); height: var(--h); border-radius: 9px; background: #0c0a08; box-shadow: 0 10px 26px rgb(0 0 0 / 0.5); overflow: hidden; }
+.pb-clip { position: absolute; width: var(--w); height: var(--h); border-radius: 9px; background: #0c0a08; overflow: hidden; transition: top 0.12s linear, left 0.12s linear; }
 .pb-reel[data-orient='v'] .pb-clip { left: 0; }
 .pb-reel[data-orient='h'] .pb-clip { top: 0; }
-.pb-clip[data-active] { z-index: 1; overflow: visible; box-shadow: 0 0 0 3px var(--ring), 0 14px 34px rgb(0 0 0 / 0.6); }
-.pb-reel[data-mode='hover'] .pb-clip:not([data-active]) { scale: 0.9; }
+.pb-clip[data-active] { z-index: 1; overflow: visible; box-shadow: 0 0 0 3px var(--ring); }
+.pb-clip:not([data-active]) { scale: 0.88; opacity: 0.45; }
 .pb-clip-img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
 .pb-clip-img--wait { background: linear-gradient(110deg, #17120e 30%, #2a2119 50%, #17120e 70%) 0 0 / 300% 100%; animation: pb-wait 1.2s linear infinite; }
 @keyframes pb-wait { to { background-position: -300% 0; } }
@@ -392,6 +390,7 @@
 /* ---------- preferences ---------- */
 
 /* calm, asked for in the page itself (the showcase's switch) as well as by the system */
+.pb-skin[data-calm] .pb-clip { transition: none; }
 .pb-skin[data-calm] :is(.pb-btn, .pb-dock, .pb-rail, .pb-title, .pb-unlock, .pb-scrub-thumb, .pb-toggle::after, .pb-frame) { transition-duration: 0.01ms !important; transition-delay: 0s !important; }
 .pb-skin[data-calm] :is(.pb-pop, .pb-clip-img--wait) { animation: none; }
 .pb-skin[data-calm] .pb-flash[data-on] { animation: pb-flash-calm 0.4s step-end; }

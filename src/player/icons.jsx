@@ -127,3 +127,17 @@ export const Shuffle = () => (
     ))}
   </svg>
 );
+
+export const Keyboard = () => (
+  <svg {...base}>
+    <g {...line}>
+      <rect x="2.8" y="6" width="18.4" height="12" rx="2" />
+      <path d="M6.5 9.6h.01M10 9.6h.01M13.5 9.6h.01M17 9.6h.01M6.5 12.6h.01M17 12.6h.01M8.5 15h7" strokeWidth="2" />
+    </g>
+  </svg>
+);
+export const Heart = () => (
+  <svg {...base}>
+    <path {...line} d="M12 19.5s-6.8-4.2-8.4-8.3C2.4 8.2 4.4 5 7.6 5c1.8 0 3.2 1 4.4 2.6C13.2 6 14.6 5 16.4 5c3.2 0 5.2 3.2 4 6.2-1.6 4.1-8.4 8.3-8.4 8.3Z" />
+  </svg>
+);

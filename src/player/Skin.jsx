@@ -26,9 +26,10 @@ import * as I from './icons.jsx';
  *
  * Landscape (desktop, tablets, phones on their side, every full screen):
  *   [ booth rail ]   [ framed picture ]   [ progress | keys ]
- * The progress runs top to bottom, like scrolling a feed. Dragging it rolls
- * a strip of clips past the picture; hovering floats three clips with the
- * one under the pointer outlined.
+ * The rail is one key wide, the dock as wide as its columns, and the framed
+ * picture takes everything between. The progress runs top to bottom, like
+ * scrolling a feed; hovering or dragging it floats three clips beside it,
+ * the one you are on outlined.
  *
  * Portrait phones: the same dock lies on its side under the picture.
  *
@@ -42,17 +43,23 @@ const SCRUB_W = 40;
 const SCRUB_GAP = 14;
 const H_DOCK = 196; // portrait dock height
 
-/** How the vertical dock arranges its keys for a given height. */
+/**
+ * How the vertical dock arranges its keys for a given height. One column
+ * of keys beside the progress whenever the height allows it (the slimmest
+ * dock, so the picture keeps the most room); a second column only below
+ * about 470 px, which is a phone on its side; a third only when even that
+ * won't fit. Keys never go under 38 px.
+ */
 function dockSpec(h) {
   if (h >= 600) return { cols: 1, key: 46, play: 58, min: 600 };
+  if (h >= 530) return { cols: 1, key: 42, play: 52, min: 530 };
+  if (h >= 470) return { cols: 1, key: 38, play: 48, min: 470 };
   if (h >= 384) return { cols: 2, key: 44, play: 56, min: 384 };
   if (h >= 320) return { cols: 2, key: 40, play: 50, min: 320 };
   return { cols: 3, key: 38, play: 46, min: 214 };
 }
 const keysWidth = (s) => (s.cols === 1 ? Math.max(s.key, s.play) : s.cols === 2 ? s.key * 2 + 8 : s.key * 2 + s.play + 12);
 const dockWidth = (s) => SCRUB_W + SCRUB_GAP + keysWidth(s);
-/** From the dock's left edge to the middle of its keys: the booth rail mirrors this on the other side. */
-const keysCenter = (s) => SCRUB_W + SCRUB_GAP + keysWidth(s) / 2;
 
 /** The frame hugging a picture as large as fits in aw × ah. */
 function fitFrame(border, aspect, aw, ah) {
@@ -109,56 +116,60 @@ function computeLayout({ border, aspect, sw, sh, fs, picker, shown }) {
   }
 
   const titleH = !fs && sh >= 540 ? 40 : 0;
-  // the rail mirrors the dock; on a very narrow player there is only room for one of them
-  const rail = !picker && sw - m * 2 - (gap + dockWidth(dockSpec(sh - m * 2))) * 2 >= 200;
+  // the booth rail needs one key's width; on a very narrow player it steps aside for the picture
+  const rail = !picker && sw - m * 2 - (gap + dockWidth(dockSpec(sh - m * 2))) - (gap + 46) >= 200;
   if (!shown) {
     const f = fs ? fillFrame(border, aspect, sw, sh) : fitFrame(border, aspect, sw - m * 2, sh - m * 2);
     return { portrait, frame: { ...f, x: (sw - f.W) / 2, y: (sh - f.H) / 2 } };
   }
 
-  // the keys stand on their own either side of the frame: dock on the right,
-  // the booth rail mirrored on the left, so the frame sits in the middle
+  /*
+   * Rail | frame | dock, each taking only the room it needs: the rail one key
+   * wide, the dock its progress and key columns, and the framed picture every
+   * pixel in between. When the picture is limited by height, the three are
+   * centred together, so the margins left and right still match.
+   */
   if (fs) {
     const mv = 16;
-    const g = 16;
+    const g = 14;
     const edge = 12;
     const spec = dockSpec(sh - mv * 2);
     const dw = dockWidth(spec);
-    const side = edge + dw + g;
-    const f = fillFrame(border, aspect, sw - side * 2, sh);
-    const dockX = side + f.W + g;
-    const railC = side - g - keysCenter(spec);
+    const left = edge + (rail ? spec.key + g : 0);
+    const right = g + dw + edge;
+    const f = fillFrame(border, aspect, sw - left - right, sh);
     return {
       portrait,
-      frame: { ...f, x: side, y: 0 },
-      dock: { orient: 'v', x: dockX, y: mv, w: dw, h: sh - mv * 2, spec },
-      rail: rail ? { orient: 'v', x: railC - spec.key / 2, y: mv, w: spec.key, h: sh - mv * 2, key: spec.key, top: spec.cols === 1 ? 44 : 26 } : null,
+      frame: { ...f, x: left, y: 0 },
+      dock: { orient: 'v', x: sw - edge - dw, y: mv, w: dw, h: sh - mv * 2, spec },
+      rail: rail ? { orient: 'v', x: edge, y: mv, w: spec.key, h: sh - mv * 2, key: spec.key, top: spec.cols === 1 ? 44 : 26 } : null,
     };
   }
   const top = m + titleH;
   const avH = sh - top - m;
+  // the column count follows the height the dock has, not the picture: as few columns as fit
   let spec = dockSpec(avH);
-  let f;
-  for (let i = 0; i < 4; i++) {
-    const dw = dockWidth(spec);
-    // the rail mirrors the dock, so both sides keep the same room; in the picker only the dock is there
-    const reserve = rail ? (gap + dw) * 2 : gap + dw;
-    f = fitFrame(border, aspect, sw - m * 2 - reserve, avH);
-    const next = dockSpec(f.H);
-    if (next.cols === spec.cols && next.key === spec.key) break;
-    spec = next;
+  const sides = (sp) => (rail ? sp.key + gap : 0) + gap + dockWidth(sp);
+  let f = fitFrame(border, aspect, sw - m * 2 - sides(spec), avH);
+  // a wide picture is shorter than the room: size the keys to the frame (never adding a column) so the dock lines up with it
+  for (let i = 0; i < 3; i++) {
+    const tight = dockSpec(f.H);
+    if (tight.cols !== spec.cols || tight.key >= spec.key) break;
+    spec = tight;
+    f = fitFrame(border, aspect, sw - m * 2 - sides(spec), avH);
   }
   const dw = dockWidth(spec);
   const dh = Math.max(f.H, spec.min);
-  const x0 = rail ? (sw - f.W) / 2 : m + Math.max(0, (sw - m * 2 - f.W - gap - dw) / 2);
+  const groupW = sides(spec) + f.W;
+  const gx = m + Math.max(0, (sw - m * 2 - groupW) / 2);
+  const x0 = gx + (rail ? spec.key + gap : 0);
   const fy = top + (avH - f.H) / 2;
   const dy = fy + (f.H - dh) / 2;
-  const railC = x0 - gap - keysCenter(spec);
   return {
     portrait,
     frame: { ...f, x: x0, y: fy },
     dock: { orient: 'v', x: x0 + f.W + gap, y: dy, w: dw, h: dh, spec },
-    rail: rail ? { orient: 'v', x: railC - spec.key / 2, y: dy, w: spec.key, h: dh, key: spec.key, top: spec.cols === 1 ? 44 : 26 } : null,
+    rail: rail ? { orient: 'v', x: gx, y: dy, w: spec.key, h: dh, key: spec.key, top: spec.cols === 1 ? 44 : 26 } : null,
     title: titleH ? { x: x0, y: m, w: f.W, h: titleH - 8 } : null,
   };
 }
@@ -982,8 +993,6 @@ function Scrubber({ orient, movie, win, aspect, onScrub }) {
       role="slider"
       tabIndex={0}
       aria-label="Seek"
-      data-tip="Drag to scroll through the film"
-      data-key="↑ ↓"
       aria-orientation={v ? 'vertical' : 'horizontal'}
       aria-valuemin={0}
       aria-valuemax={Math.round(duration || 0)}
@@ -1015,23 +1024,21 @@ function Scrubber({ orient, movie, win, aspect, onScrub }) {
 function Reel({ orient, reel, duration, movie, win, aspect }) {
   const v = orient === 'v';
   const { f, len, mode } = reel;
-  const drag = mode === 'drag';
   const gap = 8;
   const N = clamp(Math.round(len / 22), 8, 80);
   const step = duration / N;
   const k0 = Math.min(N - 1, Math.floor(f * N));
-  // size: a third of the picture's width when rolling, a little smaller hovering
-  let w = clamp(win.w * (drag ? 0.3 : 0.24), 104, drag ? 280 : 220);
+  // the same reel whether you hover or drag: three clips, the one you are on outlined and full size
+  let w = clamp(win.w * 0.24, 104, 220);
   let h = w / aspect;
-  if (v && !drag) {
+  if (v) {
     const room = (len - gap * 2) / 3;
     if (h > room) {
       h = Math.max(48, room);
       w = h * aspect;
     }
-  }
-  if (!v) {
-    const room = (len - gap * 2) / (drag ? 3 : 3);
+  } else {
+    const room = (len - gap * 2) / 3;
     if (w > room) {
       w = Math.max(80, room);
       h = w / aspect;
@@ -1041,22 +1048,11 @@ function Reel({ orient, reel, duration, movie, win, aspect }) {
   const pitch = along + gap;
   const pos = f * len;
   const items = [];
-  if (drag) {
-    const anchor = clamp(pos, along / 2 + 2, len - along / 2 - 2);
-    const R = Math.ceil(len / pitch) + 1;
-    for (let k = Math.max(0, k0 - R); k <= Math.min(N - 1, k0 + R); k++) {
-      const d = k + 0.5 - f * N; // in clips; the strip slides continuously
-      const c = anchor + d * pitch;
-      if (c < -along || c > len + along) continue;
-      items.push({ k, c, active: k === k0, fade: Math.min(0.8, Math.abs(k - k0) * 0.22 + 0.12) });
-    }
-  } else {
-    const anchor = clamp(pos, pitch + along / 2, len - pitch - along / 2);
-    for (let d = -1; d <= 1; d++) {
-      const k = k0 + d;
-      if (k < 0 || k >= N) continue;
-      items.push({ k, c: anchor + d * pitch, active: d === 0, fade: 0.55 });
-    }
+  const anchor = clamp(pos, pitch + along / 2, len - pitch - along / 2);
+  for (let d = -1; d <= 1; d++) {
+    const k = k0 + d;
+    if (k < 0 || k >= N) continue;
+    items.push({ k, c: anchor + d * pitch, active: d === 0 });
   }
   const t = f * duration;
   return (
@@ -1066,7 +1062,7 @@ function Reel({ orient, reel, duration, movie, win, aspect }) {
           key={it.k}
           className="pb-clip"
           data-active={it.active || undefined}
-          style={{ [v ? 'top' : 'left']: it.c - along / 2, opacity: it.active ? 1 : 1 - it.fade }}
+          style={{ [v ? 'top' : 'left']: it.c - along / 2 }}
         >
           <Thumb movie={movie} time={(it.k + 0.5) * step} />
           {it.active && <span className="pb-clip-time">{formatTimecode(t)}</span>}

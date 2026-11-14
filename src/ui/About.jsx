@@ -3,6 +3,7 @@ import { useApp } from '../store.js';
 import { BackKey, useModal } from './Dialogs.jsx';
 import { Logo } from './Logo.jsx';
 import { Credit } from './Credit.jsx';
+import { PlayTwice } from './PlayTwice.jsx';
 
 /** Controls, as a game's pause card lists them. Touch screens get touch words. */
 const ROOM_KEYS = [
@@ -70,16 +71,14 @@ export function AboutDialog() {
           <article className="about-card">
             <header className="about-head">
               <Logo size={46} className="about-logo" />
-              <div>
+              <div className="about-names">
                 <h2 id="about-title" className="wordmark about-title">PLAYBOOTH</h2>
                 <p className="about-tag">a photobooth for films</p>
               </div>
+              <PlayTwice className="about-emblem" size={150} />
             </header>
 
             <div className="about-idea">
-              <p className="about-play">
-                <span className="about-x">Play</span> <span className="about-times">×2</span>
-              </p>
               <p className="about-text">
                 <b>Play</b> as in a game: walk into the booth, pick a tape off the shelf and slide it into the player.{' '}
                 <b>Play</b> as in a film: watch it, snap any frame you love and print your snaps as a photostrip.

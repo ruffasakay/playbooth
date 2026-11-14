@@ -34,9 +34,9 @@ Replace `playbooth.vercel.app` with your own Vercel domain.
 
 ## The showcase page (`/player/`)
 
-`player/index.html` → `src/showcase/`. The same `PlayboothSkin`, mounted in a box you size yourself:
+`player/index.html` → `src/showcase/`. One screen, nothing to scroll: options beside the player (on phones, a Customize panel under it), and The idea, The brief, Keyboard and Credits open as cards over the player. The same `PlayboothSkin`, mounted in a box you size yourself:
 
-- **Size**: six shapes (desktop 16:9, laptop 16:10, tablet 4:3, square, phone sideways 19.5:9, phone upright 9:19.5) and a width slider. The skin lays itself out from the box's own size, so this is a real test, not a zoom. Shapes with keys on both sides start at 600–667 px; narrower than the screen scrolls sideways.
+- **Size**: six shapes (desktop 16:9, laptop 16:10, tablet 4:3, square, phone sideways 19.5:9, phone upright 9:19.5) and a width slider. The skin lays itself out from the box's own size, so this is a real test. A shape bigger than the screen (a desktop player on a phone) is laid out at its real size and shown scaled down, and the page says so.
 - **Film**, **Frame** (all 30, ranked) and **Your own frame**: drop or choose a picture, fit or tile it, set the margin. The keys take the picture's average colour for their dock.
 - **Playback**: autoplay (muted), loop, calm motion, key sounds.
 - The left keys in the player become Frames, Next film and Surprise frame (there is no booth to go back to).
@@ -67,13 +67,17 @@ Playback uses Video.js's `MuxVideo` with `preferPlayback: 'mse'` and `crossOrigi
 
 The skin supports the same public CSS properties as the Video.js skins: `--media-accent-color`, `--media-accent-text-color`, `--media-border-radius`, `--media-border-color`, `--media-font-family`.
 
+## Layout in landscape
+
+Rail, frame, dock: the booth rail is one key wide, the dock is its progress plus one column of keys (two below about 470 px of height, three below 320 px, so phones on their side get two), and the framed picture takes everything in between. Keys are sized to line up with the frame. The booth opens at night every visit; the switch changes it for the visit.
+
 ## Checklist against the brief
 
 - **Works**: Video.js v10 player, Mux streams, real playback.
 - **Essential controls**: play/pause, a vertical seek groove with clip previews, current time and duration, mute and volume, full screen (no black bars; landscape on phones). Also ±10 s, captions on/off, a settings menu (speed, subtitle style, picture-in-picture), a lock, Snap, Snaps compiler, album, eject.
 - **Sound**: synthesized key clicks with a felt low thock, a shutter, paper, tape clunk and eject, curtain and light switch sounds. One toggle mutes them all.
 - **Day and night**: the sun/moon toggle in the corner of the screen (from the street to inside the booth), the switch on the booth's back wall, or L turns the whole booth to night: street lamps, shop windows and string lights come on, the room dims to lamp light, and the interface switches to its dark palette. At night the PLAYBOOTH sign lights up like neon, two street lamps and most windows come on, and the room keeps warm lamp light, so everything stays visible. A light night layer over the 3D view keeps the change clear on phones, where the renderer runs lean.
-- **Frames**: 30, all pure graphics with rectangular windows, ranked by design and uniqueness. After No frame, first the frames drawn from the references: Vinyl cream, Star confetti, Comic blocks, Lace, Red film, Lavender swirl, Red knit, Paper hearts, Airmail, Matinee, Denim & lace, Vinyl red, Comic wave, Butter doodle, Pixel lilac, Cocoa bow, Vinyl pink, Newsprint, Black strip; then the booth's own: Velvet curtain, Granny squares, Starry night, Sage checker, Cinema ticket, Postage stamp, Pressed flowers, Red polka, Linen stripe, Booth white. Each one colors its own controls, and all are drawn relative to the picture's width, so they hold up from a phone to a TV. The picker always fills its panel: its column count divides 30, so no row is half empty.
+- **Frames**: 30, all pure graphics with rectangular windows and slim margins (the picture takes 73–81% of a 16:9 frame; every sticker stays in the margin, never on the film), ranked by design and uniqueness. After No frame, first the frames drawn from the references: Vinyl cream, Star confetti, Comic blocks, Lace, Red film, Lavender swirl, Red knit, Paper hearts, Airmail, Matinee, Denim & lace, Vinyl red, Comic wave, Butter doodle, Pixel lilac, Cocoa bow, Vinyl pink, Newsprint, Black strip; then the booth's own: Velvet curtain, Granny squares, Starry night, Sage checker, Cinema ticket, Postage stamp, Pressed flowers, Red polka, Linen stripe, Booth white. Each one colors its own controls, and all are drawn relative to the picture's width, so they hold up from a phone to a TV. The picker always fills its panel: its column count divides 30, so no row is half empty.
 - **Snap flow**: each snap downloads the clean frame immediately and joins the Snaps compiler; print singles in any frame, or 2 to 6 as a framed photostrip.
 - **Responsive**: tested at 1440×900, 1280×760, 1180×820, 820×1180, 412×915, 390×844 and 844×390, plus full screen on each. On tall phones the walk in ends facing the tapes.
 - **Keyboard**: every 3D object has a focusable hotspot (tapes, slot, screen, eject, prints, album). Escape puts a tape back, steps back out of a view, or stands up from the deck. Player shortcuts (working, never printed on screen): Space/K, M, F, C, ←/→, J/L, ↑/↓, 0–9, Home/End, `<`/`>`, and S for a photo. The progress groove takes ↑/↓, Page Up/Down, Home and End when focused.

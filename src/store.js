@@ -303,14 +303,9 @@ function initialSound() {
   }
 }
 
+/** Every visit opens at night, lamps lit; the switch changes it for the visit. */
 function initialTheme() {
-  let t = null;
-  try {
-    t = localStorage.getItem('playbooth.theme');
-  } catch {
-    /* private mode */
-  }
-  if (t !== 'day' && t !== 'night') t = typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'day';
+  const t = 'night';
   if (typeof document !== 'undefined') document.documentElement.dataset.theme = t;
   return t;
 }

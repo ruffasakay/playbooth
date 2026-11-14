@@ -490,7 +490,6 @@ dialog.panel[open] { display: grid; grid-template-rows: auto minmax(0, 1fr) auto
 button.room-brand { border: 0; background: none; padding: 6px 8px 6px 4px; margin: -6px 0 0 -4px; border-radius: 12px; cursor: pointer; font: inherit; }
 button.room-brand:hover { background: rgb(0 0 0 / 0.16); }
 button.room-brand:focus-visible { outline: none; box-shadow: inset 0 0 0 2px currentColor; }
-.room-brand-i { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: #f4ede0; color: #3a2b20; font: italic 600 0.8rem/1 var(--serif); text-shadow: none; }
 
 .credit { display: inline-flex; align-items: center; gap: 0.4em; margin: 0; flex-wrap: wrap; }
 .credit-heart { color: #d4485e; flex: none; animation: beat 1.6s ease-in-out infinite; }
@@ -521,14 +520,11 @@ dialog.about::backdrop { background: transparent; }
   animation: card-in 0.5s cubic-bezier(0.22, 0.9, 0.24, 1) both;
 }
 @keyframes card-in { from { opacity: 0; translate: 0 26px; rotate: 2deg; scale: 0.96; } }
-.about-head { display: flex; align-items: center; gap: 14px; padding-bottom: clamp(10px, 2vh, 16px); border-bottom: 2px dashed rgb(51 38 28 / 0.25); }
+.about-head { position: relative; display: flex; align-items: center; gap: 14px; min-height: clamp(64px, 11vh, 96px); padding-bottom: clamp(10px, 2vh, 16px); border-bottom: 2px dashed rgb(51 38 28 / 0.25); }
 .about-logo { color: #33261c; flex: none; }
 .about-title { margin: 0; font-size: clamp(1.7rem, 4.6vw, 2.6rem); color: #33261c; }
 .about-tag { margin: 4px 0 0; font-family: var(--serif); font-style: italic; font-variation-settings: var(--soft); color: #9e4330; font-size: clamp(0.95rem, 1.8vw, 1.1rem); }
-.about-idea { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(12px, 2.4vw, 22px); align-items: center; }
-.about-play { margin: 0; display: grid; place-items: center; width: clamp(74px, 11vw, 104px); aspect-ratio: 1; border-radius: 50%; background: #9e4330; color: #fff8ef; font-family: var(--serif); line-height: 1; text-align: center; rotate: -8deg; box-shadow: inset 0 0 0 4px #9e4330, inset 0 0 0 6px #fff8ef; }
-.about-x { font-size: clamp(1.05rem, 2vw, 1.35rem); font-weight: 600; display: block; }
-.about-times { font-family: var(--mono); font-size: clamp(0.8rem, 1.5vw, 0.95rem); }
+.about-idea { display: block; }
 .about-text { margin: 0; font-family: var(--serif); font-variation-settings: var(--soft); font-size: clamp(0.92rem, 1.7vw, 1.08rem); line-height: 1.5; }
 .about-text b { color: #9e4330; }
 .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 3vw, 28px); min-height: 0; }
@@ -546,8 +542,7 @@ dialog.about::backdrop { background: transparent; }
 @media (max-width: 640px) {
   .about-card { rotate: 0deg; --perf: 7px; padding: 16px 16px 14px; gap: 10px; }
   .about-idea { grid-template-columns: 1fr; }
-  .about-play { display: none; }
-  .about-grid { grid-template-columns: 1fr; gap: 8px; }
+    .about-grid { grid-template-columns: 1fr; gap: 8px; }
   .about-controls dl { gap: 3px 10px; }
   .about-fine { display: none; }
 }
@@ -556,15 +551,13 @@ dialog.about::backdrop { background: transparent; }
   .about-head { padding-bottom: 8px; }
   .about-logo { width: 32px; height: 32px; }
   .about-title { font-size: 1.5rem; }
-  .about-play { width: 64px; }
-  .about-text { font-size: 0.86rem; line-height: 1.4; }
+    .about-text { font-size: 0.86rem; line-height: 1.4; }
   .about-controls dl { gap: 2px 10px; font-size: 0.74rem; line-height: 1.2; }
   .about-label { margin-bottom: 3px; }
   .about-fine { display: none; }
 }
 @media (max-height: 440px) {
-  .about-tag, .about-play { display: none; }
-  .about-idea { grid-template-columns: 1fr; }
+  .about-tag,   .about-idea { grid-template-columns: 1fr; }
   .about-head { gap: 10px; padding-bottom: 6px; }
   .about-logo { width: 26px; height: 26px; }
   .about-title { font-size: 1.25rem; }
@@ -583,3 +576,14 @@ dialog.about::backdrop { background: transparent; }
   .about-label { margin-bottom: 3px; }
 }
 @media (prefers-reduced-motion: reduce) { .about-card, .credit-heart { animation: none; } }
+
+/* the Play ×2 emblem: a cassette in front of a disc, shared by every About and credits card */
+.play2 { display: block; flex: none; overflow: visible; filter: drop-shadow(0 6px 10px rgb(40 24 14 / 0.22)); }
+.play2-reel { animation: play2-turn 6s linear infinite; }
+@keyframes play2-turn { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .play2-reel { animation: none; } }
+.about-names { min-width: 0; flex: 1; }
+.about-emblem { width: clamp(96px, 17vw, 168px); height: auto; margin: -34px -10px -18px 0; rotate: 4deg; }
+@media (max-width: 640px) { .about-emblem { width: 92px; margin: -26px -6px -10px 0; } }
+@media (max-height: 560px) { .about-emblem { width: 84px; margin: -18px -4px -8px 0; } }
+@media (max-height: 440px) { .about-emblem { width: 70px; margin: -12px 0 -6px 0; } }

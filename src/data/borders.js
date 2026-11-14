@@ -51,7 +51,7 @@ export const BORDERS = [
     id: 'vinyl',
     name: 'Vinyl cream',
     hint: 'Cream card with a black record peeking out and red hearts.',
-    pads: { t: 0.08, r: 0.26, b: 0.08, l: 0.08 },
+    pads: { t: 0.045, r: 0.095, b: 0.045, l: 0.045 },
     radius: 0,
     swatch: ['#f1e8d8', '#16120f'],
     strip: { bg: '#f1e8d8', ink: '#8e1f26' },
@@ -61,7 +61,7 @@ export const BORDERS = [
     id: 'confetti',
     name: 'Star confetti',
     hint: 'White card with bright paper stars stuck all around.',
-    pads: { t: 0.12, r: 0.12, b: 0.12, l: 0.12 },
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
     radius: 0,
     swatch: ['#ffffff', '#e0463c'],
     strip: { bg: '#ffffff', ink: '#33261c' },
@@ -71,7 +71,7 @@ export const BORDERS = [
     id: 'comic',
     name: 'Comic blocks',
     hint: 'Four halftone colour blocks and a bold ink panel, like a comic page.',
-    pads: { t: 0.09, r: 0.09, b: 0.11, l: 0.09 },
+    pads: { t: 0.05, r: 0.05, b: 0.055, l: 0.05 },
     radius: 0,
     swatch: ['#7fa6d6', '#a8c48f'],
     strip: { bg: '#f4ecdc', ink: '#5a3f2c' },
@@ -81,7 +81,7 @@ export const BORDERS = [
     id: 'lace',
     name: 'Lace',
     hint: 'A cotton lace doily laid on a dark wooden table.',
-    pads: { t: 0.085, r: 0.085, b: 0.085, l: 0.085 },
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
     radius: 0,
     swatch: ['#4a3125', '#f5ebe7'],
     strip: { bg: C.wood, ink: '#f5ebe7', wood: true },
@@ -91,7 +91,7 @@ export const BORDERS = [
     id: 'reel',
     name: 'Red film',
     hint: 'A strip of red film with sprocket holes down both sides.',
-    pads: { t: 0.07, r: 0.085, b: 0.1, l: 0.085 },
+    pads: { t: 0.045, r: 0.055, b: 0.06, l: 0.055 },
     radius: 0,
     swatch: ['#8a2b2b', '#f5ede1'],
     strip: { bg: '#8a2b2b', ink: '#f5ede1' },
@@ -101,7 +101,7 @@ export const BORDERS = [
     id: 'lavender',
     name: 'Lavender swirl',
     hint: 'Lilac paper with soft scrollwork and a little pixel flower.',
-    pads: { t: 0.08, r: 0.08, b: 0.15, l: 0.08 },
+    pads: { t: 0.05, r: 0.05, b: 0.08, l: 0.05 },
     radius: 0,
     swatch: ['#b9a7cf', '#ffffff'],
     strip: { bg: '#c2b2d8', ink: '#5f4c80' },
@@ -111,7 +111,7 @@ export const BORDERS = [
     id: 'knit',
     name: 'Red knit',
     hint: 'A burgundy knit with a stamp-cut mat, a ribbon bow, a pin and a button.',
-    pads: { t: 0.09, r: 0.08, b: 0.09, l: 0.08 },
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
     radius: 0,
     swatch: ['#86232a', '#fbf7f0'],
     strip: { bg: '#86232a', ink: '#fbf7f0' },
@@ -121,7 +121,7 @@ export const BORDERS = [
     id: 'heart',
     name: 'Paper hearts',
     hint: 'Crinkled pink paper, a white mat and paper hearts cut out all around.',
-    pads: { t: 0.09, r: 0.09, b: 0.09, l: 0.09 },
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
     radius: 0,
     swatch: ['#f2b8c6', '#ffffff'],
     strip: { bg: '#f2b8c6', ink: '#5b7fc4' },
@@ -131,7 +131,7 @@ export const BORDERS = [
     id: 'airmail',
     name: 'Airmail',
     hint: 'Ledger paper, airmail stripes, a postmark and a paperclip.',
-    pads: { t: 0.075, r: 0.07, b: 0.08, l: 0.07 },
+    pads: { t: 0.045, r: 0.045, b: 0.05, l: 0.045 },
     radius: 0,
     swatch: ['#f2e9d6', '#b8433a'],
     strip: { bg: '#f2e9d6', ink: '#2f4a86' },
@@ -141,7 +141,7 @@ export const BORDERS = [
     id: 'matinee',
     name: 'Matinee',
     hint: 'Dark denim with a cream admission ticket above the picture.',
-    pads: { t: 0.16, r: 0.07, b: 0.07, l: 0.07 },
+    pads: { t: 0.09, r: 0.045, b: 0.045, l: 0.045 },
     radius: 0,
     swatch: ['#2f4672', '#f4e9d8'],
     strip: { bg: '#2f4672', ink: '#f4e9d8' },
@@ -151,7 +151,7 @@ export const BORDERS = [
     id: 'denim',
     name: 'Denim & lace',
     hint: 'Blue denim edged in lace, with two gingham star patches.',
-    pads: { t: 0.08, r: 0.07, b: 0.08, l: 0.07 },
+    pads: { t: 0.045, r: 0.045, b: 0.045, l: 0.045 },
     radius: 0,
     swatch: ['#4c6a96', '#f7f1ea'],
     strip: { bg: '#4c6a96', ink: '#f7f1ea' },
@@ -161,7 +161,7 @@ export const BORDERS = [
     id: 'vinylred',
     name: 'Vinyl red',
     hint: 'Deep red card with a clear record and white hearts.',
-    pads: { t: 0.08, r: 0.26, b: 0.08, l: 0.08 },
+    pads: { t: 0.045, r: 0.095, b: 0.045, l: 0.045 },
     radius: 0,
     swatch: ['#8e1f26', '#efe9e1'],
     strip: { bg: '#8e1f26', ink: '#f6ece2' },
@@ -171,7 +171,7 @@ export const BORDERS = [
     id: 'oval',
     name: 'Comic wave',
     hint: 'Leaf-green halftone, a wavy cream mat and a yellow starburst.',
-    pads: { t: 0.09, r: 0.09, b: 0.09, l: 0.09 },
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
     radius: 0,
     swatch: ['#a8c48f', '#f4d35e'],
     strip: { bg: '#a8c48f', ink: '#3f5a3b' },
@@ -181,7 +181,7 @@ export const BORDERS = [
     id: 'butter',
     name: 'Butter doodle',
     hint: 'Butter-yellow paper with blue pen doodles: a cup, a record, hearts.',
-    pads: { t: 0.09, r: 0.09, b: 0.16, l: 0.09 },
+    pads: { t: 0.05, r: 0.05, b: 0.085, l: 0.05 },
     radius: 0,
     swatch: ['#f8f0bf', '#5b7fc4'],
     strip: { bg: '#f8f0bf', ink: '#5b7fc4' },
@@ -191,7 +191,7 @@ export const BORDERS = [
     id: 'pixel',
     name: 'Pixel lilac',
     hint: 'A wide lilac margin with a heart drawn in white dots.',
-    pads: { t: 0.08, r: 0.08, b: 0.08, l: 0.24 },
+    pads: { t: 0.045, r: 0.045, b: 0.045, l: 0.12 },
     radius: 0,
     swatch: ['#a99bc0', '#ffffff'],
     strip: { bg: '#a99bc0', ink: '#ffffff' },
@@ -201,7 +201,7 @@ export const BORDERS = [
     id: 'cocoa',
     name: 'Cocoa bow',
     hint: 'Chocolate polka dots, a pinked cream mat and a little bow. Memories.',
-    pads: { t: 0.07, r: 0.07, b: 0.15, l: 0.07 },
+    pads: { t: 0.045, r: 0.045, b: 0.08, l: 0.045 },
     radius: 0,
     swatch: ['#3a2822', '#efe6d7'],
     strip: { bg: '#3a2822', ink: '#efe6d7' },
@@ -211,7 +211,7 @@ export const BORDERS = [
     id: 'vinylpink',
     name: 'Vinyl pink',
     hint: 'Blush pink with soft hearts, a black record and white doodles.',
-    pads: { t: 0.08, r: 0.26, b: 0.08, l: 0.08 },
+    pads: { t: 0.045, r: 0.095, b: 0.045, l: 0.045 },
     radius: 0,
     swatch: ['#f2cfd3', '#16120f'],
     strip: { bg: '#f2cfd3', ink: '#3a2528' },
@@ -221,7 +221,7 @@ export const BORDERS = [
     id: 'news',
     name: 'Newsprint',
     hint: 'Cream newsprint, a halftone wash, a black band of hearts and stickers.',
-    pads: { t: 0.16, r: 0.07, b: 0.08, l: 0.07 },
+    pads: { t: 0.07, r: 0.045, b: 0.045, l: 0.045 },
     radius: 0,
     swatch: ['#f3ecdc', '#1d1a17'],
     strip: { bg: '#f3ecdc', ink: '#1d1a17' },
@@ -231,7 +231,7 @@ export const BORDERS = [
     id: 'mono',
     name: 'Black strip',
     hint: 'A black and white booth strip with soft rounded corners.',
-    pads: { t: 0.06, r: 0.07, b: 0.06, l: 0.07 },
+    pads: { t: 0.04, r: 0.045, b: 0.04, l: 0.045 },
     radius: 0.018,
     swatch: ['#141210', '#f4f1ea'],
     strip: { bg: '#141210', ink: '#f4f1ea' },
@@ -242,7 +242,7 @@ export const BORDERS = [
     id: 'velvet',
     name: 'Velvet curtain',
     hint: 'Deep red velvet and a gold rope, like the front row of an old cinema.',
-    pads: { t: 0.09, r: 0.09, b: 0.09, l: 0.09 },
+    pads: { t: 0.055, r: 0.055, b: 0.055, l: 0.055 },
     radius: 0,
     swatch: ['#6e1420', '#d9a646'],
     strip: { bg: '#6e1420', ink: '#e7c27a' },
@@ -252,7 +252,7 @@ export const BORDERS = [
     id: 'crochet',
     name: 'Granny squares',
     hint: 'A blanket of crocheted squares in warm yarn around the picture.',
-    pads: { t: 0.12, r: 0.12, b: 0.12, l: 0.12 },
+    pads: { t: 0.06, r: 0.06, b: 0.06, l: 0.06 },
     radius: 0,
     swatch: ['#c2703f', '#efe4cf'],
     strip: { bg: '#efe4cf', ink: '#7a3f22' },
@@ -262,7 +262,7 @@ export const BORDERS = [
     id: 'starry',
     name: 'Starry night',
     hint: 'A navy sky full of small stars, with a gold moon in the corner.',
-    pads: { t: 0.09, r: 0.09, b: 0.09, l: 0.09 },
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
     radius: 0,
     swatch: ['#1b2442', '#e8c56a'],
     strip: { bg: '#1b2442', ink: '#e8c56a' },
@@ -272,7 +272,7 @@ export const BORDERS = [
     id: 'checker',
     name: 'Sage checker',
     hint: 'Sage and cream tiles, like a café floor, around a soft cream mat.',
-    pads: { t: 0.1, r: 0.1, b: 0.1, l: 0.1 },
+    pads: { t: 0.055, r: 0.055, b: 0.055, l: 0.055 },
     radius: 0.012,
     swatch: ['#9fb08d', '#f4ecdc'],
     strip: { bg: '#f4ecdc', ink: '#4f6b4a' },
@@ -282,7 +282,7 @@ export const BORDERS = [
     id: 'ticket',
     name: 'Cinema ticket',
     hint: 'A cream admission ticket with a punched stub.',
-    pads: { t: 0.055, r: 0.055, b: 0.15, l: 0.055 },
+    pads: { t: 0.04, r: 0.04, b: 0.08, l: 0.04 },
     radius: 0,
     swatch: ['#efe4cf', '#33261c'],
     strip: { bg: '#2e231b', ink: '#efe4cf' },
@@ -292,7 +292,7 @@ export const BORDERS = [
     id: 'stamp',
     name: 'Postage stamp',
     hint: 'Deep red with a perforated edge, like a stamp torn from its sheet.',
-    pads: { t: 0.06, r: 0.06, b: 0.06, l: 0.06 },
+    pads: { t: 0.045, r: 0.045, b: 0.045, l: 0.045 },
     radius: 0,
     swatch: ['#8c2a22', '#f6f1e7'],
     strip: { bg: '#f1ebe0', ink: C.ink },
@@ -302,7 +302,7 @@ export const BORDERS = [
     id: 'pressed',
     name: 'Pressed flowers',
     hint: 'Cream card with little flowers and leaves pressed into the margin.',
-    pads: { t: 0.1, r: 0.1, b: 0.1, l: 0.1 },
+    pads: { t: 0.055, r: 0.055, b: 0.055, l: 0.055 },
     radius: 0,
     swatch: ['#f3ecdf', '#7d9468'],
     strip: { bg: '#f3ecdf', ink: '#4f6b4a' },
@@ -312,7 +312,7 @@ export const BORDERS = [
     id: 'polka',
     name: 'Red polka',
     hint: 'Burgundy with small cream dots and softened corners.',
-    pads: { t: 0.06, r: 0.06, b: 0.06, l: 0.06 },
+    pads: { t: 0.045, r: 0.045, b: 0.045, l: 0.045 },
     radius: 0.03,
     swatch: ['#6b2024', '#efe4cf'],
     strip: { bg: '#f1ebe0', ink: C.ink },
@@ -322,7 +322,7 @@ export const BORDERS = [
     id: 'stripe',
     name: 'Linen stripe',
     hint: 'Pale linen with fine brown pinstripes and a little oval label.',
-    pads: { t: 0.055, r: 0.055, b: 0.055, l: 0.055 },
+    pads: { t: 0.04, r: 0.04, b: 0.04, l: 0.04 },
     radius: 0.022,
     swatch: ['#ece3d3', '#7b5a42'],
     strip: { bg: '#ece3d3', ink: C.ink, stripes: true },
@@ -332,7 +332,7 @@ export const BORDERS = [
     id: 'booth',
     name: 'Booth white',
     hint: 'The plain white edge of a real photobooth print, stamped at the bottom.',
-    pads: { t: 0.04, r: 0.04, b: 0.085, l: 0.04 },
+    pads: { t: 0.03, r: 0.03, b: 0.06, l: 0.03 },
     radius: 0,
     swatch: ['#f6f1e7', '#d8d0c3'],
     strip: { bg: '#f6f1e7', ink: C.ink },
@@ -451,8 +451,10 @@ function laceLayer(L) {
   c.width = W;
   c.height = H;
   const g = c.getContext('2d');
-  const inset = u * 0.012;
-  const scR = u * 0.022; // scallop radius
+  // the lace was drawn for a wide margin; on a slim one every stitch shrinks with it
+  const k = win.w > 0 ? Math.min(1, Math.min(win.x, win.y) / (u * 0.085)) : 1;
+  const inset = u * 0.012 * k;
+  const scR = u * 0.022 * k; // scallop radius
   // solid lace band
   g.fillStyle = C.lace;
   g.fillRect(inset + scR, inset + scR, W - (inset + scR) * 2, H - (inset + scR) * 2);
@@ -491,9 +493,9 @@ function laceLayer(L) {
   eyelets(W - a, a, W - a, H - a);
 
   // net of small holes through the band, leaving a solid rim around the photo
-  const rim = u * 0.01;
-  const holeR = u * 0.0042;
-  const step = u * 0.0145;
+  const rim = u * 0.01 * k;
+  const holeR = u * 0.0042 * k;
+  const step = u * 0.0145 * k;
   const inner = { x: win.x - rim, y: win.y - rim, w: win.w + rim * 2, h: win.h + rim * 2 };
   const bandOuter = a + scR * 0.9;
   for (let y = bandOuter, row = 0; y < H - bandOuter; y += step * 0.87, row++) {
@@ -509,6 +511,7 @@ function laceLayer(L) {
 
   // flowers sewn into the net
   const flower = (cx, cy, r) => {
+    if (r < 1.5) return;
     g.fillStyle = C.lace;
     for (let i = 0; i < 5; i++) {
       const ang = (i / 5) * Math.PI * 2 - Math.PI / 2;
@@ -524,7 +527,7 @@ function laceLayer(L) {
   };
   const mid = (bandOuter + inner.x) / 2;
   const midY = (bandOuter + inner.y) / 2;
-  const fr = Math.min(inner.x - bandOuter, inner.y - bandOuter) * 0.42;
+  const fr = Math.max(0, Math.min(inner.x - bandOuter, inner.y - bandOuter) * 0.42);
   const count = Math.max(3, Math.round(W / (u * 0.17)));
   for (let i = 0; i <= count; i++) {
     const x = bandOuter + ((W - bandOuter * 2) * i) / count;
@@ -954,10 +957,19 @@ function denimBack(ctx, L) {
   ctx.restore();
 }
 
+/** The margin around the picture on each side, for stickers that must stay off the film. */
+function margins(L) {
+  const { win, W, H } = L;
+  return { l: win.x, t: win.y, r: W - win.x - win.w, b: H - win.y - win.h, right: win.x + win.w, bottom: win.y + win.h };
+}
+
 function denimFront(ctx, L) {
   const { u, win } = L;
-  starPatch(ctx, win.x + u * 0.01, win.y + win.h * 0.62, u * 0.06, u, '#ecd77c', '#f6eab0', -1.9);
-  starPatch(ctx, win.x + win.w - u * 0.012, win.y + u * 0.03, u * 0.05, u, '#e9b8c2', '#f6dbe1', -1.2);
+  if (!(win.w > 0)) return;
+  const m = margins(L);
+  // two star patches sewn into the margin corners
+  starPatch(ctx, m.l * 0.5, win.y + win.h * 0.66, m.l * 0.62, u, '#ecd77c', '#f6eab0', -1.9);
+  starPatch(ctx, m.right + m.r * 0.5, m.t * 0.5 + u * 0.004, Math.min(m.r, m.t) * 0.55, u, '#e9b8c2', '#f6dbe1', -1.2);
 }
 
 /* ---------- Red knit ---------- */
@@ -989,9 +1001,13 @@ function knitBack(ctx, L) {
 
 function knitFront(ctx, L) {
   const { u, win } = L;
-  bow(ctx, win.x + win.w - u * 0.01, win.y - u * 0.005, u * 0.11, '#d9d6d1', '#a8a49d');
-  safetyPin(ctx, win.x - u * 0.015, win.y + u * 0.02, u * 0.11, -0.7, u);
-  sewButton(ctx, win.x + u * 0.01, win.y + win.h - u * 0.005, u * 0.035, '#efe8dc');
+  if (!(win.w > 0)) return;
+  const m = margins(L);
+  const P = Math.min(m.t, m.r, m.b, m.l);
+  // a bow tied on the top right corner, a pin through the bottom margin, a button at the left
+  bow(ctx, m.right - P * 0.2, m.t * 0.42, P * 0.78, '#d9d6d1', '#a8a49d');
+  safetyPin(ctx, win.x + win.w * 0.08, m.bottom + m.b * 0.42, Math.min(u * 0.11, win.w * 0.12), 0, Math.min(u, P * 14));
+  sewButton(ctx, m.l * 0.5, m.bottom - win.h * 0.12, m.l * 0.3, '#efe8dc');
 }
 
 /* ---------- Cocoa bow ---------- */
@@ -1037,7 +1053,8 @@ function cocoaFront(ctx, L) {
   ctx.stroke();
   ctx.restore();
   heart(ctx, win.x + win.w / 2, y, hw, '#a5523f');
-  bow(ctx, win.x + u * 0.005, win.y + win.h + below * 0.35, u * 0.08, '#6b4632', '#4a2f22');
+  const bs = Math.min(u * 0.08, below * 0.75);
+  bow(ctx, win.x + bs * 0.8, win.y + win.h + below * 0.5, bs, '#6b4632', '#4a2f22');
 }
 
 function heart(ctx, cx, cy, r, color) {
@@ -1132,32 +1149,40 @@ function airmailBack(ctx, L) {
 
 function airmailFront(ctx, L) {
   const { u, win } = L;
-  // postmark over the top right corner
-  const cx = win.x + win.w - u * 0.06;
-  const cy = win.y + u * 0.05;
+  if (!(win.w > 0)) return;
+  const m = margins(L);
+  const P = Math.min(m.t, m.r);
+  // a postmark in the top margin, its wavy cancel lines running to the left
+  const R = P * 0.42;
+  const cx = m.right - R * 1.2;
+  const cy = m.t * 0.5;
   ctx.save();
   ctx.strokeStyle = 'rgb(60 50 70 / 0.55)';
-  ctx.lineWidth = Math.max(1, u * 0.003);
+  ctx.lineWidth = Math.max(1, R * 0.07);
   ctx.beginPath();
-  ctx.arc(cx, cy, u * 0.045, 0, Math.PI * 2);
+  ctx.arc(cx, cy, R, 0, Math.PI * 2);
   ctx.stroke();
   ctx.beginPath();
-  ctx.arc(cx, cy, u * 0.034, 0, Math.PI * 2);
+  ctx.arc(cx, cy, R * 0.74, 0, Math.PI * 2);
   ctx.stroke();
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 3; i++) {
     ctx.beginPath();
-    for (let x = 0; x <= u * 0.12; x += u * 0.004) ctx.lineTo(cx - u * 0.14 + x, cy - u * 0.02 + i * u * 0.012 + Math.sin(x / (u * 0.012)) * u * 0.003);
+    for (let x = 0; x <= R * 2.8; x += R * 0.1) ctx.lineTo(cx - R * 4.2 + x, cy - R * 0.45 + i * R * 0.45 + Math.sin(x / (R * 0.28)) * R * 0.08);
     ctx.stroke();
   }
-  starPath(ctx, cx, cy, u * 0.016, u * 0.007);
+  starPath(ctx, cx, cy, R * 0.36, R * 0.16);
   ctx.fillStyle = 'rgb(60 50 70 / 0.55)';
   ctx.fill();
   ctx.restore();
-  // paperclip on the left edge
+  // a paperclip lying along the top margin
+  const k = (m.t * 0.7) / 0.03;
   ctx.save();
-  ctx.translate(win.x + u * 0.04, win.y - u * 0.035);
+  ctx.translate(win.x + u * 0.03, m.t * 0.5);
+  ctx.rotate(-Math.PI / 2);
+  ctx.scale(k / u, k / u);
+  ctx.translate(-u * 0.012, -u * 0.045);
   ctx.strokeStyle = '#9d9a94';
-  ctx.lineWidth = Math.max(1, u * 0.004);
+  ctx.lineWidth = Math.max(1, u * 0.004) * (u / k);
   ctx.beginPath();
   ctx.moveTo(0, u * 0.08);
   ctx.lineTo(0, u * 0.012);
@@ -1167,7 +1192,7 @@ function airmailFront(ctx, L) {
   ctx.lineTo(u * 0.008, u * 0.03);
   ctx.stroke();
   ctx.restore();
-  starPath(ctx, win.x + win.w + u * 0.004, win.y + win.h - u * 0.02, u * 0.03, u * 0.014, -1.5);
+  starPath(ctx, m.right + m.r * 0.5, m.bottom + m.b * 0.5, Math.min(m.r, m.b) * 0.42, Math.min(m.r, m.b) * 0.19, -1.5);
   ctx.fillStyle = '#a8342e';
   ctx.fill();
 }
@@ -1828,9 +1853,10 @@ function vinylPainters(id) {
       for (let i = 0; i < ((W * H) / (u * u)) * 7; i++) doodleHeart(ctx, rnd() * W, rnd() * H, u * (0.03 + rnd() * 0.03), P.soft, false, (rnd() - 0.5) * 0.8);
     }
     if (win.w > 0) {
-      const rx = win.x + win.w + (W - win.x - win.w) * 0.42;
-      const R = Math.min((W - win.x - win.w) * 0.62, win.h * 0.44);
-      record(ctx, rx, win.y + win.h * 0.38, R, P.clear);
+      // the record slides out from behind the picture: half of it shows in the margin
+      const side = W - win.x - win.w;
+      const R = Math.min(side * 0.92, win.h * 0.3);
+      record(ctx, W - R - side * 0.06, win.y + win.h * 0.36, R, P.clear);
     }
     printEdge(ctx, win, u, P.clear ? '#f6ece2' : '#ffffff', 0.006);
   };
@@ -1838,21 +1864,10 @@ function vinylPainters(id) {
     const { u, win, W } = L;
     if (!(win.w > 0)) return;
     const right = win.x + win.w;
-    const x = right + (W - right) * 0.62;
-    doodleHeart(ctx, x, win.y + win.h * 0.78, u * 0.026, P.heart, false, -0.2);
-    doodleHeart(ctx, x + u * 0.04, win.y + win.h * 0.88, u * 0.017, P.heart, false, 0.25);
-    // a little barcode sticker on the picture's corner
-    const bx = win.x + u * 0.018;
-    const by = win.y + win.h - u * 0.05;
-    ctx.fillStyle = '#f6ece2';
-    ctx.fillRect(bx - u * 0.006, by - u * 0.006, u * 0.1, u * 0.036);
-    let x0 = bx;
-    for (let i = 0; i < 22; i++) {
-      const bw = u * (i % 3 === 0 ? 0.003 : 0.0015);
-      ctx.fillStyle = '#8e1f26';
-      ctx.fillRect(x0, by, bw, u * 0.024);
-      x0 += bw + u * 0.0016;
-    }
+    const side = W - right;
+    const x = right + side * 0.5;
+    doodleHeart(ctx, x, win.y + win.h * 0.76, side * 0.26, P.heart, false, -0.2);
+    doodleHeart(ctx, x + side * 0.08, win.y + win.h * 0.88, side * 0.17, P.heart, false, 0.25);
   };
   return [back, front];
 }
@@ -1905,10 +1920,11 @@ function butterFront(ctx, L) {
   if (!(win.w > 0)) return;
   const blue = '#5b7fc4';
   const w = Math.max(1.2, u * 0.0045);
-  const by = win.y + win.h + (H - win.y - win.h) * 0.5;
+  const room = H - win.y - win.h;
+  const by = win.y + win.h + room * 0.56;
   // a coffee cup
   const cx = win.x + win.w - u * 0.17;
-  const s = u * 0.035;
+  const s = Math.min(u * 0.035, room * 0.22);
   pen(ctx, [[cx - s, by - s * 0.6], [cx - s * 0.8, by + s * 0.7], [cx + s * 0.6, by + s * 0.7], [cx + s * 0.8, by - s * 0.6], [cx - s, by - s * 0.6]], w, blue, 2);
   pen(ctx, [[cx + s * 0.75, by - s * 0.3], [cx + s * 1.25, by - s * 0.2], [cx + s * 1.2, by + s * 0.3], [cx + s * 0.65, by + s * 0.35]], w, blue, 3);
   pen(ctx, [[cx - s * 0.3, by - s], [cx - s * 0.15, by - s * 1.5], [cx - s * 0.3, by - s * 1.9]], w * 0.8, blue, 4);
@@ -1926,11 +1942,11 @@ function butterFront(ctx, L) {
   ctx.fill();
   ctx.restore();
   // a heart and a scribbled underline on the left
-  doodleHeart(ctx, win.x + u * 0.05, by - s * 0.2, u * 0.022, blue, false, -0.15);
+  doodleHeart(ctx, win.x + u * 0.05, by - s * 0.2, s * 0.62, blue, false, -0.15);
   const pts = [];
-  for (let i = 0; i <= 20; i++) pts.push([win.x + u * 0.1 + i * u * 0.012, by + Math.sin(i * 0.9) * u * 0.008]);
+  for (let i = 0; i <= 20; i++) pts.push([win.x + u * 0.1 + i * u * 0.012, by + Math.sin(i * 0.9) * s * 0.23]);
   pen(ctx, pts, w, blue, 7);
-  doodleHeart(ctx, win.x + win.w - u * 0.035, win.y + u * 0.035, u * 0.02, '#7d9edb', true, 0.2);
+  doodleHeart(ctx, win.x + win.w + (W - win.x - win.w) * 0.5, win.y * 0.5, Math.min(win.y, W - win.x - win.w) * 0.3, '#7d9edb', true, 0.2);
 }
 
 function crinkle(ctx, W, H, u, seed) {
@@ -2207,8 +2223,8 @@ function newsFront(ctx, L) {
   const { u, win, W, H } = L;
   if (!(win.w > 0)) return;
   const pad = Math.min(win.x, H - win.y - win.h);
-  burst(ctx, win.x + u * 0.01, win.y + u * 0.01, Math.min(u * 0.04, pad * 0.7), '#5b7fc4', '#1d1a17');
-  paperHeart(ctx, win.x + win.w + pad * 0.05, win.y + win.h * 0.66, Math.min(u * 0.032, pad * 0.5), '#e9a9c0', 0.12, u);
+  burst(ctx, win.x * 0.5, H - (H - win.y - win.h) * 0.5, pad * 0.42, '#5b7fc4', '#1d1a17');
+  paperHeart(ctx, win.x + win.w + (W - win.x - win.w) * 0.5, win.y + win.h * 0.66, pad * 0.3, '#e9a9c0', 0.12, u);
   marginSpots(L, 9, 37).forEach((p, i) => {
     if (p.y < win.y) return; // keep the masthead clean
     const r = Math.min(p.band * 0.22, u * 0.013);

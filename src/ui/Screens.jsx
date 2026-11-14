@@ -201,7 +201,6 @@ function RoomBrand() {
     <button type="button" className="room-brand" onClick={() => useApp.getState().setAboutOpen(true)} aria-label="About PLAYBOOTH" data-tip="About" data-key="?" data-tip-side="right">
       <Logo size={24} />
       <Wordmark />
-      <span className="room-brand-i" aria-hidden="true">i</span>
     </button>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useApp } from '../store.js';
 import { MOVIES } from '../data/movies.js';
 import { BORDERS, borderById, setCustomBorder } from '../data/borders.js';
@@ -8,26 +8,34 @@ import { Media } from '../player/PlayerLayer.jsx';
 import { Hint } from '../ui/Hint.jsx';
 import { Logo } from '../ui/Logo.jsx';
 import { Credit } from '../ui/Credit.jsx';
+import { PlayTwice } from '../ui/PlayTwice.jsx';
 import { bindSounds } from '../lib/sfx.js';
 import * as I from '../player/icons.jsx';
 
 /*
- * The PLAYBOOTH skin on its own, outside the booth: a sandbox for judges.
- * Left, the options (size, shape, film, frame, your own frame, playback).
- * Right, the player at exactly the size you set. Below, what it is, why
- * the controls stand up, and how it meets each requirement, measured live.
+ * The PLAYBOOTH skin on its own, outside the booth: a sandbox for judges,
+ * in one screen with nothing to scroll. The options sit in a panel beside
+ * the player (under it on phones, opened from the bar at the bottom); the
+ * idea, the brief, the keys and the credits open as cards over it.
  */
 
-// min: the narrowest player of that shape the side-by-side keys are designed for
+// min: the narrowest player of that shape with keys on both sides
 const SHAPES = [
-  { id: 'desktop', label: 'Desktop', ratio: 16 / 9, hint: '16:9', min: 640, start: 1120 },
-  { id: 'laptop', label: 'Laptop', ratio: 16 / 10, hint: '16:10', min: 640, start: 1040 },
-  { id: 'tablet', label: 'Tablet', ratio: 4 / 3, hint: '4:3', min: 600, start: 900 },
-  { id: 'square', label: 'Square', ratio: 1, hint: '1:1', min: 600, start: 720 },
-  { id: 'phone-side', label: 'Phone, sideways', ratio: 19.5 / 9, hint: '19.5:9', min: 667, start: 844 },
-  { id: 'phone-up', label: 'Phone, upright', ratio: 9 / 19.5, hint: '9:19.5', min: 320, start: 390 },
+  { id: 'desktop', label: 'Desktop', ratio: 16 / 9, hint: '16:9', min: 640 },
+  { id: 'laptop', label: 'Laptop', ratio: 16 / 10, hint: '16:10', min: 640 },
+  { id: 'tablet', label: 'Tablet', ratio: 4 / 3, hint: '4:3', min: 600 },
+  { id: 'square', label: 'Square', ratio: 1, hint: '1:1', min: 600 },
+  { id: 'phone-side', label: 'Phone, sideways', ratio: 19.5 / 9, hint: '19.5:9', min: 667 },
+  { id: 'phone-up', label: 'Phone, upright', ratio: 9 / 19.5, hint: '9:19.5', min: 300 },
 ];
 const shapeOf = (id) => SHAPES.find((s) => s.id === id);
+
+const SHEETS = [
+  { id: 'idea', label: 'The idea', short: 'Idea', Icon: I.Tape },
+  { id: 'brief', label: 'The brief', short: 'Brief', Icon: I.Check },
+  { id: 'keys', label: 'Keyboard', short: 'Keys', Icon: I.Keyboard },
+  { id: 'credits', label: 'Credits', short: 'Credits', Icon: I.Heart },
+];
 
 /** The Video.js mark, as published in the videojs/video.js repository (site/public/favicon.svg). */
 function VideoJsMark({ size = 22 }) {
@@ -42,23 +50,39 @@ function VideoJsMark({ size = 22 }) {
   );
 }
 
+const narrowQuery = typeof matchMedia !== 'undefined' ? matchMedia('(max-width: 899px)') : null;
+function useNarrow() {
+  const [narrow, setNarrow] = useState(() => !!narrowQuery?.matches);
+  useEffect(() => {
+    if (!narrowQuery) return undefined;
+    const on = () => setNarrow(narrowQuery.matches);
+    narrowQuery.addEventListener('change', on);
+    return () => narrowQuery.removeEventListener('change', on);
+  }, []);
+  return narrow;
+}
+
 export default function Showcase() {
-  // a phone opens the page upright, the way it is held
-  const [shape, setShape] = useState(() => (typeof innerWidth !== 'undefined' && innerWidth < 640 ? 'phone-up' : 'desktop'));
-  const [width, setWidth] = useState(() => shapeOf(typeof innerWidth !== 'undefined' && innerWidth < 640 ? 'phone-up' : 'desktop').start);
-  const [room, setRoom] = useState(960);
+  const narrow = useNarrow();
+  const [shape, setShape] = useState(() => (narrowQuery?.matches && innerWidth < innerHeight ? 'phone-up' : 'desktop'));
+  const [width, setWidth] = useState(null); // null: as large as the stage allows
+  const [stage, setStage] = useState({ w: 0, h: 0 });
   const [autoplay, setAutoplay] = useState(false);
   const [loop, setLoop] = useState(true);
+  const [sheet, setSheet] = useState(null);
+  const [tools, setTools] = useState(false); // phones: the options panel under the player
+  const [custom, setCustom] = useState(null);
   const stageRef = useRef(null);
-  const userSized = useRef(false);
   const { ratio, min } = shapeOf(shape);
 
   // the booth's store, set up as a player that is already sitting there, film in
   useEffect(() => {
     const rm = matchMedia('(prefers-reduced-motion: reduce)');
     const coarse = matchMedia('(pointer: coarse)');
+    document.documentElement.dataset.theme = 'day';
     useApp.setState({
       host: 'showcase',
+      theme: 'day',
       phase: 'inside',
       station: 'watch',
       webgl: false,
@@ -77,164 +101,238 @@ export default function Showcase() {
     };
   }, []);
 
-  // how much room the stage column has; the player never grows past it
+  // the stage's room, both ways: the player is the largest box of its shape that fits
   useLayoutEffect(() => {
     const el = stageRef.current;
     if (!el) return undefined;
-    const ro = new ResizeObserver(([e]) => {
-      const w = Math.floor(e.contentRect.width);
-      setRoom(w);
-    });
+    const ro = new ResizeObserver(([e]) => setStage({ w: Math.floor(e.contentRect.width), h: Math.floor(e.contentRect.height) }));
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
 
+  const fitW = Math.floor(Math.min(stage.w, stage.h * ratio));
+  const maxW = Math.max(min, fitW);
+  const w = Math.max(min, Math.min(width ?? maxW, maxW));
+  const h = Math.round(w / ratio);
+  // a shape bigger than the screen (a desktop player on a phone) is laid out at its real size and shown smaller
+  const pseudo = useApp((st) => st.pseudoFs);
+  const scale = pseudo || !stage.w ? 1 : Math.min(1, stage.w / w, stage.h / h);
+
   const pickShape = (id) => {
     setShape(id);
-    userSized.current = false;
-    setWidth(shapeOf(id).start);
+    setWidth(null);
   };
-
-  // as wide as asked, the column allows and the shape needs; wider than the column scrolls sideways
-  const w = Math.max(min, Math.min(width, room));
-  const h = Math.round(w / ratio);
-  const wide = w > room + 1;
+  const open = useCallback((id) => {
+    setSheet(id);
+    setTools(false);
+  }, []);
 
   return (
-    <div className="sc">
+    <div className="sc" data-tools={tools || undefined}>
       <a className="skip-link" href="#sc-player">Skip to the player</a>
       <header className="sc-top">
         <div className="sc-brand">
-          <Logo size={34} />
+          <Logo size={30} />
           <span className="wordmark sc-word">PLAYBOOTH</span>
           <span className="sc-x" aria-hidden="true">×</span>
           <span className="sc-vjs">
-            <VideoJsMark />
+            <VideoJsMark size={20} />
             <span>Video.js 10</span>
           </span>
         </div>
-        <p className="sc-lede">
-          A skin for Video.js where the controls stand up beside the picture, inside a photobooth frame. Try it at any
-          size, any shape, any frame. Even your own.
-        </p>
+        <nav className="sc-nav" aria-label="About this skin">
+          {SHEETS.map(({ id, label }) => (
+            <button key={id} type="button" className="sc-navbtn" aria-pressed={sheet === id} onClick={() => open(sheet === id ? null : id)}>
+              {label}
+            </button>
+          ))}
+        </nav>
       </header>
 
       <main className="sc-main">
-        <Options
-          shape={shape}
-          pickShape={pickShape}
-          width={w}
-          room={room}
-          min={min}
-          setWidth={(v) => {
-            userSized.current = true;
-            setWidth(v);
-          }}
-          height={h}
-          autoplay={autoplay}
-          setAutoplay={setAutoplay}
-          loop={loop}
-          setLoop={setLoop}
-        />
-        <section className="sc-stage" ref={stageRef} aria-label="Player">
+        {(!narrow || tools) && (
+          <Options
+            narrow={narrow}
+            shape={shape}
+            pickShape={pickShape}
+            width={w}
+            min={min}
+            max={maxW}
+            setWidth={setWidth}
+            height={h}
+            autoplay={autoplay}
+            setAutoplay={setAutoplay}
+            loop={loop}
+            setLoop={setLoop}
+            custom={custom}
+            setCustom={setCustom}
+            close={() => setTools(false)}
+          />
+        )}
+        <section className="sc-stage" aria-label="Player">
           <div className="sc-size" aria-hidden="true">
-            <span>{w} × {h}</span>
-            <span>{SHAPES.find((s) => s.id === shape).label}</span>
+            <span>
+              {w} × {h} px
+            </span>
+            <span>{shapeOf(shape).label}</span>
           </div>
-          <div className="sc-scroll" data-wide={wide || undefined}>
-            <div id="sc-player" className="pb-host" data-fs-root style={{ width: w, height: h }}>
-              <Player>
-                <PlayboothSkin>
-                  <Media />
-                </PlayboothSkin>
-                <Bridge autoplay={autoplay} loop={loop} />
-              </Player>
+          <div className="sc-room" ref={stageRef}>
+            <div className="sc-fit" style={{ width: w * scale, height: h * scale }}>
+              <div id="sc-player" className="pb-host" data-fs-root style={{ width: w, height: h, transform: scale < 1 ? `scale(${scale})` : undefined }}>
+                <Player>
+                  <PlayboothSkin>
+                    <Media />
+                  </PlayboothSkin>
+                  <Bridge autoplay={autoplay} loop={loop} />
+                </Player>
+              </div>
             </div>
           </div>
-          {wide && <p className="sc-note sc-wide">Wider than this screen: scroll the player sideways, or turn your phone.</p>}
-          <TryRow />
+          {scale < 0.995 && (
+            <p className="sc-over">
+              Shown at {Math.round(scale * 100)}% to fit this screen. The layout is the real {w} × {h} one.
+            </p>
+          )}
         </section>
+        {sheet && <Sheet id={sheet} close={() => setSheet(null)} />}
       </main>
 
-      <Story />
-      <Checks />
-      <Keys />
-
-      <footer className="sc-foot">
-        <Credit className="sc-credit" />
-        <p>
-          Built with <code>@videojs/react</code> 10, films streamed from Mux through Video.js's <code>MuxVideo</code>. Films by the
-          Blender Foundation, CC BY 4.0. Frames drawn in code, no text on any of them.
-        </p>
-      </footer>
+      <nav className="sc-bar" aria-label="Sections">
+        <button type="button" className="sc-barbtn" aria-pressed={tools} onClick={() => (setSheet(null), setTools((t) => !t))}>
+          <I.Frames />
+          <span>Customize</span>
+        </button>
+        {SHEETS.map(({ id, short, Icon }) => (
+          <button key={id} type="button" className="sc-barbtn" aria-pressed={sheet === id} onClick={() => open(sheet === id ? null : id)}>
+            <Icon />
+            <span>{short}</span>
+          </button>
+        ))}
+      </nav>
       <Live />
       <Hint />
     </div>
   );
 }
 
-/* ---------- the options panel ---------- */
+/* ---------- the options: one section open at a time, so it never needs scrolling ---------- */
 
-function Options({ shape, pickShape, width, room, min, setWidth, height, autoplay, setAutoplay, loop, setLoop }) {
+function Options({ narrow, shape, pickShape, width, min, max, setWidth, height, autoplay, setAutoplay, loop, setLoop, custom, setCustom, close }) {
+  const [openId, setOpenId] = useState('frame');
   const film = useApp((s) => s.insertedTapeId);
   const calm = useApp((s) => s.reducedMotion);
   const sound = useApp((s) => s.sound);
-  return (
-    <aside className="sc-panel" aria-label="Options">
-      <Group title="Size">
-        <div className="sc-chips" role="radiogroup" aria-label="Shape">
-          {SHAPES.map((s) => (
-            <button key={s.id} type="button" role="radio" aria-checked={shape === s.id} className="sc-chip" onClick={() => pickShape(s.id)}>
-              <span className="sc-shape" style={{ aspectRatio: s.ratio }} aria-hidden="true" />
-              <span>{s.label}</span>
-              <span className="sc-chip-sub">{s.hint}</span>
+  const borderId = useApp((s) => s.borderId);
+  const movie = MOVIES.find((m) => m.id === film);
+  const sections = [
+    {
+      id: 'size',
+      title: 'Size',
+      value: `${shapeOf(shape).label}, ${width} px`,
+      body: (
+        <>
+          <div className="sc-chips" role="radiogroup" aria-label="Shape">
+            {SHAPES.map((s) => (
+              <button key={s.id} type="button" role="radio" aria-checked={shape === s.id} className="sc-chip" onClick={() => pickShape(s.id)}>
+                <span className="sc-shape" style={{ aspectRatio: s.ratio }} aria-hidden="true" />
+                <span>{s.label}</span>
+                <span className="sc-chip-sub">{s.hint}</span>
+              </button>
+            ))}
+          </div>
+          <label className="sc-range">
+            <span className="sc-range-head">
+              <span>Width</span>
+              <output>
+                {width} × {height}
+              </output>
+            </span>
+            <input type="range" min={min} max={max} step={2} value={width} onChange={(e) => setWidth(+e.target.value)} disabled={max <= min} />
+          </label>
+          <p className="sc-note">The skin lays itself out from the player's own size: a real test, not a zoom.</p>
+        </>
+      ),
+    },
+    {
+      id: 'film',
+      title: 'Film',
+      value: movie?.title,
+      body: (
+        <div className="sc-films" role="radiogroup" aria-label="Film">
+          {MOVIES.map((m) => (
+            <button key={m.id} type="button" role="radio" aria-checked={film === m.id} className="sc-film" onClick={() => useApp.setState({ insertedTapeId: m.id, deck: 'playing' })}>
+              <span>{m.title}</span>
+              <span className="sc-chip-sub">{m.year}</span>
             </button>
           ))}
         </div>
-        <label className="sc-range">
-          <span className="sc-range-head">
-            <span>Width</span>
-            <output>{width} px</output>
-          </span>
-          <input type="range" min={min} max={Math.max(min, room)} step={2} value={Math.min(width, Math.max(min, room))} onChange={(e) => setWidth(+e.target.value)} />
-        </label>
-        <p className="sc-note">
-          Height follows the shape: {height} px. The skin lays itself out from the player's own size, so this is a real test,
-          not a zoom.{shape !== 'phone-up' ? ` This shape starts at ${min} px, the narrowest player with keys on both sides.` : ''}
-        </p>
-      </Group>
-
-      <Group title="Film">
-        <label className="sc-select">
-          <span className="sr-only">Film</span>
-          <select value={film ?? ''} onChange={(e) => useApp.setState({ insertedTapeId: e.target.value, deck: 'playing' })}>
-            {MOVIES.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.title} ({m.year})
-              </option>
-            ))}
-          </select>
-        </label>
-      </Group>
-
-      <FramesGroup />
-
-      <Group title="Playback">
-        <Switch label="Autoplay, muted" checked={autoplay} onChange={setAutoplay} />
-        <Switch label="Loop the film" checked={loop} onChange={setLoop} />
-        <Switch label="Calm motion" checked={calm} onChange={(v) => useApp.setState({ reducedMotion: v })} />
-        <Switch label="Key sounds" checked={sound} onChange={() => useApp.getState().toggleSound()} />
-      </Group>
-    </aside>
-  );
-}
-
-function Group({ title, children }) {
+      ),
+    },
+    {
+      id: 'frame',
+      title: 'Frame',
+      value: borderById(borderId).name,
+      body: <Frames />,
+    },
+    {
+      id: 'own',
+      title: 'Your own frame',
+      value: custom ? 'On' : 'Upload a picture',
+      body: <OwnFrame custom={custom} setCustom={setCustom} />,
+    },
+    {
+      id: 'play',
+      title: 'Playback',
+      value: [autoplay && 'autoplay', loop && 'loop', calm && 'calm'].filter(Boolean).join(', ') || 'default',
+      body: (
+        <>
+          <Switch label="Autoplay, muted" checked={autoplay} onChange={setAutoplay} />
+          <Switch label="Loop the film" checked={loop} onChange={setLoop} />
+          <Switch label="Calm motion" checked={calm} onChange={(v) => useApp.setState({ reducedMotion: v })} />
+          <Switch label="Key sounds" checked={sound} onChange={() => useApp.getState().toggleSound()} />
+        </>
+      ),
+    },
+  ];
   return (
-    <section className="sc-group">
-      <h2 className="sc-group-title">{title}</h2>
-      {children}
-    </section>
+    <aside className="sc-panel" aria-label="Options">
+      {narrow && (
+        <div className="sc-panel-head">
+          <b>Customize</b>
+          <button type="button" className="sc-close" onClick={close} aria-label="Close the options">
+            <I.Chevron />
+          </button>
+        </div>
+      )}
+      {narrow ? (
+        // phones: the sections become tabs, one row, the open one below
+        <>
+          <div className="sc-tabs" role="tablist" aria-label="Options">
+            {sections.map((s) => (
+              <button key={s.id} type="button" role="tab" aria-selected={openId === s.id} className="sc-tab" onClick={() => setOpenId(s.id)}>
+                {s.title === 'Your own frame' ? 'Yours' : s.title}
+              </button>
+            ))}
+          </div>
+          <div className="sc-tabpanel" role="tabpanel">
+            {sections.find((s) => s.id === openId).body}
+          </div>
+        </>
+      ) : (
+        sections.map((s) => (
+          <section key={s.id} className="sc-acc" data-open={openId === s.id || undefined}>
+            <h2 className="sc-acc-h">
+              <button type="button" aria-expanded={openId === s.id} onClick={() => setOpenId(s.id)}>
+                <span className="sc-acc-title">{s.title}</span>
+                <span className="sc-acc-value">{s.value}</span>
+                <I.Chevron />
+              </button>
+            </h2>
+            {openId === s.id && <div className="sc-acc-body">{s.body}</div>}
+          </section>
+        ))
+      )}
+    </aside>
   );
 }
 
@@ -248,22 +346,37 @@ function Switch({ label, checked, onChange }) {
   );
 }
 
-/** Every frame, ranked, plus a slot for your own picture. */
-function FramesGroup() {
+/** Every frame, ranked best first. */
+function Frames() {
   const borderId = useApp((s) => s.borderId);
-  const [custom, setCustom] = useState(null); // { image, url, tone }
-  const [mode, setMode] = useState('fit');
-  const [pad, setPad] = useState(0.1);
+  const current = borderById(borderId);
+  return (
+    <>
+      <div className="sc-frames" role="radiogroup" aria-label="Frames">
+        {BORDERS.map((b, i) => (
+          <button key={b.id} type="button" role="radio" aria-checked={borderId === b.id} aria-label={`${i}. ${b.name}`} data-tip={b.name} className="sc-frame" onClick={() => useApp.setState({ borderId: b.id })}>
+            <FrameThumb border={b} />
+          </button>
+        ))}
+      </div>
+      <p className="sc-current" aria-live="polite">
+        <b>{current.name}</b> <span>{current.hint}</span>
+      </p>
+    </>
+  );
+}
+
+function OwnFrame({ custom, setCustom }) {
+  const borderId = useApp((s) => s.borderId);
   const [drag, setDrag] = useState(false);
   const input = useRef(null);
-  const current = borderById(borderId);
 
   // rebuild "your frame" whenever its picture, fit or margin changes
   useEffect(() => {
     if (!custom) return;
-    setCustomBorder({ image: custom.image, mode, pad, tone: custom.tone });
+    setCustomBorder({ image: custom.image, mode: custom.mode, pad: custom.pad, tone: custom.tone });
     useApp.setState((s) => ({ borderId: 'custom', borderRev: s.borderRev + 1 }));
-  }, [custom, mode, pad]);
+  }, [custom]);
 
   const load = async (file) => {
     if (!file || !file.type.startsWith('image/')) return;
@@ -276,35 +389,13 @@ function FramesGroup() {
       useApp.getState().announce('That picture could not be opened.');
       return;
     }
-    setCustom({ image, url, tone: averageTone(image) });
+    setCustom({ image, url, tone: averageTone(image), mode: custom?.mode ?? 'fit', pad: custom?.pad ?? 0.1 });
     useApp.getState().announce('Your frame is on.');
   };
+  const set = (patch) => setCustom((c) => ({ ...c, ...patch }));
 
   return (
-    <Group title="Frame">
-      <p className="sc-current" aria-live="polite">
-        <b>{current.name}</b>
-        <span>{current.hint}</span>
-      </p>
-      <div className="sc-frames" role="radiogroup" aria-label="Frames">
-        {BORDERS.map((b, i) => (
-          <button
-            key={b.id}
-            type="button"
-            role="radio"
-            aria-checked={borderId === b.id}
-            aria-label={b.name}
-            data-tip={b.name}
-            className="sc-frame"
-            onClick={() => useApp.setState({ borderId: b.id })}
-          >
-            <FrameThumb border={b} />
-            {i > 0 && <span className="sc-rank" aria-hidden="true">{i}</span>}
-          </button>
-        ))}
-      </div>
-      <p className="sc-note">Ranked best first: frames drawn from your references, then the booth's own.</p>
-
+    <>
       <div
         className="sc-drop"
         data-drag={drag || undefined}
@@ -320,9 +411,8 @@ function FramesGroup() {
         }}
       >
         {custom ? (
-          <button type="button" className="sc-own" aria-pressed={borderId === 'custom'} onClick={() => useApp.setState({ borderId: 'custom' })}>
-            <img src={custom.url} alt="" />
-            <span>Your frame</span>
+          <button type="button" className="sc-own" aria-pressed={borderId === 'custom'} onClick={() => useApp.setState({ borderId: 'custom' })} data-tip="Use your frame">
+            <img src={custom.url} alt="Your picture" />
           </button>
         ) : (
           <span className="sc-drop-icon" aria-hidden="true">
@@ -330,8 +420,8 @@ function FramesGroup() {
           </span>
         )}
         <div className="sc-drop-copy">
-          <b>Use your own frame</b>
-          <span>Drop a picture here, or</span>
+          <b>Any picture becomes a frame</b>
+          <span>Drop it here, or</span>
           <button type="button" className="btn sc-upload" onClick={() => input.current?.click()}>
             {custom ? 'Choose another' : 'Choose a picture'}
           </button>
@@ -339,13 +429,13 @@ function FramesGroup() {
         </div>
       </div>
       {custom && (
-        <div className="sc-own-opts">
+        <>
           <div className="sc-seg" role="radiogroup" aria-label="How the picture fills the frame">
             {[
               ['fit', 'Fit', 'Stretched once around the film'],
               ['tile', 'Tile', 'Repeated, so it fits any shape'],
             ].map(([id, label, tip]) => (
-              <button key={id} type="button" role="radio" aria-checked={mode === id} data-tip={tip} onClick={() => setMode(id)}>
+              <button key={id} type="button" role="radio" aria-checked={custom.mode === id} data-tip={tip} onClick={() => set({ mode: id })}>
                 {label}
               </button>
             ))}
@@ -353,13 +443,14 @@ function FramesGroup() {
           <label className="sc-range">
             <span className="sc-range-head">
               <span>Margin</span>
-              <output>{Math.round(pad * 100)}%</output>
+              <output>{Math.round(custom.pad * 100)}%</output>
             </span>
-            <input type="range" min={0.04} max={0.22} step={0.01} value={pad} onChange={(e) => setPad(+e.target.value)} />
+            <input type="range" min={0.04} max={0.22} step={0.01} value={custom.pad} onChange={(e) => set({ pad: +e.target.value })} />
           </label>
-        </div>
+        </>
       )}
-    </Group>
+      {!custom && <p className="sc-note">Fit stretches it once around the film; Tile repeats it, so it suits any shape. The keys take its average colour.</p>}
+    </>
   );
 }
 
@@ -414,33 +505,6 @@ function Bridge({ autoplay, loop }) {
   return null;
 }
 
-function TryRow() {
-  const coarse = useApp((s) => s.coarsePointer);
-  return (
-    <ul className="sc-try" aria-label="Things to try">
-      {coarse ? (
-        <>
-          <li>Drag the progress column: the clip reel follows your thumb</li>
-          <li>Tap the picture to tuck the keys away</li>
-          <li>Full screen turns your phone to landscape</li>
-        </>
-      ) : (
-        <>
-          <li>
-            Rest the mouse on the progress column <span className="sc-dim">for the clip reel</span>
-          </li>
-          <li>
-            <kbd>Tab</kbd> through the keys <span className="sc-dim">for the focus ring</span>
-          </li>
-          <li>
-            <kbd>F</kbd> full screen, <kbd>S</kbd> snap a frame
-          </li>
-        </>
-      )}
-    </ul>
-  );
-}
-
 function Live() {
   const message = useApp((s) => s.message);
   const token = useApp((s) => s.messageToken);
@@ -458,61 +522,126 @@ function Live() {
   );
 }
 
-/* ---------- the story ---------- */
+/* ---------- the cards that open over the player ---------- */
 
-function Story() {
+function Sheet({ id, close }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    ref.current?.querySelector('.sc-sheet-back')?.focus({ preventScroll: true });
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        close();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [id, close]);
+  const title = SHEETS.find((s) => s.id === id).label;
   return (
-    <section className="sc-story" aria-labelledby="sc-story-title">
-      <h2 id="sc-story-title" className="sc-h2">
-        The idea
-      </h2>
-      <div className="sc-cards">
-        <article className="sc-card sc-card--play">
-          <p className="sc-badge">Play ×2</p>
-          <h3>A name that plays twice</h3>
-          <p>
-            PLAYBOOTH is <b>play</b> as in a game: you walk into a little booth, pick a tape off the shelf and slide it into the
-            player. And <b>play</b> as in a film: you watch, snap the frames you love and print them as a photostrip. This page is
-            the second half on its own: the player.
-          </p>
-        </article>
-        <article className="sc-card">
-          <p className="sc-badge">Mobile first</p>
-          <h3>Controls that stand up</h3>
-          <p>
-            Hold a phone sideways and your thumbs rest on its two short edges, not along the bottom. So the keys stand in columns
-            beside the picture: progress and playback under the right thumb, frames and films under the left, nothing on the
-            film itself. Turn the phone upright and the same keys lie down under the picture.
-          </p>
-          <p>
-            On a desktop it is a new way to move through a film: the timeline is a column you run your mouse down, and the
-            picture keeps its full width because the keys live in the margin a wide screen already has.
-          </p>
-        </article>
-        <article className="sc-card">
-          <p className="sc-badge">The reel</p>
-          <h3>A clip carousel you scroll like a feed</h3>
-          <p>
-            Rest on the progress column, or drag it, and a reel of stills slides out beside it: the moment you are on is outlined,
-            the moments before and after stack above and below, so finding a scene feels like scrolling. Let go and the film jumps
-            there. Stills come from Mux's thumbnail service for each film.
-          </p>
-        </article>
-        <article className="sc-card">
-          <p className="sc-badge">Frames</p>
-          <h3>The frame is the theme</h3>
-          <p>
-            Every frame carries its own key colours, so the controls always match what surrounds the film. The keys stay solid
-            and never sit over the picture, so any film, bright or dark, leaves them readable. Upload your own picture and it
-            becomes a frame too, fitted or tiled.
-          </p>
-        </article>
+    <section ref={ref} className="sc-sheet" data-sheet={id} role="dialog" aria-modal="false" aria-labelledby="sc-sheet-title">
+      <header className="sc-sheet-head">
+        <button type="button" className="float-btn sc-sheet-back" onClick={close} data-tip="Back to the player" data-key="Esc">
+          <I.Back />
+          <span>Player</span>
+        </button>
+        <h2 id="sc-sheet-title" className="sc-sheet-title">
+          {title}
+        </h2>
+        <span aria-hidden="true" />
+      </header>
+      <div className="sc-sheet-body">
+        {id === 'idea' && <Idea />}
+        {id === 'brief' && <Brief close={close} />}
+        {id === 'keys' && <Keys />}
+        {id === 'credits' && <Credits />}
       </div>
     </section>
   );
 }
 
-/* ---------- requirements, measured where they can be ---------- */
+const IDEAS = [
+  {
+    badge: 'Play ×2',
+    title: 'A name that plays twice',
+    text: (
+      <>
+        <b>Play</b> as in a game: walk into a little booth, pick a tape off the shelf, slide it into the player. <b>Play</b> as in a
+        film: watch, snap the frames you love, print them as a photostrip. This page is the player on its own.
+      </>
+    ),
+    art: true,
+  },
+  {
+    badge: 'Mobile first',
+    title: 'Controls that stand up',
+    text: (
+      <>
+        Hold a phone sideways and your thumbs rest on its short edges, so the keys stand in columns beside the picture: progress
+        and playback under the right thumb, frames and films under the left, nothing on the film. Upright, they lie down under
+        it. On a desktop the timeline becomes a column you run your mouse down, and the picture keeps its full width.
+      </>
+    ),
+  },
+  {
+    badge: 'The reel',
+    title: 'A clip carousel, like a feed',
+    text: (
+      <>
+        Rest on the progress column or drag it and three stills slide out beside it: the moment you are on outlined and full
+        size, the moments either side smaller and quieter. Let go and the film jumps there. Stills come from Mux's thumbnail
+        service.
+      </>
+    ),
+  },
+  {
+    badge: 'Frames',
+    title: 'The frame is the theme',
+    text: (
+      <>
+        Every frame carries its own key colours, so the controls match what surrounds the film, and the keys stay solid and off
+        the picture, so any film leaves them readable. Upload a picture and it becomes a frame too.
+      </>
+    ),
+  },
+];
+
+function Idea() {
+  const [i, setI] = useState(0);
+  return (
+    <div className="sc-idea">
+      <div className="sc-cards">
+        {IDEAS.map((c, k) => (
+          <article key={c.title} className="sc-card" data-play={c.art || undefined} data-on={k === i || undefined}>
+            {c.art && <PlayTwice className="sc-card-art" size={120} />}
+            <p className="sc-badge">{c.badge}</p>
+            <h3>{c.title}</h3>
+            <p>{c.text}</p>
+          </article>
+        ))}
+      </div>
+      {/* phones: one card at a time */}
+      <div className="sc-pager">
+        <button type="button" className="pb-btn sc-pg" aria-label="Previous" onClick={() => setI((i + IDEAS.length - 1) % IDEAS.length)}>
+          <I.Back />
+        </button>
+        <span className="sc-dots" aria-live="polite">
+          {IDEAS.map((c, k) => (
+            <span key={c.title} data-on={k === i || undefined} />
+          ))}
+          <span className="sr-only">
+            {i + 1} of {IDEAS.length}
+          </span>
+        </span>
+        <button type="button" className="pb-btn sc-pg sc-pg--next" aria-label="Next" onClick={() => setI((i + 1) % IDEAS.length)}>
+          <I.Back />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* requirements, measured where they can be */
 
 function luminance(hex) {
   const m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
@@ -531,7 +660,6 @@ function contrast(a, b) {
   return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
 }
 
-/** Live numbers from the player as it is right now. */
 function useMeasures() {
   const borderId = useApp((s) => s.borderId);
   useApp((s) => s.borderRev);
@@ -553,13 +681,13 @@ function useMeasures() {
   return { ...m, ratio: contrast(ui.surface, ui.ink), playRatio: contrast(ui.playKey?.[0] ?? ui.ink, ui.playKey?.[1] ?? ui.surface) };
 }
 
-function Checks() {
+function Brief({ close }) {
   const { smallest, count, ratio, playRatio } = useMeasures();
   const calm = useApp((s) => s.reducedMotion);
+  const [tab, setTab] = useState('req');
   const focusPlayer = () => {
-    const el = document.querySelector('.pb-host .pb-play');
-    el?.scrollIntoView({ block: 'center', behavior: calm ? 'auto' : 'smooth' });
-    el?.focus({ preventScroll: true });
+    close();
+    requestAnimationFrame(() => document.querySelector('.pb-host .pb-play')?.focus({ preventScroll: true }));
   };
   const fmt = (r) => (r ? `${r.toFixed(1)}:1` : 'n/a');
   const REQ = [
@@ -567,26 +695,26 @@ function Checks() {
       title: 'Works',
       text: (
         <>
-          A real Video.js 10 player: <code>createPlayer</code> with <code>videoFeatures</code> from <code>@videojs/react</code>, the
-          films streamed by <code>MuxVideo</code>. Every playback key talks to the Video.js store: play, seek, volume, captions,
-          speed, picture-in-picture, full screen. Only the frame, film, lock and snap keys are the booth's own.
+          A real Video.js 10 player (<code>createPlayer</code>, <code>videoFeatures</code>, <code>@videojs/react</code>), films streamed
+          by <code>MuxVideo</code>. Playback keys use the Video.js store; frame, film, lock and snap keys are the booth's own.
         </>
       ),
-      live: 'Press play in the player',
+      live: 'Press play',
+      action: focusPlayer,
     },
     {
       title: 'Has essential controls',
-      text: 'Play and pause, a progress column with the time and the clip reel, back and forward 10 seconds, sound and volume, captions, settings (speed, caption style, picture-in-picture), lock, snap and full screen.',
+      text: 'Play, a progress column with time and clip reel, ±10 s, sound and volume, captions, settings (speed, caption style, picture-in-picture), lock, snap, full screen.',
       live: `${count} keys on screen now`,
     },
     {
       title: 'Is responsive',
-      text: 'Laid out from the player’s own size, not the window. Wide: keys stand in one, two or three columns depending on height, the frame’s other side mirrors them. Tall: the keys lie down under the picture. Full screen on a phone asks for landscape, and turns the picture itself where the browser can’t.',
-      live: 'Change the shape and width above',
+      text: 'Laid out from the player’s own size. Wide: one column of keys each side, two only when the height is short, three when very short. Tall: the keys lie under the picture. Phones go landscape in full screen.',
+      live: 'Change the size in Customize',
     },
     {
       title: 'Works with a keyboard',
-      text: 'Every key is a real button in a sensible Tab order, the progress column is a slider (arrows, Page Up and Down, Home and End), and the shortcuts below work whenever the player has focus.',
+      text: 'Real buttons in Tab order, a progress slider (arrows, Page Up/Down, Home/End) and every shortcut in Keyboard.',
       live: 'Focus the play key',
       action: focusPlayer,
     },
@@ -594,52 +722,60 @@ function Checks() {
   const TIPS = [
     {
       title: 'Readable over any video',
-      text: 'The keys never sit on the picture. They stand on the frame or the dark stage around it, as solid paper keys with dark icons. Captions sit in their own layer, with an outline or a box, and a size and colour you choose.',
-      live: `Key contrast in this frame ${fmt(ratio)}, play key ${fmt(playRatio)}`,
+      text: 'Keys never sit on the picture: solid paper keys on the frame or the dark stage. Captions have an outline or box, a size and a colour you choose.',
+      live: `Key contrast here ${fmt(ratio)}, play key ${fmt(playRatio)}`,
     },
     {
       title: 'Easy to tap',
-      text: 'Keys are 38 to 58 px across, larger when there is room, the play key largest of all, with at least 6 px between them.',
+      text: 'Keys are 38 to 58 px, the play key largest, at least 6 px apart.',
       live: smallest ? `Smallest key right now: ${smallest} px` : 'Measuring…',
     },
     {
       title: 'Visible focus',
-      text: 'Keyboard focus draws a double ring inside the key, in its icon colour and its paper colour, so it shows against any frame and is never clipped by its neighbours.',
-      live: 'Press Tab inside the player',
+      text: 'A double ring drawn inside the key, in its icon and paper colours, so it shows on every frame and never gets clipped.',
+      live: 'Tab into the player',
       action: focusPlayer,
     },
     {
       title: 'Calm on request',
-      text: 'With reduced motion asked for, by your system or the switch on this page: the picture stops gliding when the keys step away, menus appear without moving, the snap flash is one soft step, and in the booth the camera holds still.',
+      text: 'Reduced motion (your system, or the switch in Customize): no gliding picture, menus without movement, one soft snap flash, a still camera in the booth.',
       live: calm ? 'Calm motion is on' : 'Calm motion is off',
     },
   ];
   return (
-    <section className="sc-checks" aria-labelledby="sc-checks-title">
-      <h2 id="sc-checks-title" className="sc-h2">
-        How it meets the brief
-      </h2>
-      <div className="sc-check-cols">
-        <CheckList title="Minimum requirements" items={REQ} />
-        <CheckList title="Accessibility" items={TIPS} />
+    <div className="sc-brief" data-tab={tab}>
+      <div className="sc-seg sc-brief-tabs" role="tablist" aria-label="The brief">
+        <button type="button" role="tab" aria-selected={tab === 'req'} onClick={() => setTab('req')}>
+          Requirements
+        </button>
+        <button type="button" role="tab" aria-selected={tab === 'tips'} onClick={() => setTab('tips')}>
+          Accessibility
+        </button>
       </div>
-    </section>
+      <CheckList id="req" title="Minimum requirements" items={REQ} />
+      <CheckList id="tips" title="Accessibility" items={TIPS} />
+    </div>
   );
 }
 
-function CheckList({ title, items }) {
+function CheckList({ id, title, items }) {
+  const [open, setOpen] = useState(0); // phones show one explanation at a time; wide screens show all
   return (
-    <div className="sc-checklist">
+    <div className="sc-checklist" data-list={id}>
       <h3 className="sc-h3">{title}</h3>
       <ol>
-        {items.map((it) => (
-          <li key={it.title} className="sc-check">
+        {items.map((it, i) => (
+          <li key={it.title} className="sc-check" data-open={open === i || undefined}>
             <span className="sc-tick" aria-hidden="true">
               <I.Check />
             </span>
             <div>
-              <h4>{it.title}</h4>
-              <p>{it.text}</p>
+              <h4>
+                <button type="button" className="sc-check-h" aria-expanded={open === i} onClick={() => setOpen(i)}>
+                  {it.title}
+                </button>
+              </h4>
+              <p className="sc-check-text">{it.text}</p>
               {it.action ? (
                 <button type="button" className="sc-live sc-live--btn" onClick={it.action}>
                   {it.live}
@@ -657,8 +793,8 @@ function CheckList({ title, items }) {
 
 const SHORTCUTS = [
   [['Space', 'K'], 'Play or pause'],
-  [['J', 'L'], 'Back or forward 10 seconds'],
-  [['←', '→'], 'Back or forward 5 seconds'],
+  [['J', 'L'], 'Back or forward 10 s'],
+  [['←', '→'], 'Back or forward 5 s'],
   [['↑', '↓'], 'Volume'],
   [['M'], 'Sound on or off'],
   [['C'], 'Captions'],
@@ -666,33 +802,67 @@ const SHORTCUTS = [
   [['0', '9'], 'Jump to 0% … 90%'],
   [['Home', 'End'], 'Start or end'],
   [['I'], 'Picture-in-picture'],
-  [['S'], 'Snap the frame on screen'],
+  [['S'], 'Snap the frame'],
   [['F'], 'Full screen'],
   [['Esc'], 'Leave full screen'],
 ];
 
 function Keys() {
   return (
-    <section className="sc-keys" aria-labelledby="sc-keys-title">
-      <h2 id="sc-keys-title" className="sc-h2">
-        Keyboard
-      </h2>
-      <dl className="sc-keylist">
-        {SHORTCUTS.map(([keys, what]) => (
-          <div key={what}>
-            <dt>
-              {keys.map((k, i) => (
-                <span key={k}>
-                  {i > 0 && <span className="sc-dim"> {k === '9' ? '–' : '/'} </span>}
-                  <kbd>{k}</kbd>
-                </span>
-              ))}
-            </dt>
-            <dd>{what}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
+    <dl className="sc-keylist">
+      {SHORTCUTS.map(([keys, what]) => (
+        <div key={what}>
+          <dt>
+            {keys.map((k, i) => (
+              <span key={k}>
+                {i > 0 && <span className="sc-dim"> {k === '9' ? '–' : '/'} </span>}
+                <kbd>{k}</kbd>
+              </span>
+            ))}
+          </dt>
+          <dd>{what}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 
+/** The same card as the booth's About card: the name, the emblem, who made it. */
+function Credits() {
+  return (
+    <article className="about-card sc-credits">
+      <header className="about-head">
+        <Logo size={46} className="about-logo" />
+        <div className="about-names">
+          <p className="wordmark about-title">PLAYBOOTH</p>
+          <p className="about-tag">a photobooth for films</p>
+        </div>
+        <PlayTwice className="about-emblem" size={150} />
+      </header>
+      <p className="about-text">
+        <b>Play</b> as in a game: walk into the booth, pick a tape and slide it into the player. <b>Play</b> as in a film: watch it,
+        snap any frame you love and print your snaps as a photostrip. The full booth is at the site's front door; this page is its
+        player, built on Video.js 10.
+      </p>
+      <dl className="sc-credit-list">
+        <div>
+          <dt>Player</dt>
+          <dd>
+            <code>@videojs/react</code> 10, films streamed from Mux with <code>MuxVideo</code>
+          </dd>
+        </div>
+        <div>
+          <dt>Films</dt>
+          <dd>Blender Foundation open movies, CC BY</dd>
+        </div>
+        <div>
+          <dt>Frames</dt>
+          <dd>30, drawn in code, no text on any of them</dd>
+        </div>
+      </dl>
+      <footer className="about-foot">
+        <Credit className="about-credit" />
+      </footer>
+    </article>
+  );
+}
