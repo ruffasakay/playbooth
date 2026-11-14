@@ -24,28 +24,46 @@ import { sfx } from '../lib/sfx.js';
 import { usePlayer } from './core.js';
 import * as I from './icons.jsx';
 
-/** Height of the frame's lower edge that holds the controls, in CSS px. */
-const BAND = 100;
+/**
+ * The control band: one slim row of keys in the frame's lower edge. Below
+ * ROW_MIN px the seek bar takes its own line above the keys.
+ * Keep ROW_MIN in step with the @container band query in skin.css.
+ */
+const ROW_MIN = 520;
+const bandHeight = (bw) => (bw >= ROW_MIN ? Math.round(Math.min(68, Math.max(56, bw * 0.068))) : 92);
 
 /**
- * Where everything sits. The frame hugs the film normally; in fullscreen it
- * fills the screen and the film sits letterboxed inside the window.
+ * Where everything sits. The frame hugs the film, with a little room around
+ * it. In fullscreen the frame fills the screen: the picture keeps the film's
+ * shape and the frame's paper widens around it, so there are no black bars.
  */
 function computeGeo(border, aspect, sw, sh, fullscreen) {
-  const { t, r, b, l } = border.pads;
+  const { t, r, l } = border.pads;
+  const { gap, foot } = border.deck ?? { gap: border.pads.b, foot: 0 };
   const Wu = 1 + l + r;
-  if (fullscreen) {
-    let u = sw / Wu;
-    const minWin = sh * 0.45;
-    if (t + b > 0 && sh - BAND - (t + b) * u < minWin) u = Math.max(8, (sh - BAND - minWin) / (t + b));
-    const winH = Math.max(40, sh - BAND - (t + b) * u);
-    return { W: sw, H: sh, u, Hd: sh - BAND, win: { x: l * u, y: t * u, w: sw - (l + r) * u, h: winH, r: (border.radius || 0) * u } };
+  const Hu = t + 1 / aspect + gap + foot; // the frame's height in photo widths, without the controls
+  const bandW = (u) => (l ? u : u * Wu);
+  const aw = fullscreen ? sw : sw - Math.min(32, sw * 0.03);
+  const ah = fullscreen ? sh : sh - Math.min(28, sh * 0.04);
+  const fit = (band) => Math.max(40, Math.min(aw / Wu, (ah - band) / Hu));
+  let band = bandHeight(bandW(aw / Wu));
+  let u = fit(band);
+  for (let i = 0; i < 3; i++) {
+    const next = bandHeight(bandW(u));
+    if (next === band) break;
+    band = Math.max(band, next);
+    u = fit(band);
   }
-  const Hu = 1 / aspect + t + b;
-  const u = Math.max(40, Math.min(sw / Wu, (sh - BAND) / Hu));
-  const W = u * Wu;
-  const Hd = u * Hu;
-  return { W, H: Hd + BAND, u, Hd, win: { x: l * u, y: t * u, w: u, h: u / aspect, r: (border.radius || 0) * u } };
+  band = bandHeight(bandW(u));
+  const rad = (border.radius || 0) * u;
+  const W = fullscreen ? sw : u * Wu;
+  const H = fullscreen ? sh : u * Hu + band;
+  // in fullscreen the frame's paper widens around the picture; everything else keeps its place
+  const ex = Math.max(0, (W - u * Wu) / 2);
+  const ey = Math.max(0, (H - u * Hu - band) / 2);
+  const win = { x: l * u + ex, y: t * u + ey, w: u, h: u / aspect, r: rad };
+  const Hd = win.y + win.h + gap * u;
+  return { W, H, u, Hd, Hb: Hd + band, band, win };
 }
 
 function useSize(ref) {
@@ -83,6 +101,7 @@ export function PlayboothSkin({ children }) {
     '--k-play-bg': k.play[0],
     '--k-play-ink': k.play[1],
     '--k-thumb': k.thumbColor ?? k.accent,
+    '--bar-bg': k.surface,
   };
 
   const onKeyDown = (e) => {
@@ -109,9 +128,6 @@ export function PlayboothSkin({ children }) {
       className="pb-skin"
       data-deck={deck}
       data-frame={borderId}
-      data-edge={k.edge}
-      data-bar={k.bar}
-      data-thumb={k.thumb}
       data-fs={fullscreen || undefined}
       style={theme}
       aria-label={movie ? `PLAYBOOTH player, ${movie.title}` : 'PLAYBOOTH player'}
@@ -145,7 +161,7 @@ export function PlayboothSkin({ children }) {
             <FrameArt border={border} geo={geo} movie={movie} />
             <div
               className="pb-band"
-              style={{ left: border.pads.l ? geo.win.x : 0, width: border.pads.l ? geo.win.w : geo.W, top: geo.Hd, height: BAND }}
+              style={{ left: border.pads.l ? geo.win.x : 0, width: border.pads.l ? geo.win.w : geo.W, top: geo.Hd, height: geo.band, '--band-h': `${geo.band}px` }}
               inert={!playing || undefined}
             >
               <ControlBand movie={movie} />
@@ -181,6 +197,7 @@ function FrameArt({ border, geo, movie }) {
       H: Math.round(geo.H * d),
       u: geo.u * d,
       Hd: geo.Hd * d,
+      Hb: geo.Hb * d,
       win: { x: geo.win.x * d, y: geo.win.y * d, w: geo.win.w * d, h: geo.win.h * d, r: geo.win.r * d },
     };
     el.width = L.W;
@@ -241,7 +258,7 @@ function ChromeBar({ movie }) {
 
 function ControlBand({ movie }) {
   const [busy, setBusy] = useState(false);
-  const [ccOpen, setCcOpen] = useState(false);
+  const [pop, setPop] = useState(null);
   const snap = async () => {
     if (busy) return;
     setBusy(true);
@@ -249,36 +266,27 @@ function ControlBand({ movie }) {
     await snapPhoto();
     setBusy(false);
   };
+  const opener = (id) => (open) => setPop(open ? id : null);
   return (
     <div className="pb-controls">
+      <PlayButton className="pb-btn pb-play" label={(s) => (s.ended ? 'Replay' : s.paused ? 'Play' : 'Pause')} render={(props, s) => <button {...props}>{s.ended ? <I.Replay /> : s.paused ? <I.Play /> : <I.Pause />}</button>} />
       <SeekRow movie={movie} />
-      <div className="pb-row">
-        <div className="pb-pill" role="group" aria-label="Playback">
-          <PlayButton className="pb-play" render={(props, s) => <button {...props}>{s.ended ? <I.Replay /> : s.paused ? <I.Play /> : <I.Pause />}</button>} />
-          <SeekButton seconds={-10} className="pb-btn pb-step" label="Back 10 seconds" render={(props) => <button {...props}><I.Seek back /></button>} />
-          <SeekButton seconds={10} className="pb-btn pb-step" label="Forward 10 seconds" render={(props) => <button {...props}><I.Seek /></button>} />
-          <div className="pb-volume">
-            <MuteButton className="pb-btn" label={(s) => (s.muted ? 'Unmute' : 'Mute')} render={(props, s) => <button {...props}><I.Volume level={s.muted || s.volumeLevel === 'off' ? 'off' : s.volumeLevel === 'low' ? 'low' : 'high'} /></button>} />
-            <VolumeSlider.Root className="pb-vol" label="Volume">
-              <VolumeSlider.Track className="pb-vol-track">
-                <VolumeSlider.Fill className="pb-vol-fill" />
-              </VolumeSlider.Track>
-              <VolumeSlider.Thumb className="pb-vol-thumb" />
-            </VolumeSlider.Root>
-          </div>
+      <div className="pb-keys" role="group" aria-label="Picture and sound">
+        <div className="pb-volume">
+          <MuteButton className="pb-btn" label={(s) => (s.muted ? 'Unmute' : 'Mute')} render={(props, s) => <button {...props}><I.Volume level={s.muted || s.volumeLevel === 'off' ? 'off' : s.volumeLevel === 'low' ? 'low' : 'high'} /></button>} />
+          <VolumeSlider.Root className="pb-vol" label="Volume">
+            <VolumeSlider.Track className="pb-vol-track">
+              <VolumeSlider.Fill className="pb-vol-fill" />
+            </VolumeSlider.Track>
+            <VolumeSlider.Thumb className="pb-vol-thumb" />
+          </VolumeSlider.Root>
         </div>
-        <div className="pb-row-end">
-          <div className="pb-pill" role="group" aria-label="Picture and sound">
-            <CaptionsControl open={ccOpen} setOpen={setCcOpen} />
-            <PlaybackRateButton className="pb-btn pb-rate-btn pb-extra" label={(s) => `Speed ${s.rate} times`} render={(props, s) => <button {...props}><span className="pb-rate">{s.rate}×</span></button>} />
-            <PiPButton className="pb-btn pb-extra" label={(s) => (s.pip ? 'Exit picture in picture' : 'Picture in picture')} render={(props) => <button {...props}><I.Pip /></button>} />
-            <FullscreenButton className="pb-btn" label={(s) => (s.fullscreen ? 'Exit full screen' : 'Full screen')} render={(props, s) => <button {...props}><I.Fullscreen exit={s.fullscreen} /></button>} />
-          </div>
-          <button type="button" className="pb-pill pb-snap" onClick={snap} aria-label="Snap this frame" aria-keyshortcuts="S" data-busy={busy || undefined}>
-            <I.Camera />
-            <span className="pb-snap-text" aria-hidden="true">Snap</span>
-          </button>
-        </div>
+        <CaptionsControl open={pop === 'cc'} setOpen={opener('cc')} />
+        <MoreControl open={pop === 'more'} setOpen={opener('more')} />
+        <button type="button" className="pb-btn pb-snap" onClick={snap} aria-label="Snap this frame" aria-keyshortcuts="S" data-busy={busy || undefined}>
+          <I.Camera />
+        </button>
+        <FullscreenButton className="pb-btn" label={(s) => (s.fullscreen ? 'Exit full screen' : 'Full screen')} render={(props, s) => <button {...props}><I.Fullscreen exit={s.fullscreen} /></button>} />
       </div>
     </div>
   );
@@ -308,6 +316,66 @@ function SeekRow({ movie }) {
       </TimeSlider.Root>
       <Time.Value type="duration" className="pb-time pb-time--total" />
       {peek && <PeekCard movie={movie} peek={peek} width={wrap.current?.clientWidth ?? 0} />}
+    </div>
+  );
+}
+
+/** Closes on an outside press or Escape, and hands focus back to its key. */
+function usePopover(open, setOpenProp, wrap, trigger) {
+  const setter = useRef(setOpenProp);
+  setter.current = setOpenProp;
+  useEffect(() => {
+    if (!open) return undefined;
+    const setOpen = (v) => setter.current(v);
+    const onDown = (e) => {
+      if (!wrap.current?.contains(e.target)) setOpen(false);
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        setOpen(false);
+        wrap.current?.querySelector(trigger)?.focus();
+      }
+    };
+    window.addEventListener('pointerdown', onDown);
+    window.addEventListener('keydown', onKey, true);
+    requestAnimationFrame(() => wrap.current?.querySelector('.pb-pop button, .pb-pop input')?.focus({ preventScroll: true, focusVisible: false }));
+    return () => {
+      window.removeEventListener('pointerdown', onDown);
+      window.removeEventListener('keydown', onKey, true);
+    };
+  }, [open, wrap, trigger]);
+}
+
+/** Speed, skip and picture in picture, tucked behind one key. */
+function MoreControl({ open, setOpen }) {
+  const wrap = useRef(null);
+  usePopover(open, setOpen, wrap, '.pb-more');
+  return (
+    <div className="pb-pop-wrap" ref={wrap}>
+      <button type="button" className="pb-btn pb-more" aria-label="More controls" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(!open)}>
+        <I.More />
+      </button>
+      {open && (
+        <div className="pb-pop pb-pop--more" role="dialog" aria-label="More controls">
+          <div className="pb-pop-row">
+            <span className="pb-pop-label">Skip</span>
+            <div className="pb-pop-keys">
+              <SeekButton seconds={-10} className="pb-key" label="Back 10 seconds" render={(props) => <button {...props}><I.Seek back /></button>} />
+              <SeekButton seconds={10} className="pb-key" label="Forward 10 seconds" render={(props) => <button {...props}><I.Seek /></button>} />
+            </div>
+          </div>
+          <div className="pb-pop-row">
+            <span className="pb-pop-label">Speed</span>
+            <PlaybackRateButton className="pb-key pb-key--wide" label={(s) => `Speed ${s.rate} times`} render={(props, s) => <button {...props}><span className="pb-rate">{s.rate}×</span></button>} />
+          </div>
+          <div className="pb-pop-row pb-pop-row--pip">
+            <span className="pb-pop-label">Picture in picture</span>
+            <PiPButton className="pb-key" label={(s) => (s.pip ? 'Exit picture in picture' : 'Picture in picture')} render={(props) => <button {...props}><I.Pip /></button>} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -437,28 +505,7 @@ function CaptionsControl({ open, setOpen }) {
   const set = useApp((s) => s.setCaptionStyle);
   const wrap = useRef(null);
   const custom = !CAPTION_COLORS.some((c) => c.value === style.color);
-
-  useEffect(() => {
-    if (!open) return undefined;
-    const onDown = (e) => {
-      if (!wrap.current?.contains(e.target)) setOpen(false);
-    };
-    const onKey = (e) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        e.stopPropagation();
-        setOpen(false);
-        wrap.current?.querySelector('.pb-cc')?.focus();
-      }
-    };
-    window.addEventListener('pointerdown', onDown);
-    window.addEventListener('keydown', onKey, true);
-    requestAnimationFrame(() => wrap.current?.querySelector('.pb-pop [role="switch"]')?.focus({ preventScroll: true, focusVisible: false }));
-    return () => {
-      window.removeEventListener('pointerdown', onDown);
-      window.removeEventListener('keydown', onKey, true);
-    };
-  }, [open, setOpen]);
+  usePopover(open, setOpen, wrap, '.pb-cc');
 
   const pick = (patch) => {
     set(patch);
@@ -466,7 +513,7 @@ function CaptionsControl({ open, setOpen }) {
   };
 
   return (
-    <div className="pb-cc-wrap" ref={wrap}>
+    <div className="pb-pop-wrap" ref={wrap}>
       <button
         type="button"
         className="pb-btn pb-cc"

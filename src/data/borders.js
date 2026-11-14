@@ -3,8 +3,10 @@
  * around the playing video, on the booth's television, in captured photos
  * and in photostrips. Sizes are fractions of the photo's width.
  *
- * In the player the frame's bottom edge grows to hold the controls; a layout
- * passes that as L.Hd (the bottom of the decorated border) inside L.H.
+ * In the player the frame's bottom edge grows to hold the controls. `deck`
+ * sets, in photo widths, the gap from the picture to the controls and the
+ * foot below them that keeps the frame's edge clear. A player layout passes
+ * L.Hd (top of the controls) and L.Hb (bottom of the controls) inside L.H.
  * Each frame also carries `ui`, the look its controls inherit.
  */
 
@@ -42,6 +44,7 @@ export const BORDERS = [
     name: 'No frame',
     hint: 'Just the film, with a quiet dark bar for the controls.',
     pads: { t: 0, r: 0, b: 0, l: 0 },
+    deck: { gap: 0, foot: 0 },
     radius: 0,
     swatch: ['#1c140f', '#1c140f'],
     strip: { bg: '#f6f1e7', ink: '#33261c' },
@@ -52,6 +55,7 @@ export const BORDERS = [
     name: 'Booth white',
     hint: 'The plain white edge of a real photobooth print, stamped at the bottom.',
     pads: { t: 0.04, r: 0.04, b: 0.085, l: 0.04 },
+    deck: { gap: 0.07, foot: 0.028 },
     radius: 0,
     swatch: ['#f6f1e7', '#d8d0c3'],
     strip: { bg: '#f6f1e7', ink: C.ink },
@@ -62,6 +66,7 @@ export const BORDERS = [
     name: 'Lace',
     hint: 'A cotton lace doily laid on a dark wooden table.',
     pads: { t: 0.085, r: 0.085, b: 0.085, l: 0.085 },
+    deck: { gap: 0.032, foot: 0.06 },
     radius: 0,
     swatch: ['#4a3125', '#f5ebe7'],
     strip: { bg: C.wood, ink: '#f5ebe7', wood: true },
@@ -72,6 +77,7 @@ export const BORDERS = [
     name: 'Postage stamp',
     hint: 'Deep red with a perforated edge, like a stamp torn from its sheet.',
     pads: { t: 0.06, r: 0.06, b: 0.06, l: 0.06 },
+    deck: { gap: 0.04, foot: 0.038 },
     radius: 0,
     swatch: ['#8c2a22', '#f6f1e7'],
     strip: { bg: '#f1ebe0', ink: C.ink },
@@ -82,6 +88,7 @@ export const BORDERS = [
     name: 'Cinema ticket',
     hint: 'A cream admission ticket with a numbered stub.',
     pads: { t: 0.055, r: 0.055, b: 0.15, l: 0.055 },
+    deck: { gap: 0.06, foot: 0.03 },
     radius: 0,
     swatch: ['#efe4cf', '#33261c'],
     strip: { bg: '#2e231b', ink: '#efe4cf' },
@@ -92,6 +99,7 @@ export const BORDERS = [
     name: 'Denim & lace',
     hint: 'Blue denim edged in lace, with two gingham star patches.',
     pads: { t: 0.08, r: 0.07, b: 0.08, l: 0.07 },
+    deck: { gap: 0.045, foot: 0.048 },
     radius: 0,
     swatch: ['#4c6a96', '#f7f1ea'],
     strip: { bg: '#4c6a96', ink: '#f7f1ea' },
@@ -102,6 +110,7 @@ export const BORDERS = [
     name: 'Red knit',
     hint: 'A burgundy knit with a stamp-cut mat, a ribbon bow, a pin and a button.',
     pads: { t: 0.09, r: 0.08, b: 0.09, l: 0.08 },
+    deck: { gap: 0.055, foot: 0.05 },
     radius: 0,
     swatch: ['#86232a', '#fbf7f0'],
     strip: { bg: '#86232a', ink: '#fbf7f0' },
@@ -112,16 +121,18 @@ export const BORDERS = [
     name: 'Cocoa bow',
     hint: 'Chocolate polka dots, a pinked cream mat and a little bow. Memories.',
     pads: { t: 0.07, r: 0.07, b: 0.15, l: 0.07 },
+    deck: { gap: 0.1, foot: 0.05 },
     radius: 0,
     swatch: ['#3a2822', '#efe6d7'],
     strip: { bg: '#3a2822', ink: '#efe6d7' },
-    ui: ui({ surface: '#f4ecdd', ink: '#3a2822', band: '#efe6d7', accent: '#efe6d7', track: 'rgb(239 230 215 / 0.25)', play: ['#f4ecdd', '#3a2822'], edge: 'zigzag', bar: 'dots', thumb: 'bow', thumbColor: '#c79b7c' }),
+    ui: ui({ surface: '#f8f2e6', ink: '#3a2822', band: '#3a2822', accent: '#6b4632', track: 'rgb(58 40 34 / 0.16)', play: ['#f4ecdd', '#3a2822'], edge: 'zigzag', bar: 'dots', thumb: 'bow', thumbColor: '#c79b7c' }),
   },
   {
     id: 'reel',
     name: 'Red film',
     hint: 'A strip of red film with sprocket holes down both sides.',
     pads: { t: 0.07, r: 0.085, b: 0.1, l: 0.085 },
+    deck: { gap: 0.075, foot: 0.025 },
     radius: 0,
     swatch: ['#8a2b2b', '#f5ede1'],
     strip: { bg: '#8a2b2b', ink: '#f5ede1' },
@@ -132,6 +143,7 @@ export const BORDERS = [
     name: 'Airmail',
     hint: 'Ledger paper, airmail stripes, a postmark and a paperclip.',
     pads: { t: 0.075, r: 0.07, b: 0.08, l: 0.07 },
+    deck: { gap: 0.045, foot: 0.032 },
     radius: 0,
     swatch: ['#f2e9d6', '#b8433a'],
     strip: { bg: '#f2e9d6', ink: '#2f4a86' },
@@ -142,6 +154,7 @@ export const BORDERS = [
     name: 'Matinee',
     hint: 'Dark denim with a cream admission ticket above the picture.',
     pads: { t: 0.16, r: 0.07, b: 0.07, l: 0.07 },
+    deck: { gap: 0.04, foot: 0.03 },
     radius: 0,
     swatch: ['#2f4672', '#f4e9d8'],
     strip: { bg: '#2f4672', ink: '#f4e9d8' },
@@ -152,6 +165,7 @@ export const BORDERS = [
     name: 'Red polka',
     hint: 'Burgundy with small cream dots and softened corners.',
     pads: { t: 0.06, r: 0.06, b: 0.06, l: 0.06 },
+    deck: { gap: 0.04, foot: 0.032 },
     radius: 0.03,
     swatch: ['#6b2024', '#efe4cf'],
     strip: { bg: '#f1ebe0', ink: C.ink },
@@ -162,6 +176,7 @@ export const BORDERS = [
     name: 'Linen stripe',
     hint: 'Pale linen with fine brown pinstripes and a little oval label.',
     pads: { t: 0.055, r: 0.055, b: 0.055, l: 0.055 },
+    deck: { gap: 0.065, foot: 0.028 },
     radius: 0.022,
     swatch: ['#ece3d3', '#7b5a42'],
     strip: { bg: '#ece3d3', ink: C.ink, stripes: true },
@@ -353,7 +368,7 @@ function laceLayer(L) {
   for (let i = 0; i <= count; i++) {
     const x = bandOuter + ((W - bandOuter * 2) * i) / count;
     flower(x, midY, fr);
-    flower(x, Hd - midY, fr);
+    if (Hd - midY - fr > inner.y + inner.h) flower(x, Hd - midY, fr);
   }
   const countY = Math.max(2, Math.round(H / (u * 0.17)));
   for (let i = 1; i < countY; i++) {
@@ -440,7 +455,9 @@ function ticketFront(ctx, L, meta) {
   ctx.fillStyle = 'rgb(51 38 28 / 0.55)';
   for (let x = u * 0.03; x < L.W - u * 0.02; x += u * 0.022) ctx.fillRect(x, stubTop, u * 0.011, Math.max(1, u * 0.003));
   const y = stubTop + ((L.Hd ?? L.H) - stubTop) * 0.5;
+  const printText = L.Hb == null;
   ctx.textBaseline = 'middle';
+  if (printText) {
   ctx.fillStyle = C.ink;
   ctx.textAlign = 'left';
   ctx.font = `${Math.round(u * 0.04)}px ${FONT_MONO}`;
@@ -458,6 +475,7 @@ function ticketFront(ctx, L, meta) {
     ctx.fillStyle = C.ink;
     ctx.fillRect(bx, y - u * 0.03, bw, u * 0.06);
     bx += bw + u * 0.0023;
+  }
   }
   // notched corners
   ctx.save();
@@ -480,7 +498,9 @@ function polkaBack(ctx, L) {
   ctx.fillStyle = C.cream;
   const step = u * 0.034;
   const r = u * 0.0065;
+  const calm = (y) => L.Hb != null && y > L.Hd - step * 0.4 && y < L.Hb + step * 0.4; // a plain strip behind the controls
   for (let y = step / 2, row = 0; y < L.H; y += step, row++) {
+    if (calm(y)) continue;
     for (let x = row % 2 ? step : step / 2; x < L.W; x += step) {
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
@@ -496,6 +516,24 @@ function stripeBack(ctx, L) {
   ctx.fillStyle = 'rgb(123 90 66 / 0.55)';
   const step = u * 0.016;
   for (let x = step / 2; x < L.W; x += step) ctx.fillRect(x, 0, Math.max(1, u * 0.0026), L.H);
+  if (L.Hb != null) {
+    // a plain linen tape behind the controls, stitched along both edges
+    const y0 = L.Hd - u * 0.008;
+    const y1 = L.Hb + u * 0.008;
+    ctx.fillStyle = C.linen;
+    ctx.fillRect(0, y0, L.W, y1 - y0);
+    ctx.save();
+    ctx.setLineDash([u * 0.01, u * 0.007]);
+    ctx.strokeStyle = 'rgb(123 90 66 / 0.55)';
+    ctx.lineWidth = Math.max(1, u * 0.0022);
+    for (const y of [y0 + u * 0.006, y1 - u * 0.006]) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(L.W, y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
   // linen weave
   ctx.fillStyle = 'rgb(51 38 28 / 0.03)';
   for (let y = 0; y < L.H; y += Math.max(2, u * 0.004)) ctx.fillRect(0, y, L.W, 1);
@@ -823,7 +861,8 @@ function cocoaBack(ctx, L) {
   const m = u * 0.03;
   const Hd = L.Hd ?? L.H;
   const below = Math.min(u * 0.075, Hd - (win.y + win.h) - m);
-  pinkedMat(ctx, win.x - m, win.y - m, win.w + m * 2, win.h + m + below, u);
+  const bottom = L.Hb != null ? L.Hb + u * 0.014 : win.y + win.h + below;
+  pinkedMat(ctx, win.x - m, win.y - m, win.w + m * 2, bottom - (win.y - m), u);
 }
 
 function cocoaFront(ctx, L) {
@@ -835,8 +874,10 @@ function cocoaFront(ctx, L) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.font = `600 ${Math.round(u * 0.05)}px ${FONT_HAND}`;
-  ctx.fillText('Memories', win.x + win.w / 2, win.y + win.h + below * 0.55);
-  bow(ctx, win.x + u * 0.005, win.y + win.h + below * 0.35, u * 0.08, '#6b4632', '#4a2f22');
+  const gap = (L.Hd ?? L.H) - (win.y + win.h);
+  const ty = L.Hb != null ? win.y + win.h + gap * 0.5 : win.y + win.h + below * 0.55;
+  ctx.fillText('Memories', win.x + win.w / 2, ty);
+  bow(ctx, win.x + u * 0.005, L.Hb != null ? win.y + win.h + gap * 0.3 : win.y + win.h + below * 0.35, u * 0.08, '#6b4632', '#4a2f22');
 }
 
 /* ---------- Red film ---------- */

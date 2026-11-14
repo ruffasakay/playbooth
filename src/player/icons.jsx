@@ -66,3 +66,7 @@ export const Stack = () => (
 export const TextStyle = () => (
   <svg {...base}><path {...line} d="M4 18 9 6l5 12M5.8 14h6.4" /><path {...line} d="M15.5 12.4c.5-.9 1.4-1.4 2.5-1.4 1.6 0 2.5.9 2.5 2.5V18m0-3.2c-.5-.3-1.3-.5-2.2-.5-1.4 0-2.5.6-2.5 1.8 0 1.1.9 1.9 2.1 1.9 1.2 0 2.1-.6 2.6-1.4" /></svg>
 );
+/** Three dots: speed, skip and picture in picture live behind it. */
+export const More = () => (
+  <svg {...base}><circle cx="5.6" cy="12" r="1.8" fill="currentColor" /><circle cx="12" cy="12" r="1.8" fill="currentColor" /><circle cx="18.4" cy="12" r="1.8" fill="currentColor" /></svg>
+);
