@@ -39,7 +39,21 @@ export function Media() {
     if (el) setVideoEl(el);
   }, [setVideoEl]);
   const source = useMemo(
-    () => (movie?.playbackId ? { playbackId: movie.playbackId, preferPlayback: 'mse' } : null),
+    () =>
+      movie?.playbackId
+        ? {
+            playbackId: movie.playbackId,
+            preferPlayback: 'mse',
+            engine: {
+              hlsJs: {
+                // a brief stutter (a screen recorder, a busy tab) must not lock the film at a low rendition for good
+                capLevelOnFPSDrop: false,
+                // start from a ~4 Mbps guess instead of 0.5 Mbps, so the first seconds are sharp on a normal connection
+                abrEwmaDefaultEstimate: 4_000_000,
+              },
+            },
+          }
+        : null,
     [movie?.playbackId],
   );
   const onLoadedMetadata = (e) => {

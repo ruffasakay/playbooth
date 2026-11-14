@@ -32,6 +32,7 @@ export default function Stage() {
         // a logarithmic depth buffer keeps surfaces a few millimetres apart from flickering, phones included
         gl={{ antialias: true, powerPreference: 'high-performance', logarithmicDepthBuffer: true }}
         onCreated={({ gl }) => {
+          if (import.meta.env.DEV) window.__gl = gl; // lets the tests count frames
           gl.toneMapping = THREE.ACESFilmicToneMapping;
           gl.toneMappingExposure = 0.95 - light.t * 0.08;
           gl.shadowMap.type = THREE.PCFShadowMap;
@@ -57,11 +58,43 @@ export default function Stage() {
         <CameraRig />
         <Hotspots />
         <ReadySignal />
+        <RenderGate />
       </Canvas>
       <div className="stage-grain" />
       <div className="stage-night" />
     </div>
   );
+}
+
+/**
+ * While you sit and watch, the room is hidden behind the (opaque) player, so
+ * drawing it every frame only competes with the video for the GPU, which shows
+ * up as stutter and as hls.js picking lower renditions. This takes over
+ * rendering (a useFrame with priority 1 stops R3F's automatic render) and
+ * skips drawing once the camera has settled on the TV; every animation keeps
+ * ticking, so the room is exactly where it should be the moment you stand up.
+ * One frame is still drawn after a resize, which clears the canvas.
+ */
+const SETTLE = 1.6; // seconds: the lean into the TV plus the player's fade-in
+function RenderGate() {
+  const since = useRef(-1);
+  const drawn = useRef('');
+  useFrame((state) => {
+    const s = useApp.getState();
+    const watching = s.phase === 'inside' && s.station === 'watch';
+    const now = state.clock.elapsedTime;
+    if (!watching) since.current = -1;
+    else if (since.current < 0) since.current = now;
+    const resting = watching && now - since.current > SETTLE;
+    // resizing the canvas clears it, so a changed drawing buffer always gets one fresh frame
+    const el = state.gl.domElement;
+    const buffer = `${el.width}x${el.height}`;
+    if (!resting || buffer !== drawn.current) {
+      state.gl.render(state.scene, state.camera);
+      drawn.current = buffer;
+    }
+  }, 1);
+  return null;
 }
 
 /** Golden hour: one low, warm sun and a cool sky fill. */

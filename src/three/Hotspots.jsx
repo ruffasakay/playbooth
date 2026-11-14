@@ -3,7 +3,7 @@ import { Html } from '@react-three/drei';
 import { MOVIES } from '../data/movies.js';
 import { useApp, movieById } from '../store.js';
 import { SCREEN, SLOT, TAPE, TRAY, cubbyCenters } from './world.js';
-import { restPose, useTrayPhotos } from './Prints.jsx';
+import { useTrayLayout, useTrayPhotos } from './Prints.jsx';
 import { hotspotPortal } from './portal.js';
 import { SWITCH_POS } from './Interior.jsx';
 
@@ -22,6 +22,7 @@ export function Hotspots() {
   const count = useApp((s) => s.collection.length);
   const theme = useApp((s) => s.theme);
   const trayPhotos = useTrayPhotos();
+  const trayPoses = useTrayLayout(trayPhotos);
   const cubbies = useMemo(cubbyCenters, []);
 
   if (phase !== 'inside' || station === 'watch' || inspectId) return null;
@@ -64,7 +65,7 @@ export function Hotspots() {
           .slice()
           .reverse()
           .map((p, i) => {
-            const pose = restPose(p, trayPhotos.length - 1 - i);
+            const pose = trayPoses[trayPhotos.length - 1 - i];
             return (
               <Spot
                 key={p.id}

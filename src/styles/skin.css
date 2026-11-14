@@ -22,8 +22,8 @@
   inset: 0;
   z-index: 30;
   /* sitting down to watch: the room dims around the television like a small cinema */
-  background: radial-gradient(130% 110% at 50% 45%, rgb(20 14 10 / 0.9), rgb(6 4 3 / 0.97));
-  backdrop-filter: blur(16px) saturate(0.7) brightness(0.6);
+  /* nearly opaque, no blur: a live blur over the 3D canvas costs the GPU every frame while the film plays */
+  background: radial-gradient(130% 110% at 50% 45%, rgb(20 14 10 / 0.95), rgb(6 4 3 / 0.985));
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;

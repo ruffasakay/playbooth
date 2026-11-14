@@ -22,14 +22,81 @@ export function printSize(photo) {
   return a >= MAX_W / MAX_H ? [MAX_W, MAX_W / a] : [MAX_H * a, MAX_H];
 }
 
-/** Where a print lies in the tray. Shared with the keyboard hotspots. */
-export function restPose(photo, stackIndex) {
-  const r1 = hash(photo.id);
-  const r2 = hash(`${photo.id}z`);
-  return {
-    position: new THREE.Vector3(TRAY.x + (r1 - 0.5) * 0.12, TRAY.y + 0.01 + stackIndex * 0.004, TRAY.z + (r2 - 0.5) * 0.06),
-    yaw: (r2 - 0.5) * 0.5,
-  };
+/*
+ * How prints settle in the tray, worked out for the whole stack at once.
+ * The tray's inside is 0.476 m wide and 0.296 m deep (front to back), its
+ * floor 8 mm and its rim 40 mm above the tray's base. Prints come out of the
+ * printer behind the tray, image top first towards the printer:
+ * - a print that fits lies flat, turned a little, kept clear of the walls;
+ * - a strip longer than the tray is deep lands with its leading (bottom) end
+ *   on the floor against the front wall and its trailing (top) end resting on
+ *   the back rim, so it leans, the way paper really falls into a short tray;
+ * - once a strip leans, everything printed after it lies on top of it, at the
+ *   same lean, so nothing passes through anything;
+ * - every layer sits 4.5 mm above the one under it (paper is 3 mm), which is
+ *   enough that no two faces ever share a depth and nothing flickers.
+ */
+const T = 0.003; // card thickness
+const LAYER = 0.0045;
+const IN_X = TRAY.w / 2 - 0.012 - 0.006; // half the inside width, with a little air
+const IN_Z = TRAY.d / 2 - 0.012 - 0.004; // half the inside depth
+const FLOOR = TRAY.y + 0.008;
+const RIM = TRAY.y + 0.04;
+const LEAN = Math.atan2(RIM - FLOOR, IN_Z * 2); // about 6 degrees
+
+function layout(photos) {
+  let leaning = false;
+  return photos.map((photo, i) => {
+    const [w, h] = printSize(photo);
+    const W = w + 0.012;
+    const L = h + 0.012;
+    const lift = i * LAYER;
+    const r1 = hash(photo.id);
+    const r2 = hash(`${photo.id}z`);
+    if (!leaning && L > IN_Z * 2) leaning = true;
+    if (leaning) {
+      // on the lean: centred along the slope, the whole card inside the walls (a long one runs over the back rim)
+      const room = Math.max(0, IN_Z * 2 - L);
+      const s = L / 2 + room * (0.25 + r2 * 0.5); // distance along the slope from the front contact
+      const yaw = (r1 - 0.5) * 0.06;
+      const xRoom = Math.max(0, IN_X - W / 2);
+      return {
+        position: new THREE.Vector3(
+          TRAY.x + (r1 - 0.5) * 2 * xRoom * 0.6,
+          FLOOR + lift + T / 2 + Math.sin(LEAN) * s + Math.cos(LEAN) * 0.0005,
+          TRAY.z + IN_Z - Math.cos(LEAN) * s,
+        ),
+        yaw,
+        lean: LEAN,
+      };
+    }
+    // flat: turn it a little, then keep the turned card clear of the walls
+    let yaw = (r2 - 0.5) * 0.3;
+    let ex = Math.abs(W * Math.cos(yaw)) + Math.abs(L * Math.sin(yaw));
+    let ez = Math.abs(W * Math.sin(yaw)) + Math.abs(L * Math.cos(yaw));
+    if (ex > IN_X * 2 || ez > IN_Z * 2) {
+      yaw = 0;
+      ex = W;
+      ez = L;
+    }
+    const ox = Math.max(0, IN_X - ex / 2) * 0.8;
+    const oz = Math.max(0, IN_Z - ez / 2) * 0.8;
+    return {
+      position: new THREE.Vector3(TRAY.x + (r1 - 0.5) * 2 * ox, FLOOR + lift + T / 2 + 0.0005, TRAY.z + (r2 - 0.5) * 2 * oz),
+      yaw,
+      lean: 0,
+    };
+  });
+}
+
+/** Where every print in the tray lies, bottom of the stack first. Shared with the keyboard hotspots. */
+export function useTrayLayout(photos) {
+  return useMemo(() => layout(photos), [photos]);
+}
+
+/** Where one print lies (kept for callers that need a single pose). */
+export function restPose(photo, stackIndex, photos) {
+  return layout(photos ?? [photo])[photos ? stackIndex : 0];
 }
 
 export function useTrayPhotos() {
@@ -91,10 +158,11 @@ export function Prints() {
   });
 
   const batchIndex = useMemo(() => new Map(batch.map((p, i) => [p.id, i])), [batch]);
+  const poses = useTrayLayout(photos);
   return (
     <group>
       {photos.map((photo, i) => (
-        <Print key={photo.id} photo={photo} stackIndex={i} batchIndex={batchIndex.get(photo.id)} runStart={runStart} />
+        <Print key={photo.id} photo={photo} rest={poses[i]} batchIndex={batchIndex.get(photo.id)} runStart={runStart} />
       ))}
     </group>
   );
@@ -102,13 +170,13 @@ export function Prints() {
 
 const tmpPos = new THREE.Vector3();
 
-function Print({ photo, stackIndex, batchIndex, runStart }) {
+function Print({ photo, rest, batchIndex, runStart }) {
   const group = useRef();
   const hover = useRef(false);
   const tex = useMemo(() => textureFor(photo), [photo]);
   const [w, h] = printSize(photo);
-  const rest = useMemo(() => restPose(photo, stackIndex), [photo, stackIndex]);
-  const restQ = useMemo(() => new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, rest.yaw)), [rest]);
+  // lying flat is -90 degrees about x; leaning lifts the far (top) end by the lean angle
+  const restQ = useMemo(() => new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2 + rest.lean, 0, rest.yaw)), [rest]);
   const slotStart = useMemo(() => new THREE.Vector3(PRINTER.x, PRINTER.slotY, PRINTER.front - h / 2 - 0.02), [h]);
   const slotOut = useMemo(() => new THREE.Vector3(PRINTER.x, PRINTER.slotY - 0.01, PRINTER.front + h / 2 - 0.03), [h]);
   const outQ = useMemo(() => new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2 + 0.12, 0, 0)), []);
@@ -131,16 +199,17 @@ function Print({ photo, stackIndex, batchIndex, runStart }) {
         g.quaternion.copy(outQ);
       } else {
         const k = Math.min(1, (local - EMERGE) / FALL);
-        const e = k * k;
+        const e = k * k; // gravity: slow off the slot, fast into the tray
         g.position.lerpVectors(slotOut, rest.position, e);
-        g.position.y += Math.sin(k * Math.PI) * 0.03;
-        g.quaternion.slerpQuaternions(outQ, restQ, e);
+        // it slides forward and drops; a slight lift early so it clears the cards already lying there
+        g.position.y += Math.sin(Math.min(1, k * 1.6) * Math.PI) * 0.02;
+        g.quaternion.slerpQuaternions(outQ, restQ, Math.min(1, e * 1.15));
       }
       return;
     }
     g.visible = true;
     tmpPos.copy(rest.position);
-    if (hover.current) tmpPos.y += 0.025;
+    if (hover.current) tmpPos.y += 0.02;
     const k = 1 - Math.exp(-12 * Math.min(dt, 0.05));
     if (g.position.lengthSq() === 0) g.position.copy(rest.position);
     g.position.lerp(tmpPos, k);
@@ -176,10 +245,10 @@ function Print({ photo, stackIndex, batchIndex, runStart }) {
       }}
     >
       <mesh castShadow receiveShadow>
-        <boxGeometry args={[w + 0.012, h + 0.012, 0.003]} />
+        <boxGeometry args={[w + 0.012, h + 0.012, T]} />
         <meshStandardMaterial color="#f6f1e7" roughness={0.6} />
       </mesh>
-      <mesh position={[0, 0, 0.002]}>
+      <mesh position={[0, 0, T / 2 + 0.0008]}>
         <planeGeometry args={[w, h]} />
         <meshStandardMaterial map={tex} roughness={0.4} />
       </mesh>

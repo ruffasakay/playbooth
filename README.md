@@ -90,6 +90,16 @@ The skin supports the same public CSS properties as the Video.js skins: `--media
 
 Rail, frame, dock: the booth rail is one key wide, the dock is its progress plus one column of keys (two below about 470 px of height, three below 320 px, so phones on their side get two), and the framed picture takes everything in between. Keys are sized to line up with the frame. The booth opens at night every visit; the switch changes it for the visit.
 
+## Playback performance
+
+- While you sit and watch, the 3D room stops drawing about 1.6 s after the camera settles (it sits fully hidden behind the player), so the GPU is left to the video. All the room's animations keep ticking, so it picks up exactly where it was when you stand up; a resize while watching still draws one fresh frame.
+- hls.js runs with `capLevelOnFPSDrop: false`, so a burst of dropped frames (opening full screen, a screen recorder starting) can't lock the film to a low rendition for the rest of the session, and with a 4 Mbps starting bandwidth estimate, so it opens near HD instead of climbing up from the lowest rung. On a slow connection it steps down after the first segments.
+- The player faceplate is a near-opaque gradient instead of a blurred backdrop, which was a full-screen blur recomputed every frame.
+
+## Prints in the tray
+
+Prints land image-top towards the printer. A print that fits lies flat, turned a little, clear of the walls; a strip longer than the tray is deep lands with its bottom end on the floor at the front and its top end resting on the back rim, so it leans. Anything printed after a leaning strip lies on top of it at the same lean. Every layer sits 4.5 mm above the one below (cards are 3 mm), with a logarithmic depth buffer, so nothing passes through anything or flickers.
+
 ## Checklist against the brief
 
 - **Works**: Video.js v10 player, Mux streams, real playback.
