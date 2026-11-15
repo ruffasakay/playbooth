@@ -17,7 +17,7 @@ import {
 } from '@videojs/react';
 import { getMediaSnapshot, subscribeToInputActions } from '@videojs/core/dom';
 import { useApp, movieById } from '../store.js';
-import { BORDERS, CUSTOM, borderById, formatTimecode, frameLayout, paintComposite, paintOverlay } from '../data/borders.js';
+import { BORDERS, CUSTOM, borderById, formatTimecode, frameEvents, frameLayout, paintComposite, paintOverlay, warmFrame } from '../data/borders.js';
 import { MOVIES } from '../data/movies.js';
 import { snapPhoto } from '../lib/printFlow.js';
 import { sfx } from '../lib/sfx.js';
@@ -109,7 +109,7 @@ function computeLayout({ border, aspect, sw, sh, fs, picker, shown, host = 'boot
      * keys in a row of their own, then the title right above the picture it
      * names (the whole width, so it never gets cut short), the picture and
      * the dock. Outside the booth there are no booth keys: the frames, the
-     * films and the scenes gather in one wide key under the dock, where the
+     * films gather in one wide key under the dock, where the
      * thumb already is.
      */
     const head = !fs;
@@ -337,7 +337,7 @@ export function PlayboothSkin({ children }) {
   const canHide = useCallback(() => {
     const s = useApp.getState();
     const el = s.videoEl;
-    return s.deck === 'playing' && el && !el.paused && !overControls.current && !document.querySelector('.pb-pop, .pb-scenes, .pb-scrub[data-dragging]');
+    return s.deck === 'playing' && el && !el.paused && !overControls.current && !document.querySelector('.pb-pop, .pb-scrub[data-dragging]');
   }, []);
 
   const poke = useCallback(() => {
@@ -480,7 +480,17 @@ export function PlayboothSkin({ children }) {
     togglePlay();
     showFeedback({ icon: was ? 'play' : 'pause' });
   };
-  const onPictureClick = () => {
+  // touch: a double tap on the left or right of the picture steps back or forward 10 s, as on any phone player
+  const taps = useRef({ t: 0, side: null, timer: 0 });
+  useEffect(() => () => clearTimeout(taps.current.timer), []);
+  const touchTap = () => {
+    if (idle) poke();
+    else {
+      playFromPicture();
+      poke();
+    }
+  };
+  const onPictureClick = (e) => {
     if (swipeEnded.current) return; // the end of a swipe is not a tap
     if (locked) {
       flashUnlock();
@@ -492,12 +502,27 @@ export function PlayboothSkin({ children }) {
       poke();
       return;
     }
-    if (idle) {
-      poke();
+    const r = e.currentTarget.getBoundingClientRect();
+    const f = (e.clientX - r.left) / r.width;
+    const side = f < 0.4 ? 'back' : f > 0.6 ? 'fwd' : null;
+    const now = performance.now();
+    const tp = taps.current;
+    if (side && tp.side === side && now - tp.t < 320) {
+      clearTimeout(tp.timer);
+      tp.t = now; // keep tapping to keep stepping
+      try {
+        const st = store.state;
+        store.seek(clamp((st.currentTime || 0) + (side === 'back' ? -10 : 10), 0, Math.max(0, (st.duration || 0) - 0.25)));
+      } catch {
+        /* no media yet */
+      }
+      showFeedback({ icon: side, step: 10, side });
+      sfx('tick');
       return;
     }
-    playFromPicture();
-    poke();
+    clearTimeout(tp.timer);
+    taps.current = { t: now, side, timer: side ? setTimeout(touchTap, 270) : 0 };
+    if (!side) touchTap();
   };
 
   /*
@@ -512,7 +537,7 @@ export function PlayboothSkin({ children }) {
   const gaugeTimer = useRef(0);
   const onWindowDown = (e) => {
     pointerKind.current = e.pointerType || 'mouse';
-    if (e.pointerType !== 'touch' || locked || !playing) return;
+    if (e.pointerType !== 'touch' || !playing) return; // works while locked too: sound and light stay in reach
     const r = e.currentTarget.getBoundingClientRect();
     swipe.current = { id: e.pointerId, x: e.clientX, y: e.clientY, h: r.height, side: e.clientX - r.left < r.width / 2 ? 'brightness' : 'volume', on: false };
   };
@@ -565,6 +590,17 @@ export function PlayboothSkin({ children }) {
     if (!sw.fixed) useApp.getState().announce(sw.side === 'volume' ? `Volume ${Math.round((store.state.muted ? 0 : store.state.volume) * 100)}%.` : `Brightness ${Math.round(useApp.getState().brightness * 100)}%.`);
   };
   useEffect(() => () => clearTimeout(gaugeTimer.current), []);
+  // the volume and brightness keys show the same level as the slides
+  useEffect(() => {
+    if (!gaugeBus) return undefined;
+    const on = (e) => {
+      clearTimeout(gaugeTimer.current);
+      setGauge(e.detail);
+      gaugeTimer.current = setTimeout(() => setGauge(null), 900);
+    };
+    gaugeBus.addEventListener('show', on);
+    return () => gaugeBus.removeEventListener('show', on);
+  }, []);
 
   // a moving mouse or a touch on the controls keeps them up; a resting mouse lets them go
   const onStagePointer = (e) => {
@@ -687,10 +723,6 @@ export function PlayboothSkin({ children }) {
               />
             )}
             {shownGeo.menu && <FilmMenu geo={shownGeo.menu} hidden={!shown} hover={controlsHover} pop={pop} setPop={setPop} />}
-            {pop === 'scenes' && movie && <ScenesPanel movie={movie} close={(refocus) => {
-              setPop(null);
-              if (refocus) requestAnimationFrame(() => document.querySelector('.pb-scenes-key, .pb-menu-key')?.focus({ preventScroll: true }));
-            }} />}
             {locked && (
               <button
                 type="button"
@@ -717,7 +749,7 @@ export function PlayboothSkin({ children }) {
 
       {picker && <FramePicker active={station === 'watch'} />}
       <CaptionCss />
-      <PlayboothHotkeys enabled={playing && !locked} onFullscreen={fs.toggle} />
+      <PlayboothHotkeys enabled={playing && !locked} levels={playing} onFullscreen={fs.toggle} />
       <div className="sr-only">
         <StatusAnnouncer />
       </div>
@@ -727,8 +759,21 @@ export function PlayboothSkin({ children }) {
 
 /* ---------- the frame, painted to the exact size of the picture ---------- */
 
+/** A tick that changes whenever a pattern frame's picture finishes loading, so painted frames redraw. */
+function useFrameImages() {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (!frameEvents) return undefined;
+    const on = () => setN((x) => x + 1);
+    frameEvents.addEventListener('load', on);
+    return () => frameEvents.removeEventListener('load', on);
+  }, []);
+  return n;
+}
+
 function FrameArt({ border, frame }) {
   const canvas = useRef(null);
+  const loaded = useFrameImages();
   useLayoutEffect(() => {
     const el = canvas.current;
     if (!el) return;
@@ -742,7 +787,7 @@ function FrameArt({ border, frame }) {
     el.width = L.W;
     el.height = L.H;
     paintOverlay(el.getContext('2d'), border, L);
-  }, [border, frame]);
+  }, [border, frame, loaded]);
   return <canvas ref={canvas} className="pb-frame-art" aria-hidden="true" />;
 }
 
@@ -759,7 +804,7 @@ function Flash() {
   return <div ref={ref} className="pb-flash" aria-hidden="true" />;
 }
 
-/* ---------- the booth rail: back, snaps, album, scenes, eject ---------- */
+/* ---------- the booth rail: back, snaps, album, eject ---------- */
 
 function Rail(props) {
   const host = useApp((s) => s.host);
@@ -790,31 +835,9 @@ const showcase = {
   },
 };
 
-/** The scenes key: a contact sheet of the film, opened over the player. */
-function ScenesKey({ pop, setPop }) {
-  const open = pop === 'scenes';
-  return (
-    <button
-      type="button"
-      className="pb-btn pb-rail-key pb-scenes-key"
-      aria-label="Scenes"
-      aria-haspopup="dialog"
-      aria-expanded={open}
-      data-tip="Scenes"
-      onClick={() => {
-        setPop(open ? null : 'scenes');
-        sfx('tap');
-      }}
-    >
-      <I.Scenes />
-    </button>
-  );
-}
-
 /**
- * Outside the booth the left keys do what a demo needs, in two groups:
- * the frame (choose one, surprise me), then the film (its scenes, the next
- * film). An embedded player has one film, so it keeps only its scenes.
+ * Outside the booth the left keys do what a demo needs: the frame (choose
+ * one, surprise me), then the next film. An embedded player has one film.
  */
 function ShowcaseRail({ geo, hidden, hover, pop, setPop }) {
   const v = geo.orient === 'v';
@@ -838,20 +861,17 @@ function ShowcaseRail({ geo, hidden, hover, pop, setPop }) {
           <I.Shuffle />
         </button>
       </div>
-      <div className="pb-rail-group">
-        <ScenesKey pop={pop} setPop={setPop} />
-        {films && (
-          <button type="button" className="pb-btn pb-rail-key" aria-label="Next film" data-tip="Next film" onClick={showcase.nextFilm}>
-            <I.Tape />
-          </button>
-        )}
-      </div>
+      {films && (
+        <button type="button" className="pb-btn pb-rail-key" aria-label="Next film" data-tip="Next film" onClick={showcase.nextFilm}>
+          <I.Tape />
+        </button>
+      )}
     </nav>
   );
 }
 
 /**
- * Upright, outside the booth: the frames, the films and the scenes in one
+ * Upright, outside the booth: the frames and the films in one
  * wide key under the dock, where the thumb rests. It is a pill with words,
  * filled with the keys' ink, so it never reads as one of the playback keys.
  */
@@ -867,7 +887,6 @@ function FilmMenu({ geo, hidden, hover, pop, setPop }) {
   const items = [
     ['frames', 'Frames', <I.Frames key="i" />, run(showcase.frames)],
     ['shuffle', 'Surprise frame', <I.Shuffle key="i" />, run(showcase.shuffle)],
-    ['scenes', 'Scenes', <I.Scenes key="i" />, () => setPop('scenes')],
     films && ['next', 'Next film', <I.Tape key="i" />, run(showcase.nextFilm)],
   ].filter(Boolean);
   return (
@@ -881,7 +900,7 @@ function FilmMenu({ geo, hidden, hover, pop, setPop }) {
     >
       <button type="button" className="pb-menu-key" aria-haspopup="menu" aria-expanded={open} onClick={() => setPop(open ? null : 'menu')}>
         <I.Frames />
-        <span>{films ? 'Frames, film, scenes' : 'Frames and scenes'}</span>
+        <span>{films ? 'Frames and films' : 'Frames'}</span>
         <I.Chevron />
       </button>
       {open && (
@@ -907,7 +926,7 @@ function BoothRail({ geo, movie, hidden, hover, pop, setPop }) {
     if (document.fullscreenElement) document.exitFullscreen?.().catch?.(() => {});
     useApp.getState().goStation('player');
   };
-  // grouped by what they do: leave, your pictures (snaps, album), the tape (its scenes, eject)
+  // grouped by what they do: leave, your pictures (snaps, album), the tape
   return (
     <nav
       className="pb-rail"
@@ -931,12 +950,9 @@ function BoothRail({ geo, movie, hidden, hover, pop, setPop }) {
           <I.Album />
         </button>
       </div>
-      <div className="pb-rail-group">
-        <ScenesKey pop={pop} setPop={setPop} />
-        <button type="button" className="pb-btn pb-rail-key" aria-label={`Eject ${movie?.title ?? 'tape'}`} data-tip="Eject the tape" onClick={() => useApp.getState().ejectTape()}>
-          <I.Eject />
-        </button>
-      </div>
+      <button type="button" className="pb-btn pb-rail-key" aria-label={`Eject ${movie?.title ?? 'tape'}`} data-tip="Eject the tape" onClick={() => useApp.getState().ejectTape()}>
+        <I.Eject />
+      </button>
     </nav>
   );
 }
@@ -948,6 +964,18 @@ const BRIGHT_MAX = 1.5;
 const feedbackBus = typeof EventTarget !== 'undefined' ? new EventTarget() : null;
 function showFeedback(detail) {
   feedbackBus?.dispatchEvent(new CustomEvent('show', { detail }));
+}
+const gaugeBus = typeof EventTarget !== 'undefined' ? new EventTarget() : null;
+/** The level beside the picture's edge: volume on the right, brightness on the left. */
+function showGauge(kind, value) {
+  const level = kind === 'brightness' ? (value - BRIGHT_MIN) / (BRIGHT_MAX - BRIGHT_MIN) : value;
+  gaugeBus?.dispatchEvent(new CustomEvent('show', { detail: { kind, level: clamp(level, 0, 1), pct: Math.round(value * 100) } }));
+}
+/** Brightness by key: one step is 10%. */
+function stepBrightness(dir) {
+  const b = clamp(Math.round((useApp.getState().brightness + dir * 0.1) * 10) / 10, BRIGHT_MIN, BRIGHT_MAX);
+  useApp.setState({ brightness: b });
+  showGauge('brightness', b);
 }
 const clock = (t) => {
   const s = Math.max(0, Math.floor(t || 0));
@@ -995,31 +1023,28 @@ function Feedback() {
           showFeedback({ icon: before.paused ? 'play' : 'pause' });
           break;
         case 'toggleMuted':
-          after((st) => (st.muted ? { icon: 'mute', label: 'Muted' } : { icon: 'volume', level: st.volume, label: `${Math.round(st.volume * 100)}%` }));
+          after((st) => (st.muted ? { icon: 'mute' } : { icon: 'volume', level: st.volume }));
           break;
         case 'toggleSubtitles':
-          showFeedback(
-            before.subtitlesAvailable
-              ? { icon: before.subtitlesShowing ? 'cc-off' : 'cc-on', label: before.subtitlesShowing ? 'Captions off' : 'Captions on' }
-              : { icon: 'cc-off', label: 'No captions on this film' },
-          );
+          showFeedback({ icon: before.subtitlesAvailable && !before.subtitlesShowing ? 'cc-on' : 'cc-off' });
           break;
         case 'seekStep':
           showFeedback({ icon: (ev.value ?? 0) < 0 ? 'back' : 'fwd', step: Math.abs(ev.value ?? 10) });
           break;
         case 'volumeStep':
-          after((st) => {
-            const v = st.muted ? 0 : st.volume;
-            return { icon: v === 0 ? 'mute' : 'volume', level: v, label: `${Math.round(v * 100)}%` };
-          });
+          // a level, not a big key: the same gauge as sliding on a phone
+          setTimeout(() => {
+            const st = storeRef.current.state;
+            showGauge('volume', st.muted ? 0 : st.volume);
+          }, 90);
           break;
         case 'speedUp':
         case 'speedDown':
-          after((st) => ({ icon: 'text', text: `${st.playbackRate}×`, label: 'Speed' }));
+          after((st) => ({ icon: 'text', text: `${st.playbackRate}×` }));
           break;
         case 'seekToPercent': {
           const pct = ev.value ?? (Number.isFinite(+ev.key) ? +ev.key * 10 : 0);
-          showFeedback({ icon: 'text', text: clock(((before.duration || 0) * pct) / 100), label: pct >= 100 ? 'End' : pct === 0 ? 'Start' : `${pct}%` });
+          showFeedback({ icon: 'text', text: clock(((before.duration || 0) * pct) / 100) });
           break;
         }
         default:
@@ -1040,7 +1065,7 @@ function Feedback() {
     text: <span className="pb-osd-text">{item.text}</span>,
   }[item.icon];
   return (
-    <div className="pb-osd" key={item.n} data-kind={item.icon} aria-hidden="true">
+    <div className="pb-osd" key={item.n} data-kind={item.icon} data-side={item.side} aria-hidden="true">
       <span className="pb-osd-key">{glyph}</span>
       {item.label && <span className="pb-osd-label">{item.label}</span>}
     </div>
@@ -1058,105 +1083,6 @@ function Gauge({ g }) {
         <span className="pb-gauge-fill" style={{ height: `${Math.round(g.level * 100)}%` }} />
       </span>
       <span className="pb-gauge-value">{g.pct}%</span>
-    </div>
-  );
-}
-
-/* ---------- scenes: a contact sheet of the film; pick a still, go there ---------- */
-
-function ScenesPanel({ movie, close }) {
-  const store = usePlayer();
-  const duration = usePlayer((s) => s.duration);
-  const time = usePlayer((s) => s.currentTime);
-  const aspect = useApp((s) => s.videoAspect) || 16 / 9;
-  const sb = useStoryboard(movie);
-  const grid = useRef(null);
-  const [gw, setGw] = useState(0);
-  useLayoutEffect(() => {
-    const el = grid.current;
-    if (!el) return undefined;
-    const ro = new ResizeObserver(([e]) => setGw(Math.floor(e.contentRect.width)));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  const n = duration > 0 ? (duration >= 120 ? 12 : Math.max(4, Math.floor(duration / 10))) : 0;
-  const span = n ? duration / n : 0;
-  const current = span ? Math.min(n - 1, Math.floor((time || 0) / span)) : -1;
-  const GAP = 12;
-  const cols = gw ? clamp(Math.floor((gw + GAP) / 168), 2, 5) : 3;
-  const cw = gw ? (gw - (cols - 1) * GAP) / cols : 150;
-  const ch = cw / aspect;
-
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        e.stopPropagation();
-        close(true);
-      }
-    };
-    window.addEventListener('keydown', onKey, true);
-    return () => window.removeEventListener('keydown', onKey, true);
-  }, [close]);
-  const focused = useRef(false);
-  useEffect(() => {
-    if (focused.current || !n) return;
-    focused.current = true;
-    requestAnimationFrame(() => (grid.current?.querySelector('[aria-current="true"]') ?? grid.current?.querySelector('button'))?.focus({ preventScroll: false }));
-  }, [n]);
-
-  const go = (t, i) => {
-    store.seek(Math.min(duration - 0.25, t + 0.01));
-    useApp.getState().announce(`Scene ${i + 1}, ${clock(t)}.`);
-    sfx('tap');
-    close(false);
-  };
-  // arrows move between stills, a row at a time up and down
-  const onGridKey = (e) => {
-    const list = [...grid.current.querySelectorAll('.pb-scene')];
-    const i = list.indexOf(document.activeElement);
-    if (i < 0) return;
-    const step = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: cols, ArrowUp: -cols, Home: -i, End: list.length - 1 - i }[e.key];
-    if (step === undefined) return;
-    e.preventDefault();
-    e.stopPropagation();
-    list[clamp(i + step, 0, list.length - 1)].focus();
-  };
-  return (
-    <div className="pb-scenes-veil" onPointerDown={(e) => e.target === e.currentTarget && close(false)}>
-      <section className="pb-scenes" role="dialog" aria-modal="true" aria-labelledby="pb-scenes-title">
-        <header className="pb-scenes-head">
-          <div>
-            <h2 id="pb-scenes-title" className="pb-scenes-title">
-              Scenes
-            </h2>
-            <p className="pb-scenes-sub">
-              {movie.title}
-              {n ? ` · ${n} stills, pick one to go there` : ' · loading the film…'}
-            </p>
-          </div>
-          <button type="button" className="pb-btn pb-scenes-close" aria-label="Close scenes" data-tip="Close" data-key="Esc" onClick={() => close(true)}>
-            <I.Close />
-          </button>
-        </header>
-        <div className="pb-scenes-grid" ref={grid} style={{ '--cols': cols }} onKeyDown={onGridKey}>
-          {Array.from({ length: n }, (_, i) => {
-            const t = i * span;
-            const now = i === current;
-            return (
-              <button key={i} type="button" className="pb-scene" aria-current={now || undefined} aria-label={`Scene ${i + 1}, ${clock(t)}${now ? ', playing now' : ''}`} onClick={() => go(t, i)}>
-                <span className="pb-scene-still" style={{ height: ch }}>
-                  <Still sb={sb} movie={movie} time={Math.min(duration - 0.5, t + span * 0.35)} w={cw} h={ch} exact />
-                </span>
-                <span className="pb-scene-time">
-                  <span>{clock(t)}</span>
-                  {now && <b>Now</b>}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
     </div>
   );
 }
@@ -2037,7 +1963,9 @@ function CaptionLayer() {
 
 export function FrameThumb({ border }) {
   const ref = useRef(null);
+  const loaded = useFrameImages();
   useEffect(() => {
+    warmFrame(border);
     const el = ref.current;
     if (!el) return;
     const L = frameLayout(border, 16 / 9, 220);
@@ -2050,7 +1978,7 @@ export function FrameThumb({ border }) {
       g.fillStyle = grad;
       g.fillRect(win.x, win.y, win.w, win.h);
     });
-  }, [border]);
+  }, [border, loaded]);
   return <canvas ref={ref} className="frame-thumb" aria-hidden="true" />;
 }
 
@@ -2099,10 +2027,13 @@ function FramePicker({ active }) {
   useApp((s) => s.borderRev); // a new picture under the same "custom" id redraws its tile
   const list = useMemo(() => (borderId === 'custom' && CUSTOM.border ? [...BORDERS, CUSTOM.border] : BORDERS), [borderId]);
   const grid = useFrameGrid(group, list.length);
-  // the showcase lets you make a frame from your own picture, right here (the booth keeps its own frames)
-  const upload = useApp((s) => (s.host === 'showcase' ? s.frameUpload : null));
+  // outside the booth you can make a frame from your own picture, right here (the booth keeps its own frames)
+  const upload = useApp((s) => (s.host !== 'booth' ? s.frameUpload : null));
   const fileRef = useRef(null);
   const [uploadError, setUploadError] = useState('');
+  // outside the booth the chooser opens over a playing film: Back puts the frame it had back
+  const opened = useRef(useApp.getState().borderId);
+  const booth = useApp((s) => s.host === 'booth');
   const onFile = async (e) => {
     const file = e.target.files?.[0];
     e.target.value = '';
@@ -2187,8 +2118,11 @@ function FramePicker({ active }) {
           className="btn"
           onClick={() => {
             const s = useApp.getState();
-            if (s.host === 'showcase') useApp.setState({ deck: 'playing' });
-            else s.goStation('player');
+            // outside the booth the film is already playing behind the chooser: Back cancels the change and returns to it
+            if (s.host !== 'booth') {
+              useApp.setState({ deck: 'playing', borderId: borderById(opened.current)?.id === opened.current ? opened.current : s.borderId });
+              s.announce('Frame unchanged.');
+            } else s.goStation('player');
           }}
         >
           Back
@@ -2199,12 +2133,12 @@ function FramePicker({ active }) {
           onClick={() => {
             const s = useApp.getState();
             s.confirmFrame();
-            s.announce(`${selected.name} frame. Playing.`);
-            sfx('start');
+            s.announce(booth ? `${selected.name} frame. Playing.` : `${selected.name} frame.`);
+            sfx(booth ? 'start' : 'paper');
             requestAnimationFrame(() => document.querySelector('.pb-play')?.focus({ preventScroll: true, focusVisible: false }));
           }}
         >
-          Start the film
+          {booth ? 'Start the film' : 'Use this frame'}
         </button>
       </div>
     </aside>
@@ -2213,25 +2147,29 @@ function FramePicker({ active }) {
 
 /* ---------- keys ---------- */
 
-function PlayboothHotkeys({ enabled, onFullscreen }) {
+function PlayboothHotkeys({ enabled, levels, onFullscreen }) {
   const off = !enabled;
+  // volume and brightness are the keys a lock leaves on: you can still hear and see comfortably
+  const lvOff = !levels;
   const snap = useCallback(() => {
     sfx('shutter');
     snapPhoto();
   }, []);
   useHotkey({ keys: 's', action: 'snapshot', disabled: off, onActivate: snap });
   useHotkey({ keys: 'f', action: 'fullscreen', disabled: off, onActivate: onFullscreen });
+  useHotkey({ keys: 'Shift+ArrowUp', action: 'brightnessUp', disabled: lvOff, onActivate: () => stepBrightness(1) });
+  useHotkey({ keys: 'Shift+ArrowDown', action: 'brightnessDown', disabled: lvOff, onActivate: () => stepBrightness(-1) });
   return (
     <>
       <Hotkey keys="Space" action="togglePaused" disabled={off} />
       <Hotkey keys="k" action="togglePaused" disabled={off} />
       <Hotkey keys="m" action="toggleMuted" disabled={off} />
-      <Hotkey keys="ArrowLeft" action="seekStep" value={-5} disabled={off} />
-      <Hotkey keys="ArrowRight" action="seekStep" value={5} disabled={off} />
+      <Hotkey keys="ArrowLeft" action="seekStep" value={-10} disabled={off} />
+      <Hotkey keys="ArrowRight" action="seekStep" value={10} disabled={off} />
       <Hotkey keys="j" action="seekStep" value={-10} disabled={off} />
       <Hotkey keys="l" action="seekStep" value={10} disabled={off} />
-      <Hotkey keys="ArrowUp" action="volumeStep" disabled={off} />
-      <Hotkey keys="ArrowDown" action="volumeStep" disabled={off} />
+      <Hotkey keys="ArrowUp" action="volumeStep" disabled={lvOff} />
+      <Hotkey keys="ArrowDown" action="volumeStep" disabled={lvOff} />
       <Hotkey keys="0-9" action="seekToPercent" disabled={off} />
       <Hotkey keys="Home" action="seekToPercent" value={0} disabled={off} />
       <Hotkey keys="End" action="seekToPercent" value={100} disabled={off} />

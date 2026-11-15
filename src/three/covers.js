@@ -272,3 +272,19 @@ export function edgeTexture() {
   edgeTex.anisotropy = 4;
   return edgeTex;
 }
+
+/* ---------- the films' posters, whole, for the walls ---------- */
+
+export const POSTER_ASPECT = 0.707; // every Blender Studio one-sheet here is 1 : 1.414
+const posters = new Map();
+const posterLoader = new THREE.TextureLoader();
+/** The film's official poster as a texture (shared, loaded once), or null when the film has none. */
+export function posterTexture(movie) {
+  if (!movie?.cover) return null;
+  if (posters.has(movie.id)) return posters.get(movie.id);
+  const tex = posterLoader.load(movie.cover);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  posters.set(movie.id, tex);
+  return tex;
+}

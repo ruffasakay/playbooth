@@ -10,7 +10,7 @@ export default function Film() {
       playbackId="TWFNjB9Ku021WuLLXrYG3lLoOR6l02fgYcg2oYWTqLyCs"
       credit="Blender Studio"
       year={2021}
-      frame="vinyl"
+      frame="cocoadots"
       style={{ width: '100%', aspectRatio: '16 / 10' }}
     />
   );

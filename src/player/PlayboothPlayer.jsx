@@ -11,6 +11,7 @@ import { Player } from './core.js';
 import { PlayboothSkin } from './Skin.jsx';
 import { Media } from './PlayerLayer.jsx';
 import { Hint } from '../ui/Hint.jsx';
+import { useFramePicture } from './frameUpload.js';
 
 /**
  * The PLAYBOOTH player on any page: the Video.js 10 skin in its frame, with
@@ -21,7 +22,7 @@ import { Hint } from '../ui/Hint.jsx';
  *     playbackId="TWFNjB9Ku021WuLLXrYG3lLoOR6l02fgYcg2oYWTqLyCs"   // a Mux playback ID, or
  *     src="https://example.com/film.m3u8"                           // any HLS or MP4 URL
  *     credit="Blender Studio"
- *     frame="vinyl"                                                 // any frame id in data/borders.js
+ *     frame="cocoadots"                                                 // any frame id in data/borders.js
  *     style={{ width: '100%', aspectRatio: '16 / 9' }}
  *   />
  *
@@ -51,6 +52,8 @@ export function PlayboothPlayer({ title = 'Untitled', playbackId, src, captions,
       reducedMotion: rm.matches,
       coarsePointer: coarse.matches,
       ...(frame && borderById(frame)?.id === frame ? { borderId: frame } : {}),
+      // the frame chooser's "Your own frame": a landscape picture becomes the frame
+      frameUpload: useFramePicture,
     });
   }, [movie, frame]);
 

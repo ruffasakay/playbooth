@@ -46,17 +46,118 @@ export const BORDERS = [
     strip: { bg: '#f6f1e7', ink: '#33261c' },
     ui: ui({ dock: '#17110d', surface: '#f4ede0', ink: '#33261c', band: '#f4ede0', accent: '#cf6a4c', track: 'rgb(244 237 224 / 0.22)', play: ['#f4ede0', '#1b1511'], playKey: ['#cf6a4c', '#fff8ef'] }),
   },
-  /* ---- from your references, ranked by design and uniqueness ---- */
+  /* ---- pattern frames: pictures, scaled with the picture, never stretched ---- */
   {
-    id: 'vinyl',
-    name: 'Vinyl cream',
-    hint: 'Cream card with a black record peeking out and red hearts.',
-    pads: { t: 0.045, r: 0.095, b: 0.045, l: 0.045 },
+    id: 'cocoadots',
+    name: 'Cocoa dots',
+    hint: 'Cream cotton with small cocoa polka dots.',
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
     radius: 0,
-    swatch: ['#f1e8d8', '#16120f'],
-    strip: { bg: '#f1e8d8', ink: '#8e1f26' },
-    ui: ui({ dock: '#f1e8d8', surface: '#fbf6ec', ink: '#8e1f26', band: '#8e1f26', accent: '#c2363e', track: 'rgb(142 31 38 / 0.18)', play: ['#8e1f26', '#fbf6ec'] }),
+    raster: true,
+    swatch: ['#f3ecdc', '#6f5a48'],
+    strip: { bg: '#f3ecdc', ink: '#5b4636' },
+    ui: ui({ dock: '#f3ecdc', surface: '#fbf7ee', ink: '#5b4636', band: '#5b4636', accent: '#7a6350', track: 'rgb(91 70 54 / 0.2)', play: ['#5b4636', '#fbf7ee'] }),
   },
+  {
+    id: 'ribbon',
+    name: 'Cocoa ribbon',
+    hint: 'Cocoa dots over a dark linen band, a gingham bow tied under the picture.',
+    pads: { t: 0.045, r: 0.045, b: 0.17, l: 0.045 },
+    radius: 0,
+    raster: true,
+    swatch: ['#f4eedd', '#3f2d22'],
+    strip: { bg: '#f4eedd', ink: '#3f2d22' },
+    ui: ui({ dock: '#f4eedd', surface: '#fbf7ee', ink: '#4a3326', band: '#4a3326', accent: '#6f5543', track: 'rgb(74 51 38 / 0.2)', play: ['#4a3326', '#fbf7ee'] }),
+  },
+  {
+    id: 'pinkdoc',
+    name: 'Pink document',
+    hint: 'A pink word processor from 2003: the film is the page, the toolbars stay put.',
+    pads: { t: 0.1637, r: 0.038, b: 0.0696, l: 0.047 },
+    radius: 0,
+    raster: true,
+    swatch: ['#f7d7e1', '#e05a82'],
+    strip: { bg: '#f9dfe7', ink: '#b2405f' },
+    ui: ui({ dock: '#f7d3de', surface: '#fff3f7', ink: '#b2405f', band: '#b2405f', accent: '#e05a82', track: 'rgb(178 64 95 / 0.2)', play: ['#e05a82', '#fff3f7'] }),
+  },
+  {
+    id: 'leopard',
+    name: 'Leopard',
+    hint: 'Soft leopard fur in sand and cocoa.',
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
+    radius: 0,
+    raster: true,
+    swatch: ['#d8b896', '#3a2516'],
+    strip: { bg: '#d8b896', ink: '#3a2516' },
+    ui: ui({ dock: '#cfae8b', surface: '#f7eadb', ink: '#3a2516', band: '#3a2516', accent: '#3a2516', track: 'rgb(58 37 22 / 0.2)', play: ['#3a2516', '#f7eadb'] }),
+  },
+  {
+    id: 'denimstar',
+    name: 'Star denim',
+    hint: 'Washed denim with stitched star patches.',
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
+    radius: 0,
+    raster: true,
+    swatch: ['#9fb6d0', '#3d5f8e'],
+    strip: { bg: '#9fb6d0', ink: '#2f4d78' },
+    ui: ui({ dock: '#8eaacb', surface: '#f3f6fb', ink: '#2f4d78', band: '#f3f6fb', accent: '#f3f6fb', track: 'rgb(243 246 251 / 0.32)', play: ['#f3f6fb', '#2f4d78'] }),
+  },
+  {
+    id: 'halftone',
+    name: 'Halftone stars',
+    hint: 'White halftone stars on black, like a lit marquee.',
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
+    radius: 0,
+    raster: true,
+    swatch: ['#121212', '#e6e6e6'],
+    strip: { bg: '#121212', ink: '#eeeeee' },
+    ui: ui({ dock: '#121212', surface: '#eeeeee', ink: '#151515', band: '#eeeeee', accent: '#eeeeee', track: 'rgb(238 238 238 / 0.22)', play: ['#eeeeee', '#151515'] }),
+  },
+  {
+    id: 'lily',
+    name: 'Lily & dots',
+    hint: 'Sage cotton with pink dots above, a pink lily with stars below.',
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
+    radius: 0,
+    raster: true,
+    swatch: ['#a4b0aa', '#f0c6d2'],
+    strip: { bg: '#f3dfe5', ink: '#8c4a5e' },
+    ui: ui({ dock: '#9aa8a1', surface: '#fbeff2', ink: '#8c4a5e', band: '#fbeff2', accent: '#f2c6d2', track: 'rgb(251 239 242 / 0.35)', play: ['#fbeff2', '#8c4a5e'] }),
+  },
+  {
+    id: 'sagestars',
+    name: 'Sage stars',
+    hint: 'Soft-focus stars drifting over sage green.',
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
+    radius: 0,
+    raster: true,
+    swatch: ['#a5b38f', '#eef2e4'],
+    strip: { bg: '#a5b38f', ink: '#3f4e33' },
+    ui: ui({ dock: '#9aab86', surface: '#f2f5ea', ink: '#4e5e40', band: '#f2f5ea', accent: '#f2f5ea', track: 'rgb(242 245 234 / 0.35)', play: ['#f2f5ea', '#4e5e40'] }),
+  },
+  {
+    id: 'haze',
+    name: 'Grain haze',
+    hint: 'Grey and butter light, blurred, with film grain.',
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
+    radius: 0,
+    raster: true,
+    swatch: ['#c4c4b0', '#f3efcd'],
+    strip: { bg: '#d8d6bd', ink: '#4d4b40' },
+    ui: ui({ dock: '#b9b9a6', surface: '#f6f2d8', ink: '#4d4b40', band: '#4d4b40', accent: '#4d4b40', track: 'rgb(77 75 64 / 0.22)', play: ['#4d4b40', '#f6f2d8'] }),
+  },
+  {
+    id: 'linen',
+    name: 'Butter linen',
+    hint: 'Plain butter-yellow linen, the weave showing.',
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
+    radius: 0,
+    raster: true,
+    swatch: ['#efdcab', '#8a6e3c'],
+    strip: { bg: '#efdcab', ink: '#6b5530' },
+    ui: ui({ dock: '#ead6a2', surface: '#fbf4e2', ink: '#6b5530', band: '#6b5530', accent: '#8a6e3c', track: 'rgb(107 85 48 / 0.2)', play: ['#6b5530', '#fbf4e2'] }),
+  },
+  /* ---- from your references, ranked by design and uniqueness ---- */
   {
     id: 'confetti',
     name: 'Star confetti',
@@ -108,26 +209,6 @@ export const BORDERS = [
     ui: ui({ dock: '#b9a7cf', surface: '#f6f1fb', ink: '#5f4c80', band: '#f6f1fb', accent: '#d9c9f0', track: 'rgb(246 241 251 / 0.25)', play: ['#5f4c80', '#f6f1fb'] }),
   },
   {
-    id: 'knit',
-    name: 'Red knit',
-    hint: 'A burgundy knit with a stamp-cut mat, a ribbon bow, a pin and a button.',
-    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
-    radius: 0,
-    swatch: ['#86232a', '#fbf7f0'],
-    strip: { bg: '#86232a', ink: '#fbf7f0' },
-    ui: ui({ dock: '#86232a', surface: '#fbf7f0', ink: '#86232a', band: '#fbf7f0', accent: '#fbf7f0', track: 'rgb(251 247 240 / 0.28)', play: ['#fbf7f0', '#86232a'], edge: 'perf', bar: 'perf', thumb: 'button', thumbColor: '#efe8dc' }),
-  },
-  {
-    id: 'heart',
-    name: 'Paper hearts',
-    hint: 'Crinkled pink paper, a white mat and paper hearts cut out all around.',
-    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
-    radius: 0,
-    swatch: ['#f2b8c6', '#ffffff'],
-    strip: { bg: '#f2b8c6', ink: '#5b7fc4' },
-    ui: ui({ dock: '#f2b8c6', surface: '#fff5f8', ink: '#b23a5e', band: '#fff5f8', accent: '#ffe1ea', track: 'rgb(255 245 248 / 0.3)', play: ['#b23a5e', '#fff5f8'] }),
-  },
-  {
     id: 'airmail',
     name: 'Airmail',
     hint: 'Ledger paper, airmail stripes, a postmark and a paperclip.',
@@ -158,36 +239,6 @@ export const BORDERS = [
     ui: ui({ dock: '#4c6a96', surface: '#f7f1ea', ink: '#2d4166', band: '#f7f1ea', accent: '#f2c6cf', track: 'rgb(247 241 234 / 0.3)', play: ['#f7f1ea', '#2d4166'], edge: 'lace', bar: 'stitch', thumb: 'star', thumbColor: '#ecd77c' }),
   },
   {
-    id: 'vinylred',
-    name: 'Vinyl red',
-    hint: 'Deep red card with a clear record and white hearts.',
-    pads: { t: 0.045, r: 0.095, b: 0.045, l: 0.045 },
-    radius: 0,
-    swatch: ['#8e1f26', '#efe9e1'],
-    strip: { bg: '#8e1f26', ink: '#f6ece2' },
-    ui: ui({ dock: '#8e1f26', surface: '#fbf3ea', ink: '#8e1f26', band: '#fbf3ea', accent: '#f6c9cc', track: 'rgb(251 243 234 / 0.25)', play: ['#8e1f26', '#fbf3ea'] }),
-  },
-  {
-    id: 'oval',
-    name: 'Comic wave',
-    hint: 'Leaf-green halftone, a wavy cream mat and a yellow starburst.',
-    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
-    radius: 0,
-    swatch: ['#a8c48f', '#f4d35e'],
-    strip: { bg: '#a8c48f', ink: '#3f5a3b' },
-    ui: ui({ dock: '#a8c48f', surface: '#fbf7ee', ink: '#3f5a3b', band: '#2c4129', accent: '#fbf7ee', track: 'rgb(44 65 41 / 0.2)', play: ['#3f5a3b', '#fbf7ee'] }),
-  },
-  {
-    id: 'butter',
-    name: 'Butter doodle',
-    hint: 'Butter-yellow paper with blue pen doodles: a cup, a record, hearts.',
-    pads: { t: 0.05, r: 0.05, b: 0.085, l: 0.05 },
-    radius: 0,
-    swatch: ['#f8f0bf', '#5b7fc4'],
-    strip: { bg: '#f8f0bf', ink: '#5b7fc4' },
-    ui: ui({ dock: '#f8f0bf', surface: '#fffcea', ink: '#3d5fa6', band: '#3d5fa6', accent: '#7d9edb', track: 'rgb(61 95 166 / 0.18)', play: ['#3d5fa6', '#fffcea'] }),
-  },
-  {
     id: 'pixel',
     name: 'Pixel lilac',
     hint: 'A wide lilac margin with a heart drawn in white dots.',
@@ -196,36 +247,6 @@ export const BORDERS = [
     swatch: ['#a99bc0', '#ffffff'],
     strip: { bg: '#a99bc0', ink: '#ffffff' },
     ui: ui({ dock: '#a99bc0', surface: '#f7f3fc', ink: '#56477a', band: '#f7f3fc', accent: '#e6dcf7', track: 'rgb(247 243 252 / 0.25)', play: ['#56477a', '#f7f3fc'] }),
-  },
-  {
-    id: 'cocoa',
-    name: 'Cocoa bow',
-    hint: 'Chocolate polka dots, a pinked cream mat and a little bow. Memories.',
-    pads: { t: 0.045, r: 0.045, b: 0.08, l: 0.045 },
-    radius: 0,
-    swatch: ['#3a2822', '#efe6d7'],
-    strip: { bg: '#3a2822', ink: '#efe6d7' },
-    ui: ui({ dock: '#3a2822', surface: '#f8f2e6', ink: '#3a2822', band: '#efe6d7', accent: '#e7c9a9', track: 'rgb(239 230 215 / 0.22)', play: ['#f4ecdd', '#3a2822'], edge: 'zigzag', bar: 'dots', thumb: 'bow', thumbColor: '#c79b7c' }),
-  },
-  {
-    id: 'vinylpink',
-    name: 'Vinyl pink',
-    hint: 'Blush pink with soft hearts, a black record and white doodles.',
-    pads: { t: 0.045, r: 0.095, b: 0.045, l: 0.045 },
-    radius: 0,
-    swatch: ['#f2cfd3', '#16120f'],
-    strip: { bg: '#f2cfd3', ink: '#3a2528' },
-    ui: ui({ dock: '#f2cfd3', surface: '#fff7f8', ink: '#3a2528', band: '#3a2528', accent: '#d9677a', track: 'rgb(58 37 40 / 0.16)', play: ['#3a2528', '#fff7f8'] }),
-  },
-  {
-    id: 'news',
-    name: 'Newsprint',
-    hint: 'Cream newsprint, a halftone wash, a black band of hearts and stickers.',
-    pads: { t: 0.07, r: 0.045, b: 0.045, l: 0.045 },
-    radius: 0,
-    swatch: ['#f3ecdc', '#1d1a17'],
-    strip: { bg: '#f3ecdc', ink: '#1d1a17' },
-    ui: ui({ dock: '#f3ecdc', surface: '#fffaf0', ink: '#1d1a17', band: '#1d1a17', accent: '#5b7fc4', track: 'rgb(29 26 23 / 0.16)', play: ['#1d1a17', '#fffaf0'] }),
   },
   {
     id: 'mono',
@@ -257,16 +278,6 @@ export const BORDERS = [
     swatch: ['#c2703f', '#efe4cf'],
     strip: { bg: '#efe4cf', ink: '#7a3f22' },
     ui: ui({ dock: '#e9dcc4', surface: '#f8f0e1', ink: '#7a3f22', band: '#7a3f22', accent: '#c2703f', track: 'rgb(122 63 34 / 0.18)', play: ['#7a3f22', '#f8f0e1'] }),
-  },
-  {
-    id: 'starry',
-    name: 'Starry night',
-    hint: 'A navy sky full of small stars, with a gold moon in the corner.',
-    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
-    radius: 0,
-    swatch: ['#1b2442', '#e8c56a'],
-    strip: { bg: '#1b2442', ink: '#e8c56a' },
-    ui: ui({ dock: '#1b2442', surface: '#f2e6c4', ink: '#1b2442', band: '#f2e6c4', accent: '#e8c56a', track: 'rgb(242 230 196 / 0.2)', play: ['#f2e6c4', '#1b2442'] }),
   },
   {
     id: 'checker',
@@ -844,100 +855,6 @@ function bow(ctx, cx, cy, s, color, shade) {
   ctx.restore();
 }
 
-function sewButton(ctx, cx, cy, r, color) {
-  ctx.save();
-  ctx.shadowColor = 'rgb(0 0 0 / 0.3)';
-  ctx.shadowBlur = r * 0.4;
-  ctx.shadowOffsetY = r * 0.15;
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-  ctx.strokeStyle = 'rgb(0 0 0 / 0.12)';
-  ctx.lineWidth = r * 0.12;
-  ctx.beginPath();
-  ctx.arc(cx, cy, r * 0.72, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.fillStyle = 'rgb(60 40 30 / 0.55)';
-  for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
-    ctx.beginPath();
-    ctx.arc(cx + dx * r * 0.22, cy + dy * r * 0.22, r * 0.11, 0, Math.PI * 2);
-    ctx.fill();
-  }
-}
-
-function safetyPin(ctx, x, y, len, angle, u) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(angle);
-  ctx.strokeStyle = '#c9c6c0';
-  ctx.lineWidth = Math.max(1, u * 0.005);
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(len, 0);
-  ctx.arc(len, len * 0.06, len * 0.06, -Math.PI / 2, Math.PI / 2);
-  ctx.lineTo(len * 0.12, len * 0.12);
-  ctx.stroke();
-  ctx.fillStyle = '#a9a59e';
-  ctx.fillRect(-len * 0.02, -len * 0.04, len * 0.16, len * 0.2);
-  ctx.restore();
-}
-
-/** A white photo mat with a postage-stamp perforated edge. */
-function perfMat(ctx, x, y, w, h, u, color = '#fbf7f0') {
-  ctx.save();
-  ctx.shadowColor = 'rgb(0 0 0 / 0.3)';
-  ctx.shadowBlur = u * 0.012;
-  ctx.shadowOffsetY = u * 0.004;
-  ctx.fillStyle = color;
-  ctx.fillRect(x, y, w, h);
-  ctx.restore();
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(x - u * 0.03, y - u * 0.03, w + u * 0.06, h + u * 0.06);
-  ctx.clip();
-  ctx.globalCompositeOperation = 'destination-out';
-  const r = u * 0.009;
-  const step = r * 2.9;
-  for (let px = x; px <= x + w + 0.1; px += w / Math.round(w / step)) {
-    ctx.beginPath();
-    ctx.arc(px, y, r, 0, Math.PI * 2);
-    ctx.arc(px, y + h, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  for (let py = y; py <= y + h + 0.1; py += h / Math.round(h / step)) {
-    ctx.beginPath();
-    ctx.arc(x, py, r, 0, Math.PI * 2);
-    ctx.arc(x + w, py, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.restore();
-}
-
-/** A cream mat cut with pinking shears. */
-function pinkedMat(ctx, x, y, w, h, u, color = '#f4ecdd') {
-  const t = u * 0.016;
-  const pts = [];
-  const nx = Math.round(w / t);
-  const ny = Math.round(h / t);
-  for (let i = 0; i <= nx; i++) pts.push([x + (w * i) / nx, y - (i % 2 ? t * 0.5 : 0)]);
-  for (let i = 0; i <= ny; i++) pts.push([x + w + (i % 2 ? t * 0.5 : 0), y + (h * i) / ny]);
-  for (let i = nx; i >= 0; i--) pts.push([x + (w * i) / nx, y + h + (i % 2 ? t * 0.5 : 0)]);
-  for (let i = ny; i >= 0; i--) pts.push([x - (i % 2 ? t * 0.5 : 0), y + (h * i) / ny]);
-  ctx.save();
-  ctx.shadowColor = 'rgb(0 0 0 / 0.35)';
-  ctx.shadowBlur = u * 0.012;
-  ctx.shadowOffsetY = u * 0.004;
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  pts.forEach(([px, py], i) => (i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)));
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
-}
-
 /* ---------- Denim & lace ---------- */
 
 function denimBack(ctx, L) {
@@ -974,88 +891,7 @@ function denimFront(ctx, L) {
 
 /* ---------- Red knit ---------- */
 
-function knitBack(ctx, L) {
-  const { u, win } = L;
-  ctx.fillStyle = '#86232a';
-  ctx.fillRect(0, 0, L.W, L.H);
-  // rib stitches: little Vs in columns
-  const cw = u * 0.022;
-  const rh = u * 0.016;
-  ctx.lineWidth = Math.max(1, u * 0.004);
-  ctx.lineCap = 'round';
-  for (let x = cw / 2, c = 0; x < L.W; x += cw, c++) {
-    for (let y = 0; y < L.H; y += rh) {
-      ctx.strokeStyle = c % 2 ? 'rgb(255 200 190 / 0.1)' : 'rgb(40 0 5 / 0.16)';
-      ctx.beginPath();
-      ctx.moveTo(x - cw * 0.3, y);
-      ctx.lineTo(x, y + rh * 0.8);
-      ctx.lineTo(x + cw * 0.3, y);
-      ctx.stroke();
-    }
-  }
-  laceTrim(ctx, 0, L.W, 0, 1, u, '#f6f2ec');
-  laceTrim(ctx, 0, L.W, L.H, -1, u, '#f6f2ec');
-  const m = u * 0.03;
-  perfMat(ctx, win.x - m, win.y - m, win.w + m * 2, win.h + m * 2, u);
-}
-
-function knitFront(ctx, L) {
-  const { u, win } = L;
-  if (!(win.w > 0)) return;
-  const m = margins(L);
-  const P = Math.min(m.t, m.r, m.b, m.l);
-  // a bow tied on the top right corner, a pin through the bottom margin, a button at the left
-  bow(ctx, m.right - P * 0.2, m.t * 0.42, P * 0.78, '#d9d6d1', '#a8a49d');
-  safetyPin(ctx, win.x + win.w * 0.08, m.bottom + m.b * 0.42, Math.min(u * 0.11, win.w * 0.12), 0, Math.min(u, P * 14));
-  sewButton(ctx, m.l * 0.5, m.bottom - win.h * 0.12, m.l * 0.3, '#efe8dc');
-}
-
 /* ---------- Cocoa bow ---------- */
-
-function cocoaBack(ctx, L) {
-  const { u, win } = L;
-  ctx.fillStyle = '#3a2822';
-  ctx.fillRect(0, 0, L.W, L.H);
-  ctx.fillStyle = 'rgb(255 240 220 / 0.04)';
-  for (let x = 0; x < L.W; x += u * 0.012) ctx.fillRect(x, 0, Math.max(1, u * 0.002), L.H);
-  ctx.fillStyle = '#efe6d7';
-  const step = u * 0.16;
-  for (let y = step * 0.3, r = 0; y < L.H + step; y += step, r++) {
-    for (let x = (r % 2 ? step * 0.5 : 0) + step * 0.15; x < L.W + step; x += step) {
-      ctx.beginPath();
-      ctx.arc(x, y, u * 0.022, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-  const m = u * 0.03;
-  const Hd = L.Hd ?? L.H;
-  const below = Math.min(u * 0.075, Hd - (win.y + win.h) - m);
-  const bottom = L.Hb != null ? L.Hb + u * 0.014 : win.y + win.h + below;
-  pinkedMat(ctx, win.x - m, win.y - m, win.w + m * 2, bottom - (win.y - m), u);
-}
-
-function cocoaFront(ctx, L) {
-  const { u, win } = L;
-  const m = u * 0.03;
-  const below = Math.min(u * 0.075, L.H - (win.y + win.h) - m);
-  const y = win.y + win.h + below * 0.55;
-  // a stitched line with a little heart sewn in the middle
-  ctx.save();
-  ctx.strokeStyle = '#6b4632';
-  ctx.lineWidth = Math.max(1, u * 0.0028);
-  ctx.setLineDash([u * 0.012, u * 0.008]);
-  const hw = u * 0.022;
-  ctx.beginPath();
-  ctx.moveTo(win.x + win.w * 0.2, y);
-  ctx.lineTo(win.x + win.w / 2 - hw * 1.6, y);
-  ctx.moveTo(win.x + win.w / 2 + hw * 1.6, y);
-  ctx.lineTo(win.x + win.w * 0.8, y);
-  ctx.stroke();
-  ctx.restore();
-  heart(ctx, win.x + win.w / 2, y, hw, '#a5523f');
-  const bs = Math.min(u * 0.08, below * 0.75);
-  bow(ctx, win.x + bs * 0.8, win.y + win.h + below * 0.5, bs, '#6b4632', '#4a2f22');
-}
 
 function heart(ctx, cx, cy, r, color) {
   ctx.save();
@@ -1507,70 +1343,6 @@ function crochetBack(ctx, L) {
 
 /* ---------- Starry night ---------- */
 
-function starryBack(ctx, L) {
-  const { u, win, W, H } = L;
-  const g = ctx.createLinearGradient(0, 0, W * 0.3, H);
-  g.addColorStop(0, '#151d3a');
-  g.addColorStop(1, '#2a2f58');
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, W, H);
-  const rnd = seeded(5);
-  const count = Math.round((W * H) / (u * u) * 260);
-  for (let i = 0; i < count; i++) {
-    const x = rnd() * W;
-    const y = rnd() * H;
-    const r = u * (0.0016 + rnd() * 0.003);
-    ctx.globalAlpha = 0.35 + rnd() * 0.65;
-    ctx.fillStyle = rnd() > 0.8 ? '#f6d98c' : '#f4ede0';
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.globalAlpha = 1;
-  for (let i = 0; i < Math.round((W * H) / (u * u) * 8); i++) {
-    const x = rnd() * W;
-    const y = rnd() * H;
-    ctx.fillStyle = '#f6d98c';
-    starPath(ctx, x, y, u * 0.012, u * 0.0035, rnd());
-    ctx.fill();
-  }
-  if (win.w > 0) {
-    ctx.fillStyle = '#e8c56a';
-    const gp = u * 0.018;
-    const dot = u * 0.0035;
-    const step = u * 0.014;
-    for (let x = win.x - gp; x <= win.x + win.w + gp; x += step) {
-      ctx.fillRect(x, win.y - gp, dot, dot);
-      ctx.fillRect(x, win.y + win.h + gp, dot, dot);
-    }
-    for (let y = win.y - gp; y <= win.y + win.h + gp; y += step) {
-      ctx.fillRect(win.x - gp, y, dot, dot);
-      ctx.fillRect(win.x + win.w + gp, y, dot, dot);
-    }
-  }
-}
-
-function starryFront(ctx, L) {
-  const { u, win } = L;
-  const r = Math.min(win.y * 0.34, u * 0.032);
-  const cx = win.x + win.w - u * 0.05;
-  const cy = win.y * 0.5;
-  // a crescent: a gold disc with a bite taken out of it
-  const c = document.createElement('canvas');
-  c.width = Math.ceil(r * 2.4);
-  c.height = Math.ceil(r * 2.4);
-  const g = c.getContext('2d');
-  g.fillStyle = '#e8c56a';
-  g.beginPath();
-  g.arc(c.width / 2, c.height / 2, r, 0, Math.PI * 2);
-  g.fill();
-  g.globalCompositeOperation = 'destination-out';
-  g.beginPath();
-  g.arc(c.width / 2 + r * 0.45, c.height / 2 - r * 0.25, r * 0.85, 0, Math.PI * 2);
-  g.fill();
-  ctx.drawImage(c, cx - c.width / 2, cy - c.height / 2);
-}
-
 /* ---------- Sage checker ---------- */
 
 function checkerBack(ctx, L) {
@@ -1835,43 +1607,6 @@ function record(ctx, cx, cy, R, clear) {
   ctx.fill();
 }
 
-const VINYL = {
-  vinyl: { bg: '#f1e8d8', grain: 'rgb(90 60 40 / 0.06)', heart: '#b8252f', soft: null, clear: false, mark: '#33261c' },
-  vinylpink: { bg: '#f2cfd3', grain: 'rgb(255 255 255 / 0.2)', heart: '#ffffff', soft: 'rgb(255 255 255 / 0.4)', clear: false, mark: '#3a2528' },
-  vinylred: { bg: '#8e1f26', grain: 'rgb(0 0 0 / 0.12)', heart: '#ffffff', soft: 'rgb(255 255 255 / 0.08)', clear: true, mark: '#f6ece2' },
-};
-
-function vinylPainters(id) {
-  const P = VINYL[id];
-  const back = (ctx, L) => {
-    const { u, win, W, H } = L;
-    ctx.fillStyle = P.bg;
-    ctx.fillRect(0, 0, W, H);
-    grain(ctx, W, H, u, P.grain, 8, 1100);
-    if (P.soft) {
-      const rnd = seeded(31);
-      for (let i = 0; i < ((W * H) / (u * u)) * 7; i++) doodleHeart(ctx, rnd() * W, rnd() * H, u * (0.03 + rnd() * 0.03), P.soft, false, (rnd() - 0.5) * 0.8);
-    }
-    if (win.w > 0) {
-      // the record slides out from behind the picture: half of it shows in the margin
-      const side = W - win.x - win.w;
-      const R = Math.min(side * 0.92, win.h * 0.3);
-      record(ctx, W - R - side * 0.06, win.y + win.h * 0.36, R, P.clear);
-    }
-    printEdge(ctx, win, u, P.clear ? '#f6ece2' : '#ffffff', 0.006);
-  };
-  const front = (ctx, L) => {
-    const { u, win, W } = L;
-    if (!(win.w > 0)) return;
-    const right = win.x + win.w;
-    const side = W - right;
-    const x = right + side * 0.5;
-    doodleHeart(ctx, x, win.y + win.h * 0.76, side * 0.26, P.heart, false, -0.2);
-    doodleHeart(ctx, x + side * 0.08, win.y + win.h * 0.88, side * 0.17, P.heart, false, 0.25);
-  };
-  return [back, front];
-}
-
 function monoBack(ctx, L) {
   const { u, win, W, H } = L;
   ctx.fillStyle = '#141210';
@@ -1905,134 +1640,6 @@ function pen(ctx, pts, width, color, seed = 1) {
   });
   ctx.stroke();
   ctx.restore();
-}
-
-function butterBack(ctx, L) {
-  const { u, win, W, H } = L;
-  ctx.fillStyle = '#f8f0bf';
-  ctx.fillRect(0, 0, W, H);
-  grain(ctx, W, H, u, 'rgb(140 110 40 / 0.06)', 17, 900);
-  printEdge(ctx, win, u, '#fffbe8', 0.008);
-}
-
-function butterFront(ctx, L) {
-  const { u, win, W, H } = L;
-  if (!(win.w > 0)) return;
-  const blue = '#5b7fc4';
-  const w = Math.max(1.2, u * 0.0045);
-  const room = H - win.y - win.h;
-  const by = win.y + win.h + room * 0.56;
-  // a coffee cup
-  const cx = win.x + win.w - u * 0.17;
-  const s = Math.min(u * 0.035, room * 0.22);
-  pen(ctx, [[cx - s, by - s * 0.6], [cx - s * 0.8, by + s * 0.7], [cx + s * 0.6, by + s * 0.7], [cx + s * 0.8, by - s * 0.6], [cx - s, by - s * 0.6]], w, blue, 2);
-  pen(ctx, [[cx + s * 0.75, by - s * 0.3], [cx + s * 1.25, by - s * 0.2], [cx + s * 1.2, by + s * 0.3], [cx + s * 0.65, by + s * 0.35]], w, blue, 3);
-  pen(ctx, [[cx - s * 0.3, by - s], [cx - s * 0.15, by - s * 1.5], [cx - s * 0.3, by - s * 1.9]], w * 0.8, blue, 4);
-  pen(ctx, [[cx + s * 0.2, by - s], [cx + s * 0.35, by - s * 1.5], [cx + s * 0.2, by - s * 1.9]], w * 0.8, blue, 5);
-  // a record
-  const rx = win.x + win.w - u * 0.06;
-  ctx.save();
-  ctx.fillStyle = '#2b2a33';
-  ctx.beginPath();
-  ctx.arc(rx, by, s * 1.1, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#f8f0bf';
-  ctx.beginPath();
-  ctx.arc(rx, by, s * 0.32, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-  // a heart and a scribbled underline on the left
-  doodleHeart(ctx, win.x + u * 0.05, by - s * 0.2, s * 0.62, blue, false, -0.15);
-  const pts = [];
-  for (let i = 0; i <= 20; i++) pts.push([win.x + u * 0.1 + i * u * 0.012, by + Math.sin(i * 0.9) * s * 0.23]);
-  pen(ctx, pts, w, blue, 7);
-  doodleHeart(ctx, win.x + win.w + (W - win.x - win.w) * 0.5, win.y * 0.5, Math.min(win.y, W - win.x - win.w) * 0.3, '#7d9edb', true, 0.2);
-}
-
-function crinkle(ctx, W, H, u, seed) {
-  const rnd = seeded(seed);
-  for (let i = 0; i < ((W * H) / (u * u)) * 40; i++) {
-    const x = rnd() * W;
-    const y = rnd() * H;
-    const a = rnd() * Math.PI;
-    const l = u * (0.03 + rnd() * 0.08);
-    ctx.strokeStyle = rnd() > 0.5 ? 'rgb(255 255 255 / 0.22)' : 'rgb(120 40 70 / 0.1)';
-    ctx.lineWidth = Math.max(1, u * 0.002);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l);
-    ctx.stroke();
-  }
-}
-
-/**
- * Points spread evenly around the margin, each in the middle of its band,
- * so stickers never cross into the picture whatever its shape or size.
- */
-function marginSpots(L, n, seed) {
-  const { win, W, H } = L;
-  const rnd = seeded(seed);
-  const top = win.y / 2;
-  const bottom = win.y + win.h + (H - win.y - win.h) / 2;
-  const left = win.x / 2;
-  const right = win.x + win.w + (W - win.x - win.w) / 2;
-  const sides = [
-    [left, top, right, top, win.y],
-    [right, top, right, bottom, W - win.x - win.w],
-    [right, bottom, left, bottom, H - win.y - win.h],
-    [left, bottom, left, top, win.x],
-  ];
-  const lens = sides.map(([x0, y0, x1, y1]) => Math.hypot(x1 - x0, y1 - y0));
-  const total = lens.reduce((a, b) => a + b, 0);
-  const out = [];
-  for (let i = 0; i < n; i++) {
-    let d = ((i + 0.5 + (rnd() - 0.5) * 0.5) / n) * total;
-    let k = 0;
-    while (k < 3 && d > lens[k]) d -= lens[k++];
-    const [x0, y0, x1, y1, band] = sides[k];
-    const t = Math.min(1, Math.max(0, d / lens[k]));
-    out.push({ x: x0 + (x1 - x0) * t, y: y0 + (y1 - y0) * t, band, r: rnd(), r2: rnd() });
-  }
-  return out;
-}
-
-/** A paper heart cut with scissors: a white rim, a soft shadow, a fill. */
-function paperHeart(ctx, cx, cy, r, fill, rot, u) {
-  ctx.save();
-  ctx.shadowColor = 'rgb(90 30 50 / 0.22)';
-  ctx.shadowBlur = u * 0.006;
-  ctx.shadowOffsetY = u * 0.003;
-  doodleHeart(ctx, cx, cy, r * 1.16, '#ffffff', true, rot);
-  ctx.restore();
-  doodleHeart(ctx, cx, cy, r, fill, true, rot);
-}
-
-function heartBack(ctx, L) {
-  const { u, win, W, H } = L;
-  ctx.fillStyle = '#f2b8c6';
-  ctx.fillRect(0, 0, W, H);
-  crinkle(ctx, W, H, u, 41);
-  if (win.w > 0) {
-    // a white deckled mat, straight-edged so the picture stays a clean rectangle
-    const m = u * 0.016;
-    ctx.save();
-    ctx.shadowColor = 'rgb(120 40 70 / 0.18)';
-    ctx.shadowBlur = u * 0.01;
-    ctx.fillStyle = '#fff8fa';
-    ctx.fillRect(win.x - m, win.y - m, win.w + m * 2, win.h + m * 2);
-    ctx.restore();
-  }
-}
-
-function heartFront(ctx, L) {
-  const { u, win } = L;
-  if (!(win.w > 0)) return;
-  const fills = ['#e2556f', '#ffffff', '#f7d9e1', '#c93a58', '#ffffff'];
-  marginSpots(L, 14, 43).forEach((p, i) => {
-    const r = Math.min(p.band * 0.3, u * 0.034) * (0.7 + p.r * 0.45);
-    if (i % 3 === 2) doodleHeart(ctx, p.x, p.y, r * 0.9, '#5b7fc4', false, (p.r2 - 0.5) * 0.8);
-    else paperHeart(ctx, p.x, p.y, r, fills[i % fills.length], (p.r2 - 0.5) * 0.7, u);
-  });
 }
 
 /** A jagged starburst sticker. */
@@ -2073,25 +1680,6 @@ function halftone(ctx, x, y, w, h, step, color, fromX, fromY) {
     }
   }
   ctx.restore();
-}
-
-/** A rectangle with wavy sides: the edge waves, the opening inside stays straight. */
-function wavyRect(ctx, x, y, w, h, amp, wave) {
-  ctx.beginPath();
-  const side = (x0, y0, x1, y1, nx, ny) => {
-    const len = Math.hypot(x1 - x0, y1 - y0);
-    const n = Math.max(4, Math.round(len / wave)) * 8;
-    for (let i = 0; i <= n; i++) {
-      const t = i / n;
-      const o = Math.sin(t * (n / 8) * Math.PI * 2) * amp;
-      ctx.lineTo(x0 + (x1 - x0) * t + nx * o, y0 + (y1 - y0) * t + ny * o);
-    }
-  };
-  side(x, y, x + w, y, 0, -1);
-  side(x + w, y, x + w, y + h, 1, 0);
-  side(x + w, y + h, x, y + h, 0, 1);
-  side(x, y + h, x, y, -1, 0);
-  ctx.closePath();
 }
 
 function comicBack(ctx, L) {
@@ -2158,95 +1746,28 @@ function comicFront(ctx, L) {
   doodleHeart(ctx, pad * 0.5, pad * 0.5, pad * 0.18, ink, false, -0.2);
 }
 
-function ovalBack(ctx, L) {
-  const { u, win, W, H } = L;
-  ctx.fillStyle = '#a8c48f';
-  ctx.fillRect(0, 0, W, H);
-  halftone(ctx, 0, 0, W, H, u * 0.02, 'rgb(63 90 59 / 0.18)', W, H);
-  ctx.strokeStyle = '#f2c9a8';
-  ctx.lineWidth = u * 0.014;
-  ctx.strokeRect(u * 0.014, u * 0.014, W - u * 0.028, H - u * 0.028);
-  if (win.w > 0) {
-    // a wavy cream mat; only its outer edge waves, the picture stays rectangular
-    const m = u * 0.03;
-    ctx.save();
-    ctx.shadowColor = 'rgb(40 60 36 / 0.25)';
-    ctx.shadowBlur = u * 0.008;
-    ctx.fillStyle = '#fbf7ee';
-    wavyRect(ctx, win.x - m, win.y - m, win.w + m * 2, win.h + m * 2, u * 0.006, u * 0.05);
-    ctx.fill();
-    ctx.restore();
-    ctx.strokeStyle = '#3f5a3b';
-    ctx.lineWidth = Math.max(1, u * 0.003);
-    ctx.strokeRect(win.x - u * 0.006, win.y - u * 0.006, win.w + u * 0.012, win.h + u * 0.012);
-  }
-}
-
-function ovalFront(ctx, L) {
-  const { u, win, W, H } = L;
-  if (!(win.w > 0)) return;
-  const pad = Math.min(win.x, win.y, W - win.x - win.w, H - win.y - win.h);
-  burst(ctx, win.x + win.w + pad * 0.12, win.y - pad * 0.1, Math.min(u * 0.05, pad * 0.6), '#f4d35e', '#3b2f25');
-  for (const [x, y, r, c] of [[win.x - pad * 0.45, win.y + win.h + pad * 0.45, 0.24, '#fbf7ee'], [W - pad * 0.5, H * 0.6, 0.18, '#f2c9a8'], [pad * 0.5, H * 0.3, 0.16, '#fbf7ee']]) {
-    starPath(ctx, x, y, pad * r, pad * r * 0.45, -0.2);
-    ctx.fillStyle = c;
-    ctx.fill();
-  }
-}
-
-function newsBack(ctx, L) {
-  const { u, win, W, H } = L;
-  const ink = '#1d1a17';
-  ctx.fillStyle = '#f3ecdc';
-  ctx.fillRect(0, 0, W, H);
-  grain(ctx, W, H, u, 'rgb(40 30 20 / 0.06)', 33, 1000);
-  // a halftone wash rising from the bottom and a double rule all round, like old print
-  halftone(ctx, 0, H * 0.45, W, H * 0.55, u * 0.016, 'rgb(29 26 23 / 0.14)', W / 2, H * 1.4);
-  ctx.strokeStyle = ink;
-  ctx.lineWidth = Math.max(1, u * 0.006);
-  ctx.strokeRect(u * 0.016, u * 0.016, W - u * 0.032, H - u * 0.032);
-  ctx.lineWidth = Math.max(1, u * 0.002);
-  ctx.strokeRect(u * 0.028, u * 0.028, W - u * 0.056, H - u * 0.056);
-  if (!(win.w > 0)) return;
-  // the masthead band: a black bar with a row of hearts cut out of it
-  const bandH = Math.min(win.y * 0.38, u * 0.05);
-  const by = (win.y - bandH) / 2 + u * 0.008;
-  ctx.fillStyle = ink;
-  ctx.fillRect(win.x, by, win.w, bandH);
-  const n = Math.max(5, Math.round(win.w / (bandH * 1.6)));
-  for (let i = 0; i < n; i++) doodleHeart(ctx, win.x + ((i + 0.5) / n) * win.w, by + bandH / 2, bandH * 0.22, i % 4 === 1 ? '#e9a9c0' : '#f3ecdc', true);
-  ctx.lineWidth = Math.max(1, u * 0.004);
-  ctx.strokeRect(win.x - u * 0.006, win.y - u * 0.006, win.w + u * 0.012, win.h + u * 0.012);
-}
-
-function newsFront(ctx, L) {
-  const { u, win, W, H } = L;
-  if (!(win.w > 0)) return;
-  const pad = Math.min(win.x, H - win.y - win.h);
-  burst(ctx, win.x * 0.5, H - (H - win.y - win.h) * 0.5, pad * 0.42, '#5b7fc4', '#1d1a17');
-  paperHeart(ctx, win.x + win.w + (W - win.x - win.w) * 0.5, win.y + win.h * 0.66, pad * 0.3, '#e9a9c0', 0.12, u);
-  marginSpots(L, 9, 37).forEach((p, i) => {
-    if (p.y < win.y) return; // keep the masthead clean
-    const r = Math.min(p.band * 0.22, u * 0.013);
-    starPath(ctx, p.x, p.y, r, r * 0.42, p.r);
-    ctx.fillStyle = ['#5b7fc4', '#e9a9c0', '#1d1a17', '#f0b429'][i % 4];
-    ctx.fill();
-  });
-}
-
 /** Photostrip backings for frames whose texture should carry onto the strip. */
+const rasterStrip = (id, anchorY = 0.5) => (ctx, w, h) => {
+  const b = BORDERS.find((x) => x.id === id);
+  ctx.fillStyle = b.strip.bg;
+  ctx.fillRect(0, 0, w, h);
+  const img = rasterImage(id);
+  if (img) coverDraw(ctx, img, 0, 0, w, h, anchorY);
+};
 const STRIP_PAINT = {
+  cocoadots: rasterStrip('cocoadots'),
+  ribbon: rasterStrip('ribbon', 1),
+  leopard: rasterStrip('leopard'),
+  denimstar: rasterStrip('denimstar'),
+  halftone: rasterStrip('halftone'),
+  lily: rasterStrip('lily'),
+  sagestars: rasterStrip('sagestars'),
+  haze: rasterStrip('haze'),
+  linen: rasterStrip('linen'),
   denim: (ctx, w, h) => {
     denimFill(ctx, 0, 0, w, h, w);
     laceTrim(ctx, 0, w, 0, 1, w);
     laceTrim(ctx, 0, w, h, -1, w);
-  },
-  knit: (ctx, w, h) => knitBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
-  cocoa: (ctx, w, h) => {
-    ctx.fillStyle = '#3a2822';
-    ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = '#efe6d7';
-    for (let y = w * 0.05, r = 0; y < h; y += w * 0.16, r++) for (let x = (r % 2 ? w * 0.08 : 0) + w * 0.03; x < w; x += w * 0.16) { ctx.beginPath(); ctx.arc(x, y, w * 0.022, 0, Math.PI * 2); ctx.fill(); }
   },
   reel: (ctx, w, h) => reelBack(ctx, { W: w, H: h, u: w, win: { x: w * 0.07, y: -1e5, w: w * 0.86, h: 0 } }),
   airmail: (ctx, w, h) => {
@@ -2258,31 +1779,112 @@ const STRIP_PAINT = {
   velvet: (ctx, w, h) => velvetBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
   pressed: (ctx, w, h) => pressedBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
   crochet: (ctx, w, h) => crochetBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
-  starry: (ctx, w, h) => starryBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
   checker: (ctx, w, h) => checkerBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
   lavender: (ctx, w, h) => lavenderBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
   pixel: (ctx, w, h) => pixelBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
   confetti: (ctx, w, h) => confettiBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
   mono: (ctx, w, h) => monoBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
-  butter: (ctx, w, h) => butterBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
-  heart: (ctx, w, h) => heartBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
   comic: (ctx, w, h) => comicBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
-  oval: (ctx, w, h) => ovalBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
-  news: (ctx, w, h) => newsBack(ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
-  vinyl: (ctx, w, h) => vinylPainters('vinyl')[0](ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
-  vinylpink: (ctx, w, h) => vinylPainters('vinylpink')[0](ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
-  vinylred: (ctx, w, h) => vinylPainters('vinylred')[0](ctx, { W: w, H: h, u: w, win: { x: -1e5, y: -1e5, w: 0, h: 0 } }),
 };
+
+/* ---------- pattern frames: pictures from public/frames ---------- */
+
+/** Fires when a pattern picture has loaded, so open frames and thumbnails repaint. */
+export const frameEvents = typeof EventTarget !== 'undefined' ? new EventTarget() : null;
+const rasters = new Map();
+/** The frame's picture once it has loaded (loaded on first use), else null. */
+function rasterImage(id) {
+  if (typeof Image === 'undefined') return null;
+  let r = rasters.get(id);
+  if (!r) {
+    const img = new Image();
+    img.decoding = 'async';
+    r = { img, ready: false };
+    img.onload = () => {
+      r.ready = true;
+      frameEvents?.dispatchEvent(new Event('load'));
+    };
+    img.src = `/frames/${id}.jpg`;
+    rasters.set(id, r);
+  }
+  return r.ready ? r.img : null;
+}
+/** Preload a frame's picture (the picker calls it so a choice paints at once). */
+export function warmFrame(border) {
+  if (border?.raster) rasterImage(border.id);
+}
+
+/** Scale a picture to cover W × H, keeping its proportions; anchorY 0 = top, 0.5 = centre, 1 = bottom. */
+function coverDraw(ctx, img, x, y, W, H, anchorY = 0.5) {
+  const k = Math.max(W / img.width, H / img.height);
+  const w = img.width * k;
+  const h = img.height * k;
+  ctx.drawImage(img, x + (W - w) / 2, y + (H - h) * anchorY, w, h);
+}
+
+/** A pattern frame: the picture covers the frame (its own size follows the frame's), with a fine edge at the window. */
+function rasterPainters(id, { edge, anchorY = 0.5 }) {
+  return [
+    (ctx, L) => {
+      const b = BORDERS.find((x) => x.id === id);
+      ctx.fillStyle = b?.swatch?.[0] ?? '#eeeeee';
+      ctx.fillRect(0, 0, L.W, L.H);
+      const img = rasterImage(id);
+      if (img) coverDraw(ctx, img, 0, 0, L.W, L.H, anchorY);
+      if (edge) printEdge(ctx, L.win, L.u, edge, 0.007);
+    },
+    () => {},
+  ];
+}
+
+/*
+ * The pink document: sliced, not stretched. The toolbars along the top and
+ * bottom keep their proportions at the window's scale; the ruler and the
+ * scroll bar run down the sides; the white page is the window itself.
+ * Measured on the picture: the page is x 52–1158, y 181–598 of 1200 × 675.
+ */
+const DOC = { w: 1200, h: 675, l: 52, r: 1158, t: 181, b: 598 };
+const docPainters = [
+  (ctx, L) => {
+    ctx.fillStyle = '#f7d7e1';
+    ctx.fillRect(0, 0, L.W, L.H);
+    const img = rasterImage('pinkdoc');
+    if (!img || !(L.win.w > 0)) return;
+    const s = img.width / DOC.w; // the file may be any size; DOC is in 1200-wide units
+    const k = L.win.w / (DOC.r - DOC.l); // one picture pixel, at the window's scale
+    const x0 = L.win.x - DOC.l * k;
+    const top = DOC.t * k;
+    const bot = (DOC.h - DOC.b) * k;
+    const yTop = L.win.y - top;
+    const yBot = L.win.y + L.win.h;
+    // the bands reach the frame's edges even when full screen widens it: their ends repeat outwards
+    ctx.drawImage(img, 0, 0, img.width, DOC.t * s, x0, yTop, DOC.w * k, top);
+    ctx.drawImage(img, 0, DOC.b * s, img.width, (DOC.h - DOC.b) * s, x0, yBot, DOC.w * k, bot);
+    ctx.drawImage(img, 0, DOC.t * s, DOC.l * s, (DOC.b - DOC.t) * s, x0, L.win.y, DOC.l * k, L.win.h);
+    ctx.drawImage(img, DOC.r * s, DOC.t * s, (DOC.w - DOC.r) * s, (DOC.b - DOC.t) * s, x0 + DOC.r * k, L.win.y, (DOC.w - DOC.r) * k, L.win.h);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(L.win.x, L.win.y, L.win.w, L.win.h);
+  },
+  () => {},
+];
 
 const PAINTERS = {
   none: [noneBack, () => {}],
+  cocoadots: rasterPainters('cocoadots', { edge: '#fffaf0' }),
+  ribbon: rasterPainters('ribbon', { edge: '#fffaf0', anchorY: 1 }),
+  pinkdoc: docPainters,
+  leopard: rasterPainters('leopard', { edge: '#f7eadb' }),
+  denimstar: rasterPainters('denimstar', { edge: '#f3f6fb' }),
+  halftone: rasterPainters('halftone', { edge: '#eeeeee' }),
+  lily: rasterPainters('lily', { edge: '#fbeff2' }),
+  sagestars: rasterPainters('sagestars', { edge: '#f2f5ea' }),
+  haze: rasterPainters('haze', { edge: '#f6f2d8' }),
+  linen: rasterPainters('linen', { edge: '#fbf4e2' }),
   booth: [boothBack, boothFront],
   lace: [laceBack, () => {}],
   stamp: [stampBack, stampFront],
   ticket: [ticketBack, ticketFront],
   denim: [denimBack, denimFront],
-  knit: [knitBack, knitFront],
-  cocoa: [cocoaBack, cocoaFront],
   reel: [reelBack, reelFront],
   airmail: [airmailBack, airmailFront],
   matinee: [matineeBack, matineeFront],
@@ -2291,20 +1893,12 @@ const PAINTERS = {
   velvet: [velvetBack, velvetFront],
   pressed: [pressedBack, () => {}],
   crochet: [crochetBack, () => {}],
-  starry: [starryBack, starryFront],
   checker: [checkerBack, () => {}],
   lavender: [lavenderBack, lavenderFront],
   pixel: [pixelBack, () => {}],
   confetti: [confettiBack, confettiFront],
-  vinyl: vinylPainters('vinyl'),
-  vinylpink: vinylPainters('vinylpink'),
-  vinylred: vinylPainters('vinylred'),
   mono: [monoBack, () => {}],
-  butter: [butterBack, butterFront],
-  heart: [heartBack, heartFront],
   comic: [comicBack, comicFront],
-  oval: [ovalBack, ovalFront],
-  news: [newsBack, newsFront],
 };
 
 /**

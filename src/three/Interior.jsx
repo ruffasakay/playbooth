@@ -7,11 +7,11 @@ import { MOVIES } from '../data/movies.js';
 import { BOOTH, CABINET, FONT_HAND, FONT_SERIF, PAL, cubbyCenters, damp, dayNight, interaction, mat } from './world.js';
 import { makeSampleStrips } from './Booth.jsx';
 import { canvasTexture } from './canvasTexture.js';
-import { coverTexture } from './covers.js';
 import { Machine } from './Machine.jsx';
 import { Tapes } from './Tape.jsx';
 import { Prints } from './Prints.jsx';
 import { PottedPlant } from './Street.jsx';
+import { PosterFrame } from './Posters.jsx';
 
 const innerX = BOOTH.halfW - BOOTH.wall;
 const innerZ = BOOTH.halfD - BOOTH.wall;
@@ -156,16 +156,12 @@ function WindowLight() {
   );
 }
 
+/** Two framed one-sheets on the back wall: the first open movie over the deck's corner, Singularity over the printer. */
 function Poster() {
-  const movie = MOVIES[MOVIES.length - 1];
-  const tex = useMemo(() => coverTexture(movie), [movie]);
   return (
-    <group position={[0.15, 1.95, -innerZ + 0.03]} rotation={[0, 0, 0.012]}>
-      <RoundedBox args={[0.5, 0.82, 0.03]} radius={0.008} smoothness={2} material={mat(PAL.woodDark)} />
-      <mesh position={[0, 0, 0.017]}>
-        <planeGeometry args={[0.44, 0.76]} />
-        <meshStandardMaterial map={tex} roughness={0.6} />
-      </mesh>
+    <group>
+      <PosterFrame id="elephants-dream" width={0.4} position={[0.15, 1.98, -innerZ + 0.012]} rotation={[0, 0, 0.012]} />
+      <PosterFrame id="singularity" width={0.3} position={[2.02, 1.5, -innerZ + 0.012]} rotation={[0, 0, -0.015]} />
     </group>
   );
 }
@@ -331,7 +327,7 @@ function WallShelf() {
 
 /** Photostrips pinned along a string on the side wall. */
 function StripGallery() {
-  const strips = useMemo(() => makeSampleStrips(['denim', 'knit', 'cocoa', 'airmail']), []);
+  const strips = useMemo(() => makeSampleStrips(['denim', 'reel', 'matinee', 'airmail']), []);
   return (
     <group position={[innerX - 0.012, 1.55, -0.85]} rotation={[0, -Math.PI / 2, 0]}>
       <mesh position={[0, 0.42, 0]} rotation={[0, 0, Math.PI / 2]} material={mat('#6a5a4a')}>

@@ -6,6 +6,7 @@ import { useApp } from '../store.js';
 import { BOOTH, FONT_HAND, FONT_MONO, FONT_SERIF, PAL, dayNight, mat, motion } from './world.js';
 import { canvasTexture } from './canvasTexture.js';
 import { BORDERS, frameLayout, paintComposite } from '../data/borders.js';
+import { PosterCase } from './Posters.jsx';
 
 const { halfW, halfD, wallH, wall, door } = BOOTH;
 
@@ -22,6 +23,22 @@ export function Booth() {
       <Awning />
       <CoinPlate />
       <Sconce />
+      <NowShowing />
+    </group>
+  );
+}
+
+/*
+ * Now showing: lit one-sheet cases like a small cinema's, one each side of
+ * the door at eye height (clear of the bicycle, the coin plate and the
+ * sconce) and one on the side wall between its panel seams.
+ */
+function NowShowing() {
+  return (
+    <group>
+      <PosterCase id="big-buck-bunny" position={[-1.98, 1.66, halfD + 0.004]} />
+      <PosterCase id="wing-it" position={[1.98, 1.66, halfD + 0.004]} />
+      <PosterCase id="cosmos-laundromat" width={0.5} position={[halfW + 0.004, 1.62, -1.27]} rotation={[0, Math.PI / 2, 0]} />
     </group>
   );
 }

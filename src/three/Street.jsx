@@ -1,8 +1,9 @@
 import { useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import { RoundedBox, Text } from '@react-three/drei';
-import { FONT_SERIF, PAL, dayNight, mat } from './world.js';
+import { FONT_HAND, FONT_SERIF, PAL, dayNight, mat } from './world.js';
 import { canvasTexture } from './canvasTexture.js';
+import { PosterColumn } from './Posters.jsx';
 
 const G = -0.12;
 
@@ -29,6 +30,10 @@ export function Street() {
       <PlantCrate position={[1.45, G, 2.62]} />
       <PottedPlant position={[2.55, G, 2.7]} scale={1.05} />
       <PottedPlant position={[-3.1, G, 2.75]} scale={0.8} />
+      {/* set dressing: the corner's poster column, a chalk sign by the door, a mat on the step */}
+      <PosterColumn position={[-4.25, G, 3.35]} ids={['tears-of-steel', 'sprite-fright', 'agent-327']} />
+      <ChalkSign position={[-1.02, G, 3.35]} rotation={[0, 0.62, 0]} />
+      <Doormat position={[0, G, 2.6]} />
     </group>
   );
 }
@@ -527,5 +532,73 @@ export function PottedPlant({ position, scale = 1, rotation }) {
         </mesh>
       ))}
     </group>
+  );
+}
+
+/** An A-frame chalkboard on the pavement, the way a little cinema says what's on. */
+function ChalkSign(props) {
+  const slate = mat('#2f3330', { roughness: 0.95 });
+  const wood = mat(PAL.woodLight, { roughness: 0.7 });
+  const W = 0.46;
+  const H = 0.66;
+  // the two boards stand 24 cm apart at the foot and meet at the hinge on top
+  const foot = 0.12;
+  const tilt = Math.atan2(foot, H + 0.055);
+  return (
+    <group {...props}>
+      {[1, -1].map((side) => (
+        <group key={side} position={[0, 0, side * foot]} rotation={side === 1 ? [-tilt, 0, 0] : [-tilt, Math.PI, 0, 'YXZ']}>
+          <group position={[0, H / 2 + 0.03, 0]}>
+            <mesh material={wood} castShadow>
+              <boxGeometry args={[W + 0.05, H + 0.05, 0.022]} />
+            </mesh>
+            <mesh position={[0, 0, 0.0125]} material={slate}>
+              <planeGeometry args={[W, H]} />
+            </mesh>
+            {side === 1 && (
+              <group position={[0, 0, 0.0135]}>
+                <Text font={FONT_HAND} fontSize={0.085} color="#efe4cf" anchorX="center" anchorY="middle" position={[0, 0.2, 0]}>
+                  Now showing
+                </Text>
+                <mesh position={[0, 0.135, 0]} material={mat('#d9a441')}>
+                  <planeGeometry args={[0.26, 0.006]} />
+                </mesh>
+                <Text font={FONT_HAND} fontSize={0.06} color="#efe4cf" anchorX="center" anchorY="middle" position={[0, 0.04, 0]} lineHeight={1.1} textAlign="center">
+                  {'10 films\nsnap any frame'}
+                </Text>
+                <Text font={FONT_HAND} fontSize={0.058} color="#e9a08a" anchorX="center" anchorY="middle" position={[0, -0.16, 0]}>
+                  prints while you wait
+                </Text>
+              </group>
+            )}
+          </group>
+        </group>
+      ))}
+    </group>
+  );
+}
+
+/** A coir mat in front of the door, raised just off the paving. */
+function Doormat(props) {
+  const tex = useMemo(
+    () =>
+      canvasTexture(256, 128, (ctx, w, h) => {
+        ctx.fillStyle = '#8f6d47';
+        ctx.fillRect(0, 0, w, h);
+        for (let i = 0; i < 1400; i++) {
+          ctx.fillStyle = `rgba(${i % 2 ? '60,42,26' : '190,160,120'},0.18)`;
+          ctx.fillRect((i * 37.3) % w, (i * 19.7) % h, 1.4, 1.4);
+        }
+        ctx.strokeStyle = '#5c3d28';
+        ctx.lineWidth = 6;
+        ctx.strokeRect(10, 10, w - 20, h - 20);
+      }),
+    [],
+  );
+  return (
+    <mesh {...props} position={[props.position[0], props.position[1] + 0.008, props.position[2]]} receiveShadow>
+      <boxGeometry args={[0.9, 0.016, 0.42]} />
+      <meshStandardMaterial map={tex} roughness={1} />
+    </mesh>
   );
 }

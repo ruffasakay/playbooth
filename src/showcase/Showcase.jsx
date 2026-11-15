@@ -12,6 +12,7 @@ import { PlayTwice } from '../ui/PlayTwice.jsx';
 import { bindSounds } from '../lib/sfx.js';
 import * as I from '../player/icons.jsx';
 import { USAGE } from '../embed/usage.js';
+import { readFramePicture } from '../player/frameUpload.js';
 
 /*
  * The PLAYBOOTH skin on its own, outside the booth: a sandbox for judges,
@@ -111,24 +112,9 @@ export default function Showcase() {
    * frame chooser), so they always agree. Returns why a file was turned away.
    */
   const loadFrame = useCallback(async (file) => {
-    if (!file || !file.type.startsWith('image/')) return 'That file isn’t a picture. Choose a JPG, PNG or WebP.';
-    const url = URL.createObjectURL(file);
-    const image = new Image();
-    image.src = url;
-    try {
-      await image.decode();
-    } catch {
-      URL.revokeObjectURL(url);
-      return 'That picture could not be opened.';
-    }
-    const iw = image.naturalWidth;
-    const ih = image.naturalHeight;
-    if (iw <= ih) {
-      URL.revokeObjectURL(url);
-      useApp.getState().announce('A frame picture has to be landscape.');
-      return `That picture is ${iw} × ${ih}, ${iw === ih ? 'square' : 'upright'}. Choose a landscape one: wider than it is tall.`;
-    }
-    setCustom((c) => ({ image, url, tone: averageTone(image), mode: c?.mode ?? 'fit', pad: c?.pad ?? 0.06 }));
+    const r = await readFramePicture(file);
+    if (r.error) return r.error;
+    setCustom((c) => ({ image: r.image, url: r.url, tone: r.tone, mode: c?.mode ?? 'fit', pad: c?.pad ?? 0.06 }));
     useApp.getState().announce('Your frame is on.');
     return '';
   }, []);
@@ -549,30 +535,6 @@ function ThemeButton({ theme, setTheme }) {
   );
 }
 
-/** The picture's average colour, so the keys' dock matches it. */
-function averageTone(image) {
-  try {
-    const c = document.createElement('canvas');
-    c.width = 16;
-    c.height = 16;
-    const g = c.getContext('2d', { willReadFrequently: true });
-    g.drawImage(image, 0, 0, 16, 16);
-    const d = g.getImageData(0, 0, 16, 16).data;
-    let r = 0;
-    let gr = 0;
-    let b = 0;
-    for (let i = 0; i < d.length; i += 4) {
-      r += d[i];
-      gr += d[i + 1];
-      b += d[i + 2];
-    }
-    const n = d.length / 4;
-    const hex = (v) => Math.round(v / n).toString(16).padStart(2, '0');
-    return `#${hex(r)}${hex(gr)}${hex(b)}`;
-  } catch {
-    return null;
-  }
-}
 
 /* ---------- the player's helpers ---------- */
 
@@ -801,7 +763,7 @@ function Brief({ close }) {
     },
     {
       title: 'Has essential controls',
-      text: 'Play, a progress column with time and clip reel, ±10 s, sound and volume, captions, scenes (a contact sheet of stills to jump to), settings (quality, speed, caption style, brightness, picture-in-picture), lock, snap, full screen.',
+      text: 'Play, a progress column with time and clip reel, ±10 s, sound and volume, captions, settings (quality, speed, caption style, brightness, picture-in-picture), lock, snap, full screen.',
       live: `${count} keys on screen now`,
     },
     {
@@ -891,8 +853,9 @@ function CheckList({ id, title, items }) {
 const SHORTCUTS = [
   [['Space', 'K'], 'Play or pause'],
   [['J', 'L'], 'Back or forward 10 s'],
-  [['←', '→'], 'Back or forward 5 s'],
-  [['↑', '↓'], 'Volume'],
+  [['←', '→'], 'Back or forward 10 s'],
+  [['↑', '↓'], 'Volume (works while locked)'],
+  [['Shift ↑', 'Shift ↓'], 'Brightness (works while locked)'],
   [['M'], 'Sound on or off'],
   [['C'], 'Captions'],
   [['<', '>'], 'Slower or faster'],
@@ -923,8 +886,10 @@ function Keys() {
       ))}
     </dl>
       <p className="sc-note sc-keys-touch">
-        Every key above shows itself, large, in the middle of the picture for a moment. On phones and tablets: tap the picture to bring the
-        keys back, tap again to play or pause; slide up or down on it, left for brightness, right for volume.
+        Shortcuts flash their key, large, in the middle of the picture; volume and brightness show a level at the picture's edge. On
+        phones and tablets: tap the picture to bring the keys back, tap again to play or pause; double-tap its left or right side to go
+        back or forward 10 s; slide up or down on it, left for brightness, right for volume. Locked, only volume and brightness still
+        answer, by key or by slide.
       </p>
     </div>
   );
@@ -1036,7 +1001,7 @@ function Credits() {
         </div>
         <div>
           <dt>Frames</dt>
-          <dd>30, drawn in code, no text on any of them</dd>
+          <dd>30: ten patterns from pictures, twenty drawn in code; or your own picture</dd>
         </div>
       </dl>
       <footer className="about-foot">

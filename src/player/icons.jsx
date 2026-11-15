@@ -142,17 +142,6 @@ export const Heart = () => (
   </svg>
 );
 
-/** A contact sheet: four stills, the scenes of the film. */
-export const Scenes = () => (
-  <svg {...base}>
-    <g {...line}>
-      <rect x="3.5" y="4.5" width="7.4" height="6.2" rx="1.1" />
-      <rect x="13.1" y="4.5" width="7.4" height="6.2" rx="1.1" />
-      <rect x="3.5" y="13.3" width="7.4" height="6.2" rx="1.1" />
-      <rect x="13.1" y="13.3" width="7.4" height="6.2" rx="1.1" />
-    </g>
-  </svg>
-);
 /** Brightness: a sun drawn in line, half of it filled. */
 export const Brightness = () => (
   <svg {...base}>

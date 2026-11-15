@@ -1,17 +1,126 @@
 # PLAYBOOTH
 
-A photobooth is a little room you step into. PLAYBOOTH is one made for **play**, both kinds: **play the game** (walk in, pick a tape off the shelf, slide it into the player) and **play the film** (watch it in a frame you choose, snap the moments you love, print them as a photostrip).
+<p align="center">
+  <a href="https://playbooth.vercel.app"><img src="public/og.png" alt="PLAYBOOTH: the 3D booth on a street at night, with the player as it looks on a desktop and on a phone, each showing a film inside a photo frame." width="100%"></a>
+</p>
 
-Built for the Video.js v10 Skins Design Challenge with **Video.js 10.4.0 (`@videojs/react`)**, React Three Fiber and Mux.
+**A photobooth for films, and a mobile-first Video.js 10 skin.**
 
-- Live site: https://playbooth.vercel.app
-- The player on its own (Project URL): https://playbooth.vercel.app/player/
-- Source: https://github.com/ruffasakay/playbooth (Apache License 2.0, see `LICENSE`)
-- The player on an ordinary page: https://playbooth.vercel.app/embed/
+A photobooth is a little room you step into. PLAYBOOTH is one made for **play**, both kinds. **Play the game**: walk down a quiet street, step into the booth, pick a tape off the shelf and slide it into an old VCR. **Play the film**: watch it in a photo frame you choose, snap the moments you love, and print them as a photostrip.
 
-## Use it on your site
+The player inside the booth is a complete Video.js 10 skin that also stands on its own and drops into any React page.
 
-Copy the skin's `src` folder into your React project, install its packages, and render one component wherever a film should play. Apache 2.0.
+| | |
+| --- | --- |
+| The booth | https://playbooth.vercel.app |
+| The player on its own (sizes, frames, light and dark page) | https://playbooth.vercel.app/player/ |
+| The player on an ordinary page | https://playbooth.vercel.app/embed/ |
+| Source | https://github.com/ruffasakay/playbooth |
+
+Built with Video.js 10.4 (`@videojs/react`), Mux, React 19, React Three Fiber and three.js. Apache License 2.0.
+
+---
+
+## Contents
+
+- [The idea](#the-idea)
+- [Features](#features)
+- [Use the player on your site](#use-the-player-on-your-site)
+- [Getting started](#getting-started)
+- [How it works](#how-it-works)
+- [Keyboard and touch](#keyboard-and-touch)
+- [Accessibility](#accessibility)
+- [Project structure](#project-structure)
+- [Films](#films)
+- [Credits and license](#credits-and-license)
+- [Known limitations](#known-limitations)
+
+---
+
+## The idea
+
+### Controls for thumbs
+
+Hold a phone sideways and your thumbs rest on its short edges, not along the bottom. Most players still put their controls in a strip along the bottom, over the film. PLAYBOOTH stands them up beside the picture instead:
+
+- **Right thumb**: a vertical progress bar and one column of keys (play, ±10 s, sound, captions, settings, lock, snap, full screen).
+- **Left thumb**: the booth's own keys (back, snaps, album, eject), or, outside the booth, frames and films.
+- **Nothing sits on the film.** The framed picture takes every pixel between the two.
+- Hold the phone upright and the same controls lie down under the picture. Full screen turns a phone to landscape.
+
+### A new way through a film on desktop
+
+The timeline is a column you run your mouse down, like scrolling a feed. Hover it and a reel of real frames rides beside your pointer: the moment you point at is the largest, outlined, with its time; the moments before and after shrink and fade the further away they are. Drag and the picture itself scrubs too. While a film plays, the controls step aside and the picture grows into the room they leave.
+
+### The frame is the theme
+
+The picture always sits in a photo frame, and the frame sets the player's colours: each one tints its own dock, keys and progress groove, so the controls belong to what surrounds the film. Windows are always straight-edged rectangles with slim margins, so a frame never crops the film or takes much of its space.
+
+### Snap, the button I always wanted
+
+As a film lover, the feature I always wanted is a screenshot button. Press **S** or the camera key on any frame: the clean frame downloads at once and waits in the booth's tray, ready to be printed in your frame or stacked into a photostrip.
+
+---
+
+## Features
+
+<p align="center">
+  <img src="docs/player-desktop.jpg" alt="The player on a desktop: Wing It! inside a cream polka-dot frame with a gingham bow. A tall progress column and one column of round keys stand to the right of the picture; the frame, shuffle and next-film keys sit to the left." width="72%">
+  &nbsp;
+  <img src="docs/player-phone.jpg" alt="The player held upright on a phone: the film in a pink desktop-document frame, the progress bar below it, two rows of round keys, and a Frames and films button at the bottom." width="24%">
+</p>
+<p align="center"><sub>The player on a desktop and held upright on a phone. The picture is a still from the poster art of <i>Wing It!</i> (Blender Studio, CC BY 4.0).</sub></p>
+
+### The player
+
+- **Vertical controls**: a full-height progress column with the time, and one column of keys beside the picture (two or three columns only on short players, such as a phone on its side). Upright, the dock lies under the picture.
+- **Clip reel**: hover or drag the progress and real frames from the film's Mux storyboard ride beside the pointer; a sharp frame replaces the active clip once the pointer rests.
+- **Steps aside**: after a few seconds of play the controls fade and the picture grows (an animated FLIP), and a move or a tap brings them back.
+- **Lock**: one click locks, one click unlocks. While locked, only volume and brightness still answer, by key or by slide, so you can always hear and see comfortably.
+- **Settings**: quality (every rendition the stream offers, and Auto), playback speed, subtitle style (font, size, colour, outline or box), brightness (30–150%, the picture only) and picture-in-picture.
+- **Feedback**: a keyboard shortcut or a click on the picture flashes a large copy of its key in the middle of the picture, icon only. Volume and brightness show a level at the picture's edge instead: right for volume, left for brightness. Pressing the dock's own keys doesn't double this, since those keys already show their state.
+- **Touch**: a tap brings the keys back; with them up, a tap plays or pauses. Double-tap the left or right of the picture to go back or forward 10 s. Hold and slide up or down: the left half sets brightness, the right half the volume.
+- **Hover hints**: rest the mouse on a key and a small card names it with its shortcut, like a game's key prompts. Nothing shows on touch screens.
+- **Snap**: the camera key (or **S**) saves the current frame.
+
+### Frames
+
+There are 30 frames, ranked:
+
+- **Ten patterns made from pictures** (`public/frames/`): Cocoa dots, Cocoa ribbon (a gingham bow tied under the picture), Pink document (a 2003 word processor whose white page is the film), Leopard, Star denim, Halftone stars, Lily & dots, Sage stars, Grain haze and Butter linen.
+- **Twenty drawn in code**: Star confetti, Comic blocks, Lace, Red film, Lavender swirl, Airmail, Matinee, Denim & lace, Pixel lilac, Black strip, Velvet curtain, Granny squares, Sage checker, Cinema ticket, Postage stamp, Pressed flowers, Red polka, Linen stripe and Booth white, plus No frame.
+- **Your own frame**: outside the booth, the frame chooser takes any landscape picture and turns it into a frame. Its average colour tints the keys.
+
+### Snaps and prints (the booth)
+
+- Every snap downloads the clean frame at once and joins the **Snaps** tray.
+- From there, print singles in any frame, or stack 2 to 6 into a framed **photostrip**. The printer in the room prints them, and they drop into its tray.
+- The **Album** keeps every print on the device (IndexedDB), with download and share.
+
+### The booth
+
+<p align="center"><img src="docs/booth.jpg" alt="The booth at night: a small white booth with a green roof and a PLAYBOOTH sign, film posters on its walls, a poster column, a bicycle, a chalkboard and string lights on the street around it." width="80%"></p>
+
+- **The street**: a booth on a street at night (or day, with the switch). Lit poster cases and an advertising column carry the films' real posters, there's a chalkboard by the door, and the room's lamps and string lights come on after dark.
+- **The tapes**: ten tapes on a video-store rack, newest first, each wearing its film's official poster.
+- **Tape moves**: pick a tape to see it close up; drag or click it into the VCR and watch on an old television.
+- **Sounds**: every interface sound is synthesized with WebAudio, and one switch mutes them all.
+
+### The showcase page (`/player/`)
+
+A one-screen sandbox for the skin on its own:
+
+- **Size**: six shapes (desktop, laptop, tablet, square, phone sideways, phone upright) and a width slider. The skin lays itself out from the box's real size, so this tests the layout itself rather than a zoom.
+- **Film, Frame, Your own frame**: change the film, pick any of the 30 frames, or upload a picture (Fit or Tile, with a margin slider).
+- **Playback**: autoplay (muted), loop, calm motion, key sounds.
+- **Light or dark page**: switch from the header, to judge the skin against both.
+- **Cards**: the idea, the requirements and accessibility checks with live measurements, every keyboard shortcut, the usage code, and the credits.
+
+---
+
+## Use the player on your site
+
+Copy this repository's `src` folder into your React project, install its packages, and render one component wherever a film should play.
 
 ```bash
 npm i react react-dom @videojs/react @videojs/core @videojs/mux-video @videojs/mux-data zustand idb-keyval @fontsource-variable/fraunces @fontsource/dm-mono
@@ -27,7 +136,7 @@ export default function Film() {
       playbackId="TWFNjB9Ku021WuLLXrYG3lLoOR6l02fgYcg2oYWTqLyCs"
       credit="Blender Studio"
       year={2021}
-      frame="vinyl"
+      frame="cocoadots"
       style={{ width: '100%', aspectRatio: '16 / 10' }}
     />
   );
@@ -36,159 +145,219 @@ export default function Film() {
 
 | Prop | What it does |
 | --- | --- |
-| `playbackId` | a Mux public playback ID |
-| `src` | or any HLS (`.m3u8`) or MP4 URL; HLS plays through hls.js, so it gets the quality menu too |
-| `title`, `credit`, `year` | shown above the picture |
-| `captions` | a WebVTT URL (Mux's own captions need nothing) |
-| `frame` | any frame id from `src/data/borders.js` (`vinyl`, `lace`, `comic`, …) |
-| `style`, `className` | give it a width and a height, or a width and an `aspectRatio`: the skin lays itself out from its own box |
+| `playbackId` | A Mux public playback ID. |
+| `src` | Or any HLS (`.m3u8`) or MP4 URL. HLS plays through hls.js, so it gets the quality menu too. |
+| `title`, `credit`, `year` | Shown above the picture. |
+| `captions` | A WebVTT URL. Captions that come inside a Mux stream need nothing. |
+| `frame` | Any frame id from `src/data/borders.js`, for example `cocoadots`, `ribbon`, `pinkdoc`, `lace` or `comic`. |
+| `style`, `className` | Give the player a width and a height, or a width and an `aspectRatio`. The skin lays itself out from its own box. |
 
-`src/player/PlayboothPlayer.jsx` brings its own styles (`tokens.css`, `skin.css` and a small `embed.css` scoped to the player), so it doesn't restyle your page, and it never loads three.js: only the booth needs it. One player per page, since it shares one store, like the booth. `/embed/` (`embed/index.html` → `src/embed/`) is an ordinary page built exactly this way, as proof; the same snippet is in the showcase's **Use it** card with Copy buttons (both read `src/embed/usage.js`, so they can't drift apart).
+Notes:
 
-## Design thinking (for the submission form)
+- **Styles**: the component brings its own (`tokens.css`, `skin.css`, and a small `embed.css` scoped to the player), so it doesn't restyle your page.
+- **Bundle**: it never imports three.js, which only the booth needs.
+- **What you get**: the full skin, including the frame chooser, uploading your own frame, settings, snaps and every shortcut. The left keys become Frames and Surprise frame.
+- **One player per page**: it shares one store, like the booth.
+- **Working example**: `/embed/` (`embed/index.html` → `src/embed/`) is an ordinary page built exactly this way. The snippet above lives in `src/embed/usage.js` and is shared with the showcase's Use it card, so the two never drift apart.
 
-> PLAYBOOTH is a booth made for play: play the game, play the film. You step into a little white booth on a quiet street, pick a tape from the rack and watch it on an old television. The Video.js skin is a photo frame with a remote beside it: the frame you choose holds the picture, and a dock of round paper keys in that frame's own colors stands at its right. The progress runs top to bottom, like scrolling a feed: hover or drag it and a reel of real frames rides beside your pointer, the moment you are on the largest and outlined. When nobody touches anything the dock steps away and the framed picture grows into the room. On a phone, full screen turns the film on its side, so both thumbs rest on the controls like a game. Press Snap on any frame and it downloads at once and waits in the booth's tray, ready to be printed in its frame or stacked into a photostrip.
+---
 
-## Run it
+## Getting started
 
 ```bash
 npm install
 npm run dev        # http://localhost:5173
 npm run build      # production build in dist/
+npm run preview    # serve the build
 ```
 
-Node 20.19 or newer.
+Node 20.19 or newer. The build has three pages: `/` (the booth), `/player/` (the showcase) and `/embed/` (the ordinary page).
 
-## Deploy (GitHub → Vercel)
+### Deploying
 
-1. Push this folder to your GitHub repo (`node_modules` and `dist` are ignored).
-2. In Vercel, import the repo. The included `vercel.json` sets the build command and the `dist` output.
-3. Every push to `main` redeploys.
+The repository deploys to Vercel as it is: import it, and the included `vercel.json` sets the build command, the `dist` output and the `/player` and `/embed` routes.
 
-Useful links for judges:
+### Useful URLs
 
-- `https://playbooth.vercel.app/` — the full experience (the **Live site URL**)
-- `https://playbooth.vercel.app/player/` — the skin on its own, a Video.js sandbox for judges (the **Project URL**). It is a second page of the same build, not linked from the booth.
-- `https://playbooth.vercel.app/#player` — skips the walk in and opens the player with Charge loaded
-
-Replace `playbooth.vercel.app` with your own Vercel domain.
-
-## The showcase page (`/player/`)
-
-`player/index.html` → `src/showcase/`. One screen, nothing to scroll: options beside the player (on phones, a Customize panel under it), and The idea, The brief, Keyboard, Use it and Credits open as cards over the player. The same `PlayboothSkin`, mounted in a box you size yourself:
-
-- **Size**: six shapes (desktop 16:9, laptop 16:10, tablet 4:3, square, phone sideways 19.5:9, phone upright 9:19.5) and a width slider. The skin lays itself out from the box's own size, so this is a real test. A shape bigger than the screen (a desktop player on a phone) is laid out at its real size and shown scaled down, and the page says so.
-- **Film**, **Frame** (all 30, ranked) and **Your own frame**: drop or choose a picture, fit or tile it, set the margin. The keys take the picture's average colour for their dock.
-- **Playback**: autoplay (muted), loop, calm motion, key sounds, and **Dark page**.
-- **Light and dark page**: the moon/sun key in the header (or Customize › Playback › Dark page) turns the whole page dark or light, so the skin can be judged against both, as the brief asks. Both logos follow it: PLAYBOOTH's wordmark and the Video.js letters switch ink; the orange "JS" stays. Remembered on the device; the first visit follows the system setting.
-- **Your own frame, in the player too**: on this page the player's Frames key has an **Upload your own frame** tile under the frames. Choose a landscape picture (wider than it is tall) and it becomes the frame, selected at once, its average colour tinting the keys' dock; an upright or square picture is turned away with its size and the reason. Customize › Your own frame uses the same loader and adds Fit or Tile and a margin slider. The booth keeps its own 30 frames only.
-- The left keys in the player become Frames and Surprise frame, then Scenes and Next film (there is no booth to go back to). Upright, they gather in one wide key under the dock ("Frames, film, scenes"), filled with the keys' ink so it never reads as a playback key, opening a menu upward, where the thumb already is.
-- The cards: the idea (a booth made for play, vertical controls, the photostrip reel, frames as themes), the minimum requirements and accessibility tips with live measurements (key contrast for the current frame, smallest key on screen), and every keyboard shortcut.
-- The Video.js mark is the official one from the `videojs/video.js` repository (`site/public/favicon.svg`).
-
-## Mux bonus
-
-All ten tapes are Mux assets (`src/data/movies.js`), listed below so the entry is transparent. Keep every asset **public** and **live through judging**.
-
-| Shelf | Film | Mux playback ID |
-| --- | --- | --- |
-| Top | Singularity (2026) | `HcEBfBVn9gNbjtm101wUr00PBpzCNZfFwdeDfnT6j8gSI` |
-| Top | Wing It! (2023) | `rCJR1vEOG00kz2ppqCanigCEtDSniE4o02xi02em6gRUL4` |
-| Top | Charge (2022) | `xDY3RHlCJTE71hNjUkIAxGQJPYUjxEElEj3XBGVkemg` |
-| Middle | Sprite Fright (2021) | `TWFNjB9Ku021WuLLXrYG3lLoOR6l02fgYcg2oYWTqLyCs` |
-| Middle | Agent 327: Operation Barbershop (2017) | `yZxPit1BWmxEWyBf01ym2Ez8dtU84Nrjjb2hAwVOYpVM` |
-| Middle | Cosmos Laundromat (2015) | `7O8N1XhgouGf1WdofHO9o1d02lp3Sx56MU5b013XhBXGs` |
-| Middle | Tears of Steel (2012) | `B00XyRvdblOoE022lFSoAB39hNNEX0013a9Mx8yQPQ2V01I` |
-| Bottom | Sintel (2010) | `qoXh2JaPC1dQ26yr6vB6ybJqKMn2K5a5aHsIO7rtpes` |
-| Bottom | Big Buck Bunny (2008) | `W02G8oHMlhhE202Uw9C02eSvmVBHA01ZDF3qusCKvQ02oiIs` |
-| Bottom | Elephants Dream (2006) | `qGpuC17ZuBsL4Wwb00LDkXBEtroYB2rvV5zJGF9wnsB4` |
-
-The shelves hold 3, 4 and 3 tapes, newest first (left to right, top to bottom), every cubby filled. Each tape wears the film's official poster (`public/covers/`): its art, in its own colours, fades softly into the tape's cream title band with the film's name, the year and "Blender Studio", so the long billing block at the poster's foot stays below the fold. The player names the studio and the year under the title; the full credit line and license still travel with every photo, and the license is on each tape's close-up.
-
-Playback uses Video.js's `MuxVideo` with `preferPlayback: 'mse'` and `crossOrigin="anonymous"`, so screenshots read real frames in every browser that has Media Source Extensions (including iPhone on iOS 17.1+). Mux Data is attached through `@videojs/react/extensions/mux-data` and needs no key.
-
-## How the pieces fit
-
-| Where | What |
+| URL | What it does |
 | --- | --- |
-| `src/player/Skin.jsx` | **The skin.** Rail, frame, dock: the booth's own keys (back, snaps, album, eject) in a one-key-wide rail on the left, the framed picture taking everything in between, and on the right a full-height vertical progress plus one column of keys (time, lock, settings, captions on/off, sound, ±10 s, play, Snap, full screen; two columns only on short players such as a phone on its side). Hover or drag the progress and a reel of real frames rides beside the pointer, like YouTube's previews: the clip at the pointer is the largest, outlined, with the exact time (and a sharp frame from Mux once the pointer rests), the moments before and after smaller and quieter the further they are. The frames come from Mux's storyboard sprite (`image.mux.com/<id>/storyboard.vtt`), loaded once when a film goes in, so moving the pointer never waits on the network. Dragging also scrubs the picture itself, dimmed slightly so the reel reads first. The volume slider (led by its own "Mute M" hint card) and the settings menu open beside the whole dock, level with their keys, never over the progress; hint cards stand outside the dock too. Lock is instant: the keys go, one unlock key stays, one click brings them back. Controls step away after a few seconds of play and the picture grows (an animated FLIP). Settings has quality (every rendition the stream offers, 1080p, 720p, 480p, 360p and Auto, from Video.js's own quality feature, `useQualityOptions`), playback speed, subtitle style (font, size, color, outline or box), brightness (30–150%, the picture only) and picture-in-picture. **Scenes** (a rail key, beside Eject) opens a contact sheet of the film over the player: up to 12 stills from the Mux storyboard, sharpened by Mux thumbnails, the one playing now marked; pick one (click, tap, arrows and Enter) and the film goes there. **Feedback**: a keyboard shortcut or a click on the picture flashes a large copy of its key in the middle of the picture (play, pause, sound, mute, captions, ±5/±10, volume with its level, speed, 0–9 jumps), driven by Video.js's input-action events, so the dock's own keys, which show their state themselves, never double it. **Touch**: with the keys away a tap on the picture brings them back; with them up a tap plays or pauses, with the same large key. Hold and slide up or down on the picture: the left half sets brightness, the right half the volume, each with a level gauge beside the thumb (iPhone keeps volume for its side buttons, so there the right half says so). Upright phones lay the dock under the picture. Full screen lands in landscape on phones (orientation lock, or a CSS turn where the browser can't lock, such as iPhone Safari). Video.js `Container`, `PlayButton`, `SeekButton`, `Time`, `MuteButton`, `VolumeSlider`, `Poster`, `BufferingIndicator`, `ErrorDialog`, `Hotkey`s, `StatusAnnouncer` and the player store |
-| `src/styles/skin.css` | Skin styles. Each frame sets theme tokens (`--k-dock`, `--k-surface`, `--k-ink`, `--k-band`, `--k-accent`, `--k-track`, `--k-play-bg`) that color its dock, keys and progress groove. Keys show state by filling in, never by a ring drawn around them |
-| `src/data/borders.js` | The 30 photo frames (graphics only: no words, numbers or lettering, and always a straight-edged rectangular window so nothing crops the film), their control colors, the painter used for the player, prints and photostrips, and `setCustomBorder` for a frame made from your own picture |
-| `src/ui/Hint.jsx` | Hover hints like a game's key prompts: rest the mouse on a control and a small card names it with its key ("Snap this frame  S"). Mouse only, nothing on touch |
-| `src/ui/Dialogs.jsx` | Snaps, Album and the photo viewer as full-screen panels with a Back key: every picture fits the screen without scrolling, and turns into pages only when there are too many |
-| `src/lib/sfx.js` | Every sound, synthesized with WebAudio (no audio files). The sound toggle mutes them |
-| `src/three/Machine.jsx` | The TV corner: the television (a bouncing PLAYBOOTH logo while it waits; a loading screen in the booth's colours with a cream cassette whose reels turn and a filling bar while a tape goes in; then the film in its frame), the VCR standing on its own shelf, and the printer. At night the screen lights the room, the VCR's figures and the printer's lamp glow green, and a neon line runs under the cabinet top |
-| `src/three/Tape.jsx`, `src/three/Inspect.jsx` | Tapes on keyframed paths: inserting slides the case out of its cubby, lifts and turns it flat on the way over, lines it up in front of the slot (the flap opens) and the deck draws it in; ejecting plays the same story backwards with a beat at the slot. Clicking a tape flies it from the shelf into the close-up and back again when you leave |
-| `src/ui/About.jsx`, `src/ui/Credit.jsx` | The About card (the name, the idea, the controls, the credit), opened from the hero's About key, the PLAYBOOTH name in the booth's corner, or `?` |
-| `src/three/*` | The booth: exterior, curtains, interior, cabinet, tapes with magnetic snapping, machine, printer, prints, camera rig, keyboard hotspots |
-| `src/lib/photos.js` | Capture, IndexedDB storage, download and share |
+| `/#player` | Skips the walk in and opens the player with a tape in. |
+| `?lite` | The lightweight renderer: no shadows or reflections. It also switches on by itself on slow devices. |
+| `?flat` | No WebGL: the tapes become buttons. |
+| `?local` | (dev) Every film plays `public/dev/sample.mp4`, for offline work. |
+| `?local&hls` | (dev) Plays a local HLS ladder from `public/dev/hls/`, to try the quality menu offline. |
+| `?pseudofs` | (dev) Forces the iPhone-style full screen, where the player fills the window itself. |
 
-The skin supports the same public CSS properties as the Video.js skins: `--media-accent-color`, `--media-accent-text-color`, `--media-border-radius`, `--media-border-color`, `--media-font-family`.
+---
 
-## Layout in landscape
+## How it works
 
-Rail, frame, dock: the booth rail is one key wide, the dock is its progress plus one column of keys (two below about 470 px of height, three below 320 px, so phones on their side get two), and the framed picture takes everything in between. Keys are sized to line up with the frame. The booth keys sit together in the middle of the rail, grouped by what they do (back · snaps and album · scenes and eject; in the showcase, frames and surprise frame · scenes and next film), with a wider step between groups than between keys. Upright, they form one centred row at the top, and the title gets the whole width right above the picture. The booth opens at night every visit; the switch changes it for the visit.
+### Overview
 
-## Playback performance
+```
+                ┌───────────────── src/store.js (zustand) ─────────────────┐
+                │ phase · station · deck · tape · frame · theme · photos … │
+                └───────────────▲──────────────────────────▲───────────────┘
+                                │                          │
+   3D booth (React Three Fiber) │                          │ DOM (React)
+   src/three/*  ────────────────┘                          └──── src/ui/*, src/player/*
+   street, room, tapes, VCR, TV,                                hero, dialogs, hints,
+   printer, prints, camera rig                                  the Video.js player and skin
+```
 
-- While you sit and watch, the 3D room stops drawing about 1.6 s after the camera settles (it sits fully hidden behind the player), so the GPU is left to the video. All the room's animations keep ticking, so it picks up exactly where it was when you stand up; a resize while watching still draws one fresh frame.
-- hls.js runs with `capLevelOnFPSDrop: false`, so a burst of dropped frames (opening full screen, a screen recorder starting) can't lock the film to a low rendition for the rest of the session, and with a 4 Mbps starting bandwidth estimate, so it opens near HD instead of climbing up from the lowest rung. On a slow connection it steps down after the first segments.
-- The player faceplate is a near-opaque gradient instead of a blurred backdrop, which was a full-screen blur recomputed every frame.
+The 3D scene and the DOM never reach into each other: both read and write one small store. A tape sliding into the VCR is a store change (`insertTape`), and the deck, the TV and the player follow it.
 
-## Prints in the tray
+### The player
 
-Prints land image-top towards the printer. A print that fits lies flat, turned a little, clear of the walls; a strip longer than the tray is deep lands with its bottom end on the floor at the front and its top end resting on the back rim, so it leans. Anything printed after a leaning strip lies on top of it at the same lean. Every layer sits 4.5 mm above the one below (cards are 3 mm), with a logarithmic depth buffer, so nothing passes through anything or flickers.
+- **Player** (`src/player/core.js`): `createPlayer({ features: videoFeatures })` from `@videojs/react`, one player for the whole app.
+- **Media** (`src/player/PlayerLayer.jsx`): Mux films play through Video.js's `MuxVideo` (`preferPlayback: 'mse'`, so captured frames read the real picture), other HLS URLs through `HlsJsVideo`, and anything else through `Video`.
+  - hls.js runs with `capLevelOnFPSDrop: false`, so a burst of dropped frames (opening full screen, a screen recorder starting) can't pin the film to a low rendition.
+  - It starts from a 4 Mbps bandwidth estimate, so it opens near HD.
+  - Mux Data is attached through `@videojs/react/extensions/mux-data`.
+- **Skin** (`src/player/Skin.jsx`): built from Video.js parts (`Container`, `PlayButton`, `SeekButton`, `Time`, `MuteButton`, `VolumeSlider`, `Poster`, `BufferingIndicator`, `ErrorDialog`, `Hotkey` and `useHotkey`, `StatusAnnouncer`, `useQualityOptions` and the player store), plus its own parts:
+  - **Layout** (`computeLayout`): measures the player's own box (not the window) and places the rail, the framed picture, the dock and the title. Landscape gets one column of keys when the height allows, two below about 470 px, and three below 320 px; the keys are sized to line up with the frame. Upright, the dock lies under the picture. The layout is pure arithmetic, so the same player works in a booth, a showcase box or someone else's page.
+  - **Progress** (`Scrubber`, `Reel`): a vertical slider with Video.js store seeking. The reel reads Mux's storyboard sprite (`image.mux.com/<id>/storyboard.vtt`) once per film, so moving the pointer never waits on the network.
+  - **Input feedback** (`Feedback`, `Gauge`): subscribes to Video.js's input-action events (`subscribeToInputActions` from `@videojs/core/dom`). These fire for shortcuts and gestures but not for button presses, so the large key appears only when the action isn't already visible on a key.
+  - **Touch** (`onWindowDown` / `onWindowMove` / `onPictureClick`): a vertical slide past 14 px on either half sets brightness or volume; a second tap on a side within 320 ms steps 10 s.
+  - **Frame chooser** (`FramePicker`): the 30 frames in a grid that always fills its panel; outside the booth it also takes your own picture.
+- **Theme tokens** (`src/styles/skin.css`): every frame sets `--k-dock`, `--k-surface`, `--k-ink`, `--k-band`, `--k-accent`, `--k-track` and the play key's colours. Keys show state by filling in, never by a ring drawn around them. The skin also honours the standard Video.js properties: `--media-accent-color`, `--media-accent-text-color`, `--media-border-radius`, `--media-border-color` and `--media-font-family`.
 
-## Checklist against the brief
+### Frames
 
-- **Works**: Video.js v10 player, Mux streams, real playback.
-- **Essential controls**: play/pause, a vertical seek groove with clip previews, current time and duration, mute and volume, full screen (no black bars; landscape on phones). Also ±10 s, captions on/off, scenes, a settings menu (quality, speed, subtitle style, brightness, picture-in-picture), a lock, Snap, Snaps compiler, album, eject.
-- **Sound**: synthesized key clicks with a felt low thock, a shutter, paper, tape clunk and eject, curtain and light switch sounds. One toggle mutes them all.
-- **Day and night**: the sun/moon toggle in the corner of the screen (from the street to inside the booth), the switch on the booth's back wall, or L turns the whole booth to night: street lamps, shop windows and string lights come on, the room dims to lamp light, and the interface switches to its dark palette. At night the PLAYBOOTH sign lights up like neon, two street lamps and most windows come on, and the room keeps warm lamp light, so everything stays visible. A light night layer over the 3D view keeps the change clear on phones, where the renderer runs lean.
-- **Frames**: 30, all pure graphics with rectangular windows and slim margins (the picture takes 73–81% of a 16:9 frame; every sticker stays in the margin, never on the film), ranked by design and uniqueness. After No frame, first the frames drawn from the references: Vinyl cream, Star confetti, Comic blocks, Lace, Red film, Lavender swirl, Red knit, Paper hearts, Airmail, Matinee, Denim & lace, Vinyl red, Comic wave, Butter doodle, Pixel lilac, Cocoa bow, Vinyl pink, Newsprint, Black strip; then the booth's own: Velvet curtain, Granny squares, Starry night, Sage checker, Cinema ticket, Postage stamp, Pressed flowers, Red polka, Linen stripe, Booth white. Each one colors its own controls, and all are drawn relative to the picture's width, so they hold up from a phone to a TV. The picker always fills its panel: its column count divides 30, so no row is half empty.
-- **Snap flow**: each snap downloads the clean frame immediately and joins the Snaps compiler; print singles in any frame, or 2 to 6 as a framed photostrip.
-- **Responsive**: tested at 1440×900, 1280×760, 1180×820, 820×1180, 412×915, 390×844 and 844×390, plus full screen on each. On tall phones the walk in ends facing the tapes.
-- **Keyboard**: every 3D object has a focusable hotspot (tapes, slot, screen, eject, prints, album). Escape puts a tape back, steps back out of a view, or stands up from the deck. Player shortcuts (working, never printed on screen): Space/K, M, F, C, ←/→, J/L, ↑/↓, 0–9, Home/End, `<`/`>`, and S for a photo. The progress groove takes ↑/↓, Page Up/Down, Home and End when focused.
-- **Readable over any video**: controls live in the dock beside the frame, not over the picture; every floating button is solid. Captions sit on the picture's lower edge with an outline or box. No pop-up status text stretches the player; state changes are announced to screen readers only.
-- **Touch targets**: controls are 44×44 px, 38–40 px only inside very small players; nothing is clipped at the tested sizes.
-- **Reduced motion**: the walk in becomes a quick fade, the camera cuts instead of flying, tapes and prints move instantly, idle animations stop.
-- Also handles `prefers-reduced-transparency`, `prefers-contrast: more`, `forced-colors`, RTL arrow keys in the frame picker, and a no-WebGL fallback (tapes become buttons; force it with `?flat`).
+`src/data/borders.js` describes every frame as data: margins around the picture (in units of the picture's width), window corner radius, swatches, photostrip colours and the control colours. A pair of painters draws it on a canvas, a back layer and an optional front layer, with the window cut out between them. The same painters draw the player's frame, the picker's thumbnails, prints and photostrips.
 
-## Credits and licenses
+- **Drawn frames** are paths and patterns in code, sized from the picture's width, so they hold up from a phone to a TV.
+- **Pattern frames** cover the frame with their picture, scaled to keep its proportions, never stretched, with a fine edge at the window. Pictures load the first time a frame is used, and anything painted repaints when they arrive (`frameEvents`).
+- **Pink document** is sliced rather than scaled whole. Its toolbars keep their proportions at the window's scale, the ruler and scroll bar run down the sides, and the white page is the window.
+- **Your own frame** goes through `src/player/frameUpload.js`, which checks that the picture is landscape and builds a frame from it with `setCustomBorder`.
 
-Made with love by [@ruffasakay](https://contra.com/ruffasakay). The credit is on the About card in the booth and in the footer of the showcase page.
+### Snaps and prints
 
+`src/lib/printFlow.js` and `src/lib/photos.js` capture the current frame from the video element, download it, keep it in IndexedDB, and compose framed prints and photostrips with the same frame painters.
 
-Films, all Blender Foundation open movies, hosted on Mux:
+### The booth
 
-| Film | Credit | License |
-| --- | --- | --- |
-| Big Buck Bunny (2008) | © 2008 Blender Foundation, www.bigbuckbunny.org | CC BY 3.0 |
-| Sintel (2010) | © Blender Foundation, durian.blender.org | CC BY 3.0 |
-| Agent 327: Operation Barbershop (2017) | (CC) Blender Foundation, agent327.com | CC BY-ND (played unaltered) |
-| Charge (2022) | (CC) Blender Foundation, studio.blender.org | CC BY 4.0 |
-| Cosmos Laundromat: First Cycle (2015) | (CC) Blender Foundation, gooseberry.blender.org | CC BY-SA 4.0 (as distributed by Blender) |
-| Sprite Fright (2021) | (CC) Blender Foundation, studio.blender.org | CC BY 4.0 |
-| Tears of Steel (2012) | (CC) Blender Foundation, mango.blender.org | CC BY 3.0 |
-| Wing It! (2023) | (CC) Blender Foundation, studio.blender.org | CC BY 4.0 |
-| Singularity (2026) | (CC) Blender Foundation, studio.blender.org | Creative Commons Attribution |
-| Elephants Dream (2006) | (CC) Blender Foundation, orange.blender.org | CC BY 2.5 |
+`src/three/*` is a React Three Fiber scene:
 
-The tape covers are each film's official poster, by the Blender Foundation / Blender Studio, released with the films; on the tapes the art fades into the title band, so the billing block is left out.
+- **The places**: the street, the booth, the room, the rack and tapes, the VCR, TV and printer, and the prints. The camera rig moves between named stations (street, room, tapes, player, prints, watch).
+- **Tapes**: they move on keyframed paths. Inserting one slides it out of its cubby, turns it flat, lines it up with the slot and lets the deck draw it in; ejecting plays the same story backwards.
+- **Rendering while you watch**: when the camera settles on the TV to watch, the scene stops drawing (the player covers it), so the GPU is left to the video. It resumes exactly where it was when you stand up.
+- **No flicker**: posters, prints and signs stand a few millimetres clear of what's behind them, no two outer faces share a plane, and the renderer uses a logarithmic depth buffer.
 
-Fonts: Fraunces (headings and reading text), DM Mono (interface), Caveat (handwritten notes), Atkinson Hyperlegible Next (caption sans) and Literata (caption serif), all SIL Open Font License 1.1.
+---
 
-All 3D models, icons and illustrations are original and drawn in code (the posters above excepted).
+## Keyboard and touch
 
-This entry is open source under the Apache License, Version 2.0 (full text in `LICENSE`), per the challenge guidelines: https://github.com/ruffasakay/playbooth
+| Keys | Action |
+| --- | --- |
+| Space, K | Play or pause |
+| J / L, ← / → | Back or forward 10 s |
+| ↑ / ↓ | Volume (also while locked) |
+| Shift + ↑ / ↓ | Brightness (also while locked) |
+| M | Sound on or off |
+| C | Captions |
+| < / > | Slower or faster |
+| 0 – 9, Home / End | Jump to 0–90%, the start or the end |
+| I | Picture-in-picture |
+| S | Snap the frame |
+| F | Full screen |
+| Esc | Close a menu, leave full screen, or stand up from the deck |
 
-## Known limits
+In the booth, 1–4 move between the films, the player, the prints and the room; W sits down to watch; 5 opens your snaps; L switches the lights; and ? opens the About card. Every 3D object also has a focusable hotspot. The progress slider takes ↑/↓, Page Up/Down, Home and End when it has focus.
 
-- Add `?lite` to the URL to force the lightweight renderer (no shadows or reflections); it also switches on by itself on slow devices.
-- Browsers may ask once to allow multiple downloads when you snap several frames.
-- Tape covers are the films' official posters from Blender Studio (`public/covers/`); a film without a `cover` falls back to a still from Mux's image API.
-- The quality menu appears whenever the stream has more than one rendition (every Mux and HLS film); a plain MP4 has one, so the row is left out. On iPhone, where Safari can play HLS itself, the list follows what the engine in use reports.
-- Volume can't be set by a web page on iPhone (Apple keeps it for the side buttons), so the right-half slide says so there instead of moving a level.
-- Tested in headless Chromium with software rendering and phone emulation. Check on a real iPhone (Safari), an Android phone and Firefox before submitting, especially full screen turning to landscape, clip previews and sounds.
-- iPhone Safari has no page full screen, so there the player fills the window itself and turns on its side; the browser bar may still show until scrolled away. Sounds on iPhone follow the ring/silent switch.
-- Photos are stored in this browser only (IndexedDB). Private browsing may not keep them; the booth says so and offers download.
+| Touch | Action |
+| --- | --- |
+| Tap the picture | Bring the keys back; with them showing, play or pause |
+| Double-tap left / right | Back or forward 10 s |
+| Slide up or down, left half | Brightness (also while locked) |
+| Slide up or down, right half | Volume (also while locked; on iPhone, use the side buttons) |
+
+---
+
+## Accessibility
+
+- **Works by keyboard**: real buttons in Tab order, a progress slider with arrow, Page and Home/End keys, menus that close with Escape and hand focus back to their key, and every shortcut above.
+- **Visible focus**: a double ring drawn inside every key in its own ink and paper colours, so it shows on every frame and never gets clipped.
+- **Readable over any video**: the keys never sit on the picture; they're solid paper keys on the frame or the dark stage. Captions sit on the picture's lower edge with an outline or a box, in your size and colour.
+- **Comfortable to tap**: keys are 38–58 px, the play key largest, at least 6 px apart.
+- **Calm on request**: with reduced motion (the system setting, or the switch on the showcase), there's no gliding picture, menus open without movement, the feedback keys fade instead of popping, there's one soft snap flash, and the camera cuts instead of flying.
+- **Screen readers**: state changes (play, volume, frames, snaps) are announced through a live region rather than pop-up text.
+- **Other settings**: honours `prefers-reduced-transparency`, `prefers-contrast: more` and `forced-colors`; arrow keys in the frame picker follow RTL; and there's a no-WebGL fallback.
+
+---
+
+## Project structure
+
+```
+index.html            the booth            → src/main.jsx, src/App.jsx
+player/index.html     the showcase         → src/showcase/
+embed/index.html      an ordinary page     → src/embed/
+src/
+  store.js            the one store (zustand)
+  player/             the Video.js player and skin
+    core.js             createPlayer(videoFeatures)
+    PlayerLayer.jsx     media (MuxVideo, HlsJsVideo, Video) and the deck's states
+    Skin.jsx            layout, dock, rail, progress and reel, settings, feedback, gestures, frame chooser
+    PlayboothPlayer.jsx the player as one component for other pages
+    frameUpload.js      your own frame: read, check landscape, apply
+    icons.jsx           line icons on a 24-unit grid
+    embed.css           page styles the player needs, scoped to it
+  data/
+    movies.js           the ten films
+    borders.js          the 30 frames and their painters
+  lib/                  snaps, prints and photostrips, IndexedDB, sounds
+  ui/                   hero, dialogs (snaps, album, viewer), About, hints, logo
+  three/                the 3D booth: street, booth, interior, tapes, machine, prints, posters, camera
+  styles/               tokens, app and skin styles
+public/
+  covers/               the films' posters
+  frames/               the pattern frames' pictures
+  fonts/                fonts for 3D text
+  og.png                the link-preview picture (1200 × 630)
+docs/                   screenshots for this README
+```
+
+---
+
+## Films
+
+Ten Blender Studio open movies under Creative Commons, all streamed from Mux. On the shelf they run newest first, left to right and top to bottom.
+
+| Film | Credit | License | Mux playback ID |
+| --- | --- | --- | --- |
+| Singularity (2026) | (CC) Blender Foundation, studio.blender.org | Creative Commons Attribution | `HcEBfBVn9gNbjtm101wUr00PBpzCNZfFwdeDfnT6j8gSI` |
+| Wing It! (2023) | (CC) Blender Foundation, studio.blender.org | CC BY 4.0 | `rCJR1vEOG00kz2ppqCanigCEtDSniE4o02xi02em6gRUL4` |
+| Charge (2022) | (CC) Blender Foundation, studio.blender.org | CC BY 4.0 | `xDY3RHlCJTE71hNjUkIAxGQJPYUjxEElEj3XBGVkemg` |
+| Sprite Fright (2021) | (CC) Blender Foundation, studio.blender.org | CC BY 4.0 | `TWFNjB9Ku021WuLLXrYG3lLoOR6l02fgYcg2oYWTqLyCs` |
+| Agent 327: Operation Barbershop (2017) | (CC) Blender Foundation, agent327.com | CC BY-ND (played unaltered) | `yZxPit1BWmxEWyBf01ym2Ez8dtU84Nrjjb2hAwVOYpVM` |
+| Cosmos Laundromat: First Cycle (2015) | (CC) Blender Foundation, gooseberry.blender.org | CC BY-SA 4.0 | `7O8N1XhgouGf1WdofHO9o1d02lp3Sx56MU5b013XhBXGs` |
+| Tears of Steel (2012) | (CC) Blender Foundation, mango.blender.org | CC BY 3.0 | `B00XyRvdblOoE022lFSoAB39hNNEX0013a9Mx8yQPQ2V01I` |
+| Sintel (2010) | © Blender Foundation, durian.blender.org | CC BY 3.0 | `qoXh2JaPC1dQ26yr6vB6ybJqKMn2K5a5aHsIO7rtpes` |
+| Big Buck Bunny (2008) | © 2008 Blender Foundation, www.bigbuckbunny.org | CC BY 3.0 | `W02G8oHMlhhE202Uw9C02eSvmVBHA01ZDF3qusCKvQ02oiIs` |
+| Elephants Dream (2006) | (CC) Blender Foundation, orange.blender.org | CC BY 2.5 | `qGpuC17ZuBsL4Wwb00LDkXBEtroYB2rvV5zJGF9wnsB4` |
+
+To add a film, add an entry to `src/data/movies.js` with a `playbackId` (or a `src`), a title, a year and a credit. A `cover` (a poster in `public/covers/`) dresses its tape; without one, the tape uses a still from Mux.
+
+---
+
+## Credits and license
+
+Made with love by [@ruffasakay](https://contra.com/ruffasakay).
+
+- **Films and posters**: Blender Foundation and Blender Studio, under the Creative Commons licenses listed above. The tapes show each poster's art and title, and its billing block is left out; the player names the studio and the year; the full credit line and license go with every photo.
+- **Fonts**: Fraunces, DM Mono, Caveat, Atkinson Hyperlegible Next and Literata, all under the SIL Open Font License 1.1.
+- **Video.js mark**: the official one, from the `videojs/video.js` repository.
+- **Everything else**: the 3D models, icons, sounds and drawn frames are original and made in code. The ten pattern frames are pictures chosen by the author.
+
+Licensed under the Apache License, Version 2.0. See [`LICENSE`](LICENSE).
+
+---
+
+## Known limitations
+
+- **iPhone full screen**: Safari on iPhone has no page full screen, so there the player fills the window itself and turns on its side; the browser bar may stay until scrolled away.
+- **iPhone volume**: a web page can't set the volume on iPhone, so the right-half slide points to the side buttons instead.
+- **Quality menu**: it appears when the stream has more than one rendition (every Mux and HLS film). A plain MP4 has one rendition, so the row is left out.
+- **Multiple downloads**: browsers may ask once to allow them when you snap several frames.
+- **Storage**: photos live in this browser only (IndexedDB). Private browsing may not keep them; the booth says so and offers to download them.
+- **Pattern frames**: each one loads its picture the first time it's used, so on a slow connection its plain colour shows for a moment first.

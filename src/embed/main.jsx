@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client';
 import { PlayboothPlayer } from '../player/PlayboothPlayer.jsx';
 import { USAGE } from './usage.js';
 import './embed-page.css';
+import { useApp } from '../store.js';
+
+if (import.meta.env.DEV) window.__app = useApp;
 
 /*
  * An ordinary page that knows nothing about the booth: a heading, some text,
@@ -16,8 +19,8 @@ function Page() {
       <h1>The PLAYBOOTH player, dropped in</h1>
       <p className="ep-lede">
         This page has none of the booth: no 3D room, no shelf, no printer. It renders one component, <code>&lt;PlayboothPlayer&gt;</code>,
-        with a Mux playback ID, and gets the whole Video.js 10 skin: the frame, the vertical progress and its reel, scenes,
-        quality, brightness, captions, snaps and every keyboard shortcut.
+        with a Mux playback ID, and gets the whole Video.js 10 skin: the frame (and the frame chooser, with your own picture), the vertical
+        progress and its reel, quality, brightness, captions, snaps and every keyboard shortcut.
       </p>
       <PlayboothPlayer
         title="Sprite Fright"
@@ -25,7 +28,7 @@ function Page() {
         src={import.meta.env.DEV && location.search.includes('local') ? '/dev/sample.mp4' : undefined}
         credit="Blender Studio"
         year={2021}
-        frame="vinyl"
+        frame="cocoadots"
         style={{ width: '100%', aspectRatio: '16 / 10' }}
       />
       <h2>The code for it</h2>

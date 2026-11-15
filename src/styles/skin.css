@@ -272,7 +272,7 @@
 .pb-volume { position: static; display: grid; }
 .pb-vol-pop { position: absolute; z-index: 7; display: none; align-items: center; gap: 8px; }
 /* the key's hint card, the same as every hint, leads the level */
-.pb-vol-hint { position: static; animation: none; }
+.pb-vol-pop > .pb-vol-hint.hint { position: static; inset: auto; animation: none; flex: none; } /* beside the slider, never over it, whatever page styles load after */
 .pb-vol-level { display: flex; align-items: center; padding: 0 14px; height: 44px; border-radius: 22px; background: var(--k-surface); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k-ink) 16%, transparent), 0 10px 26px rgb(0 0 0 / 0.35); }
 /* the slider opens beside the whole dock, level with its key, never over the progress */
 .pb-volume[data-orient='v'] .pb-vol-pop { right: calc(100% + 10px); translate: 0 -50%; }
@@ -458,6 +458,9 @@
 /* ---------- feedback: the key you used, large, in the middle of the picture ---------- */
 .pb-osd { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; align-content: center; gap: 10px; pointer-events: none; animation: pb-osd 0.76s ease-out both; }
 .pb-osd:has(.pb-osd-label) { animation-duration: 1.3s; }
+/* a double tap's step shows on the side that was tapped */
+.pb-osd[data-side='back'] { place-items: center start; padding-left: 14%; }
+.pb-osd[data-side='fwd'] { place-items: center end; padding-right: 14%; }
 .pb-osd-key {
   display: grid;
   place-items: center;
@@ -522,7 +525,7 @@
 .pb-tier { margin-left: auto; padding: 2px 6px; border-radius: 6px; background: var(--k-ink); color: var(--k-surface); font: 700 0.62rem/1.2 var(--mono); letter-spacing: 0.04em; }
 .pb-row:disabled { opacity: 0.45; cursor: not-allowed; }
 
-/* ---------- upright, outside the booth: one wide key for frames, films and scenes ---------- */
+/* ---------- upright, outside the booth: one wide key for frames and films ---------- */
 .pb-filmmenu { position: absolute; z-index: 6; display: grid; transition: opacity 0.3s ease, translate 0.42s var(--ease); }
 .pb-filmmenu[data-hidden] { opacity: 0; translate: 0 16px; pointer-events: none; }
 .pb-menu-key {
@@ -552,39 +555,8 @@
 .pb-row--icon .icon { width: 20px; height: 20px; opacity: 0.85; flex: none; }
 .pb-row--icon > span { flex: 1; }
 
-/* ---------- scenes: a contact sheet over the player ---------- */
-.pb-scenes-veil { position: absolute; inset: 0; z-index: 12; display: grid; place-items: center; padding: 12px; background: rgb(10 7 5 / 0.42); animation: pb-fade 0.18s ease both; }
-@keyframes pb-fade { from { opacity: 0; } }
-.pb-scenes {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 10px;
-  width: min(100%, 880px);
-  max-height: 100%;
-  padding: 14px 14px 16px;
-  border-radius: 20px;
-  background: var(--k-surface);
-  color: var(--k-ink);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k-ink) 14%, transparent), 0 24px 60px rgb(0 0 0 / 0.5);
-  animation: pb-pop-in 0.18s var(--ease) both;
-}
-.pb-scenes-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 2px 0 6px; }
-.pb-scenes-title { margin: 0; font-family: var(--serif); font-weight: 600; font-variation-settings: var(--soft); font-size: 1.1rem; }
-.pb-scenes-sub { margin: 2px 0 0; font: 500 0.74rem/1.35 var(--mono); color: color-mix(in srgb, var(--k-ink) 70%, transparent); }
-.pb-scenes-close { --key: 40px; }
-.pb-scenes-grid { display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); align-content: start; gap: 12px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px; margin: -4px; scrollbar-width: thin; }
-.pb-scene { display: grid; gap: 6px; padding: 0; border: 0; background: none; color: inherit; text-align: left; cursor: pointer; border-radius: 10px; }
-.pb-scene-still { position: relative; display: block; overflow: hidden; border-radius: 8px; background: #17120e; box-shadow: 0 0 0 1px color-mix(in srgb, var(--k-ink) 18%, transparent), 0 2px 6px rgb(0 0 0 / 0.2); transition: box-shadow 0.15s ease, translate 0.15s ease; }
-.pb-scene-still .pb-clip-img { position: absolute; inset: 0; }
-.pb-scene-time { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 2px; font: 500 0.74rem/1 var(--mono); font-variant-numeric: tabular-nums; }
-.pb-scene-time b { padding: 3px 6px; border-radius: 5px; background: var(--k-ink); color: var(--k-surface); font-size: 0.62rem; letter-spacing: 0.04em; text-transform: uppercase; }
-.pb-scene:hover .pb-scene-still { translate: 0 -2px; box-shadow: 0 0 0 2px var(--k-ink), 0 6px 14px rgb(0 0 0 / 0.26); }
-.pb-scene[aria-current='true'] .pb-scene-still { box-shadow: 0 0 0 3px var(--k-ink), 0 2px 6px rgb(0 0 0 / 0.2); }
-.pb-scene:focus-visible { outline: none; }
-.pb-scene:focus-visible .pb-scene-still { box-shadow: 0 0 0 3px var(--k-surface), 0 0 0 5.5px var(--k-ink); }
-.pb-skin[data-calm] :is(.pb-osd-key, .pb-scenes, .pb-scenes-veil, .pb-filmmenu, .pb-scene-still) { animation-duration: 0.01ms; transition-duration: 0.01ms; }
+.pb-skin[data-calm] :is(.pb-osd-key, .pb-filmmenu) { animation-duration: 0.01ms; transition-duration: 0.01ms; }
 @media (prefers-reduced-motion: reduce) {
   .pb-osd { animation-name: pb-osd-calm; }
-  .pb-scenes, .pb-scenes-veil { animation: none; }
-  .pb-scene-still, .pb-filmmenu { transition: none; }
+  .pb-filmmenu { transition: none; }
 }

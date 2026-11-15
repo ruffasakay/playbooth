@@ -16,12 +16,12 @@ const ROOM_KEYS = [
 ];
 const PLAYER_KEYS = [
   [['Space'], 'Play and pause', ['Tap']],
-  [['J', 'L'], 'Back or forward 10 seconds', ['±10']],
+  [['J', 'L'], 'Back or forward 10 seconds', ['±10', 'Double-tap the left or right of the picture: back or forward 10 s']],
   [['S'], 'Snap the frame on screen', ['Snap']],
   [['F'], 'Full screen, turned sideways on phones', ['Full']],
   [['C'], 'Captions on and off', ['CC']],
   [['M'], 'Sound on and off', ['Sound']],
-  [['↑', '↓'], 'Volume up and down', ['Slide', 'Slide on the picture: left for brightness, right for volume']],
+  [['↑', '↓'], 'Volume; Shift for brightness', ['Slide', 'Slide on the picture: left for brightness, right for volume']],
 ];
 
 function Keys({ keys }) {

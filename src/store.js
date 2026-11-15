@@ -42,7 +42,7 @@ export const useApp = create((set, get) => ({
 
   // player
   deck: 'empty', // empty | reading | frame | playing
-  borderId: 'vinyl',
+  borderId: 'cocoadots',
   frameLocked: false,
   videoEl: null,
   videoAspect: 16 / 9,
