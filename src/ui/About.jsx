@@ -21,6 +21,7 @@ const PLAYER_KEYS = [
   [['F'], 'Full screen, turned sideways on phones', ['Full']],
   [['C'], 'Captions on and off', ['CC']],
   [['M'], 'Sound on and off', ['Sound']],
+  [['↑', '↓'], 'Volume up and down', ['Slide', 'Slide on the picture: left for brightness, right for volume']],
 ];
 
 function Keys({ keys }) {
@@ -44,7 +45,7 @@ function ControlList({ title, rows, touch }) {
         {rows.map(([keys, what, t]) => (
           <div key={what} className="about-row">
             <dt>{touch ? <span className="about-touch">{t[0]}</span> : <Keys keys={keys} />}</dt>
-            <dd>{what}</dd>
+            <dd>{touch && t[1] ? t[1] : what}</dd>
           </div>
         ))}
       </dl>

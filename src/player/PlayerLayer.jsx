@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Video } from '@videojs/react/video';
 import { MuxVideo } from '@videojs/react/media/mux-video';
+import { HlsJsVideo } from '@videojs/react/media/hlsjs-video';
 import { MuxData } from '@videojs/react/extensions/mux-data';
 import { useApp, movieById } from '../store.js';
 import { Player, usePlayer } from './core.js';
@@ -78,6 +79,23 @@ export function Media() {
       >
         {tracks}
       </MuxVideo>
+    );
+  }
+  // any other HLS stream (an .m3u8 URL) plays through hls.js too, so it gets the same quality menu
+  if (movie?.src && /\.m3u8(\?|$)/i.test(movie.src)) {
+    return (
+      <HlsJsVideo
+        key={movie.id}
+        ref={ref}
+        className="pb-media"
+        source={{ src: movie.src, preferPlayback: 'mse', engine: { hlsJs: { capLevelOnFPSDrop: false } } }}
+        crossOrigin="anonymous"
+        playsInline
+        preload="auto"
+        onLoadedMetadata={onLoadedMetadata}
+      >
+        {tracks}
+      </HlsJsVideo>
     );
   }
   return (

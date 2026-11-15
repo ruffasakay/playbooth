@@ -11,6 +11,7 @@ import { Credit, REPO } from '../ui/Credit.jsx';
 import { PlayTwice } from '../ui/PlayTwice.jsx';
 import { bindSounds } from '../lib/sfx.js';
 import * as I from '../player/icons.jsx';
+import { USAGE } from '../embed/usage.js';
 
 /*
  * The PLAYBOOTH skin on its own, outside the booth: a sandbox for judges,
@@ -34,6 +35,7 @@ const SHEETS = [
   { id: 'idea', label: 'The idea', short: 'Idea', Icon: I.Tape },
   { id: 'brief', label: 'The brief', short: 'Brief', Icon: I.Check },
   { id: 'keys', label: 'Keyboard', short: 'Keys', Icon: I.Keyboard },
+  { id: 'use', label: 'Use it', short: 'Use it', Icon: I.Code },
   { id: 'credits', label: 'Credits', short: 'Credits', Icon: I.Heart },
 ];
 
@@ -41,15 +43,40 @@ const SHEETS = [
 function VideoJsLogo() {
   return (
     <svg className="sc-vjs" viewBox="0 0 225 40" role="img" aria-label="Video.js">
-      <path d="M52.1796 0V8.79878H41.8848V0H52.1796ZM52.1796 11.1247V38.9594H41.8848V11.1247H52.1796Z" fill="#111111" />
-      <path d="M28.6137 0V30.6503L12.3047 0H0L20.743 38.9748H28.6137H33.0477H38.9085V0H28.6137Z" fill="#111111" />
-      <path d="M88.4338 0V38.9748H69.2097C61.3697 38.9748 55.1406 31.0482 55.1406 23.8256C55.1406 15.6083 60.8787 8.81408 69.0102 8.81408H75.7762V17.6129H72.4469C68.8721 17.6129 65.9264 20.4438 65.9264 23.9174C65.9264 27.391 68.8261 30.176 72.4009 30.176H78.139V0H88.4338Z" fill="#111111" />
-      <path d="M124.918 38.9748H107.519C98.6975 38.9748 90.9956 33.2518 90.9956 23.7644C90.9956 16.0368 98.2986 8.79886 107.565 8.79886H124.918V17.5976L118.06 27.6206H106.399L113.656 17.5976H108.363C104.436 17.5976 101.797 20.1378 101.797 23.6573C101.797 27.4217 104.742 30.1608 108.363 30.1608H124.933V38.9595L124.918 38.9748Z" fill="#111111" />
-      <path d="M144.159 40.0002C134.846 40.0002 126.469 33.5886 126.469 23.9176C126.469 14.2466 135.091 7.78906 144.22 7.78906C153.349 7.78906 161.864 14.2925 161.864 23.9176C161.864 33.5427 153.425 40.0002 144.174 40.0002H144.159ZM137.239 23.9023C137.239 28.2022 140.231 31.1862 144.205 31.1862C148.178 31.1862 151.063 28.2022 151.063 23.9023C151.063 19.6024 148.224 16.5725 144.251 16.5725C140.277 16.5725 137.239 19.6942 137.239 23.9023Z" fill="#111111" />
+      <path d="M52.1796 0V8.79878H41.8848V0H52.1796ZM52.1796 11.1247V38.9594H41.8848V11.1247H52.1796Z" className="vjs-ink" fill="#111111" />
+      <path d="M28.6137 0V30.6503L12.3047 0H0L20.743 38.9748H28.6137H33.0477H38.9085V0H28.6137Z" className="vjs-ink" fill="#111111" />
+      <path d="M88.4338 0V38.9748H69.2097C61.3697 38.9748 55.1406 31.0482 55.1406 23.8256C55.1406 15.6083 60.8787 8.81408 69.0102 8.81408H75.7762V17.6129H72.4469C68.8721 17.6129 65.9264 20.4438 65.9264 23.9174C65.9264 27.391 68.8261 30.176 72.4009 30.176H78.139V0H88.4338Z" className="vjs-ink" fill="#111111" />
+      <path d="M124.918 38.9748H107.519C98.6975 38.9748 90.9956 33.2518 90.9956 23.7644C90.9956 16.0368 98.2986 8.79886 107.565 8.79886H124.918V17.5976L118.06 27.6206H106.399L113.656 17.5976H108.363C104.436 17.5976 101.797 20.1378 101.797 23.6573C101.797 27.4217 104.742 30.1608 108.363 30.1608H124.933V38.9595L124.918 38.9748Z" className="vjs-ink" fill="#111111" />
+      <path d="M144.159 40.0002C134.846 40.0002 126.469 33.5886 126.469 23.9176C126.469 14.2466 135.091 7.78906 144.22 7.78906C153.349 7.78906 161.864 14.2925 161.864 23.9176C161.864 33.5427 153.425 40.0002 144.174 40.0002H144.159ZM137.239 23.9023C137.239 28.2022 140.231 31.1862 144.205 31.1862C148.178 31.1862 151.063 28.2022 151.063 23.9023C151.063 19.6024 148.224 16.5725 144.251 16.5725C140.277 16.5725 137.239 19.6942 137.239 23.9023Z" className="vjs-ink" fill="#111111" />
       <path d="M210.515 14.7819H204.24C202.522 14.7819 201.141 13.9556 201.141 12.2571C201.141 10.5585 202.476 9.88523 204.148 9.85463H204.884H221.286V0H203.765C197.167 0 190.34 4.68248 190.34 12.1806C190.34 19.6787 197.167 24.0857 203.765 24.0857H210.04C211.789 24.0857 213.2 24.8814 213.2 26.6259C213.2 28.3703 211.773 29.1354 210.04 29.1354H190.555V38.9748H210.531C217.158 38.9748 224.017 34.7513 224.017 26.6259C224.017 19.0666 217.158 14.7666 210.531 14.7666L210.515 14.7819Z" fill="#FF5A1F" />
       <path d="M176.792 21.5149C176.792 23.5654 175.703 29.1201 169.643 29.1354H163V38.9901L170.932 39.0666H172.895C181.963 39.0513 187.363 33.2211 187.363 22.8768V0H176.792V21.5149Z" fill="#FF5A1F" />
     </svg>
   );
+}
+
+/** The page in light or dark, to test the skin against both; remembered on this device. */
+const THEME_KEY = 'playbooth-showcase-theme';
+function initialPageTheme() {
+  try {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === 'light' || saved === 'dark') return saved;
+  } catch {
+    /* storage blocked */
+  }
+  return typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+function usePageTheme() {
+  const [theme, setTheme] = useState(initialPageTheme);
+  useEffect(() => {
+    document.documentElement.dataset.scTheme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#15100c' : '#f4ede0');
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch {
+      /* storage blocked */
+    }
+  }, [theme]);
+  return [theme, setTheme];
 }
 
 const narrowQuery = typeof matchMedia !== 'undefined' ? matchMedia('(max-width: 899px)') : null;
@@ -74,8 +101,47 @@ export default function Showcase() {
   const [sheet, setSheet] = useState(null);
   const [tools, setTools] = useState(false); // phones: the options panel under the player
   const [custom, setCustom] = useState(null);
+  const [pageTheme, setPageTheme] = usePageTheme();
   const stageRef = useRef(null);
   const { ratio, min } = shapeOf(shape);
+
+  /*
+   * Your own frame: a landscape picture becomes a frame. One loader for both
+   * places you can upload (Customize › Your own frame, and the player's own
+   * frame chooser), so they always agree. Returns why a file was turned away.
+   */
+  const loadFrame = useCallback(async (file) => {
+    if (!file || !file.type.startsWith('image/')) return 'That file isn’t a picture. Choose a JPG, PNG or WebP.';
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.src = url;
+    try {
+      await image.decode();
+    } catch {
+      URL.revokeObjectURL(url);
+      return 'That picture could not be opened.';
+    }
+    const iw = image.naturalWidth;
+    const ih = image.naturalHeight;
+    if (iw <= ih) {
+      URL.revokeObjectURL(url);
+      useApp.getState().announce('A frame picture has to be landscape.');
+      return `That picture is ${iw} × ${ih}, ${iw === ih ? 'square' : 'upright'}. Choose a landscape one: wider than it is tall.`;
+    }
+    setCustom((c) => ({ image, url, tone: averageTone(image), mode: c?.mode ?? 'fit', pad: c?.pad ?? 0.06 }));
+    useApp.getState().announce('Your frame is on.');
+    return '';
+  }, []);
+  useEffect(() => {
+    useApp.setState({ frameUpload: loadFrame });
+    return () => useApp.setState({ frameUpload: null });
+  }, [loadFrame]);
+  // rebuild "your frame" whenever its picture, fit or margin changes
+  useEffect(() => {
+    if (!custom) return;
+    setCustomBorder({ image: custom.image, mode: custom.mode, pad: custom.pad, tone: custom.tone });
+    useApp.setState((st) => ({ borderId: 'custom', borderRev: st.borderRev + 1 }));
+  }, [custom]);
 
   // the booth's store, set up as a player that is already sitting there, film in
   useEffect(() => {
@@ -143,13 +209,16 @@ export default function Showcase() {
             <VideoJsLogo />
           </a>
         </div>
-        <nav className="sc-nav" aria-label="About this skin">
-          {SHEETS.map(({ id, label }) => (
-            <button key={id} type="button" className="sc-navbtn" aria-pressed={sheet === id} onClick={() => open(sheet === id ? null : id)}>
-              {label}
-            </button>
-          ))}
-        </nav>
+        <div className="sc-top-end">
+          <nav className="sc-nav" aria-label="About this skin">
+            {SHEETS.map(({ id, label }) => (
+              <button key={id} type="button" className="sc-navbtn" aria-pressed={sheet === id} onClick={() => open(sheet === id ? null : id)}>
+                {label}
+              </button>
+            ))}
+          </nav>
+          <ThemeButton theme={pageTheme} setTheme={setPageTheme} />
+        </div>
       </header>
 
       <main className="sc-main">
@@ -169,6 +238,9 @@ export default function Showcase() {
             setLoop={setLoop}
             custom={custom}
             setCustom={setCustom}
+            loadFrame={loadFrame}
+            pageTheme={pageTheme}
+            setPageTheme={setPageTheme}
             close={() => setTools(false)}
           />
         )}
@@ -181,7 +253,12 @@ export default function Showcase() {
           </div>
           <div className="sc-room" ref={stageRef}>
             <div className="sc-fit" style={{ width: w * scale, height: h * scale }}>
-              <div id="sc-player" className="pb-host" data-fs-root style={{ width: w, height: h, transform: scale < 1 ? `scale(${scale})` : undefined }}>
+              <div
+                id="sc-player"
+                className="pb-host"
+                data-fs-root
+                style={{ width: w, height: h, transform: scale < 1 ? `scale(${scale})` : undefined }}
+              >
                 <Player>
                   <PlayboothSkin>
                     <Media />
@@ -220,7 +297,7 @@ export default function Showcase() {
 
 /* ---------- the options: one section open at a time, so it never needs scrolling ---------- */
 
-function Options({ narrow, shape, pickShape, width, min, max, setWidth, height, autoplay, setAutoplay, loop, setLoop, custom, setCustom, close }) {
+function Options({ narrow, shape, pickShape, width, min, max, setWidth, height, autoplay, setAutoplay, loop, setLoop, custom, setCustom, loadFrame, pageTheme, setPageTheme, close }) {
   const [openId, setOpenId] = useState('size');
   const film = useApp((s) => s.insertedTapeId);
   const calm = useApp((s) => s.reducedMotion);
@@ -259,13 +336,15 @@ function Options({ narrow, shape, pickShape, width, min, max, setWidth, height, 
     {
       id: 'play',
       title: 'Playback',
-      value: [autoplay && 'autoplay', loop && 'loop', calm && 'calm'].filter(Boolean).join(', ') || 'default',
+      short: 'Play',
+      value: [autoplay && 'autoplay', loop && 'loop', calm && 'calm', pageTheme === 'dark' && 'dark page'].filter(Boolean).join(', ') || 'default',
       body: (
         <>
           <Switch label="Autoplay, muted" checked={autoplay} onChange={setAutoplay} />
           <Switch label="Loop the film" checked={loop} onChange={setLoop} />
           <Switch label="Calm motion" checked={calm} onChange={(v) => useApp.setState({ reducedMotion: v })} />
           <Switch label="Key sounds" checked={sound} onChange={() => useApp.getState().toggleSound()} />
+          <Switch label="Dark page" checked={pageTheme === 'dark'} onChange={(v) => setPageTheme(v ? 'dark' : 'light')} />
         </>
       ),
     },
@@ -293,8 +372,9 @@ function Options({ narrow, shape, pickShape, width, min, max, setWidth, height, 
     {
       id: 'own',
       title: 'Your own frame',
+      short: 'Upload',
       value: custom ? 'On' : 'Upload a picture',
-      body: <OwnFrame custom={custom} setCustom={setCustom} />,
+      body: <OwnFrame custom={custom} setCustom={setCustom} loadFrame={loadFrame} />,
     },
   ];
   return (
@@ -313,7 +393,7 @@ function Options({ narrow, shape, pickShape, width, min, max, setWidth, height, 
           <div className="sc-tabs" role="tablist" aria-label="Options">
             {sections.map((s) => (
               <button key={s.id} type="button" role="tab" aria-selected={(openId ?? 'size') === s.id} className="sc-tab" onClick={() => setOpenId(s.id)}>
-                {s.title === 'Your own frame' ? 'Upload' : s.title}
+                {s.short ?? s.title}
               </button>
             ))}
           </div>
@@ -369,32 +449,12 @@ function Frames() {
   );
 }
 
-function OwnFrame({ custom, setCustom }) {
+function OwnFrame({ custom, setCustom, loadFrame }) {
   const borderId = useApp((s) => s.borderId);
   const [drag, setDrag] = useState(false);
+  const [error, setError] = useState('');
   const input = useRef(null);
-
-  // rebuild "your frame" whenever its picture, fit or margin changes
-  useEffect(() => {
-    if (!custom) return;
-    setCustomBorder({ image: custom.image, mode: custom.mode, pad: custom.pad, tone: custom.tone });
-    useApp.setState((s) => ({ borderId: 'custom', borderRev: s.borderRev + 1 }));
-  }, [custom]);
-
-  const load = async (file) => {
-    if (!file || !file.type.startsWith('image/')) return;
-    const url = URL.createObjectURL(file);
-    const image = new Image();
-    image.src = url;
-    try {
-      await image.decode();
-    } catch {
-      useApp.getState().announce('That picture could not be opened.');
-      return;
-    }
-    setCustom({ image, url, tone: averageTone(image), mode: custom?.mode ?? 'fit', pad: custom?.pad ?? 0.06 });
-    useApp.getState().announce('Your frame is on.');
-  };
+  const load = async (file) => setError((await loadFrame(file)) || '');
   const set = (patch) => setCustom((c) => ({ ...c, ...patch }));
 
   return (
@@ -423,14 +483,28 @@ function OwnFrame({ custom, setCustom }) {
           </span>
         )}
         <div className="sc-drop-copy">
-          <b>Any picture becomes a frame</b>
-          <span>Drop it here, or</span>
+          <b>Any landscape picture becomes a frame</b>
+          <span>Drop it here, or (also in the player's Frames key)</span>
           <button type="button" className="btn sc-upload" onClick={() => input.current?.click()}>
             {custom ? 'Choose another' : 'Choose a picture'}
           </button>
-          <input ref={input} type="file" accept="image/*" hidden onChange={(e) => load(e.target.files?.[0])} />
+          <input
+            ref={input}
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={(e) => {
+              load(e.target.files?.[0]);
+              e.target.value = '';
+            }}
+          />
         </div>
       </div>
+      {error && (
+        <p className="sc-wall-error" role="alert">
+          {error}
+        </p>
+      )}
       {custom && (
         <>
           <div className="sc-seg" role="radiogroup" aria-label="How the picture fills the frame">
@@ -454,6 +528,24 @@ function OwnFrame({ custom, setCustom }) {
       )}
       {!custom && <p className="sc-note">Fit scales it to cover the frame, keeping its proportions; Tile repeats it, so it suits any shape. The keys take its average colour.</p>}
     </>
+  );
+}
+
+/** Light or dark page, so the skin can be judged against both. */
+function ThemeButton({ theme, setTheme }) {
+  const dark = theme === 'dark';
+  return (
+    <button
+      type="button"
+      className="sc-theme"
+      aria-label="Dark page"
+      aria-pressed={dark}
+      data-tip={dark ? 'Light page' : 'Dark page'}
+      data-tip-side="bottom"
+      onClick={() => setTheme(dark ? 'light' : 'dark')}
+    >
+      {dark ? <I.Sun /> : <I.Moon />}
+    </button>
   );
 }
 
@@ -557,6 +649,7 @@ function Sheet({ id, close }) {
         {id === 'idea' && <Idea />}
         {id === 'brief' && <Brief close={close} />}
         {id === 'keys' && <Keys />}
+        {id === 'use' && <UseIt />}
         {id === 'credits' && <Credits />}
       </div>
     </section>
@@ -708,7 +801,7 @@ function Brief({ close }) {
     },
     {
       title: 'Has essential controls',
-      text: 'Play, a progress column with time and clip reel, ±10 s, sound and volume, captions, settings (speed, caption style, picture-in-picture), lock, snap, full screen.',
+      text: 'Play, a progress column with time and clip reel, ±10 s, sound and volume, captions, scenes (a contact sheet of stills to jump to), settings (quality, speed, caption style, brightness, picture-in-picture), lock, snap, full screen.',
       live: `${count} keys on screen now`,
     },
     {
@@ -726,7 +819,7 @@ function Brief({ close }) {
   const TIPS = [
     {
       title: 'Readable over any video',
-      text: 'Keys never sit on the picture: solid paper keys on the frame or the dark stage. Captions have an outline or box, a size and a colour you choose.',
+      text: 'Keys never sit on the picture: solid paper keys on the frame or the dark stage. Captions have an outline or box, a size and a colour you choose. Try it against a light and a dark page with the switch in the header.',
       live: `Key contrast here ${fmt(ratio)}, play key ${fmt(playRatio)}`,
     },
     {
@@ -813,6 +906,7 @@ const SHORTCUTS = [
 
 function Keys() {
   return (
+    <div className="sc-keys">
     <dl className="sc-keylist">
       {SHORTCUTS.map(([keys, what]) => (
         <div key={what}>
@@ -828,6 +922,88 @@ function Keys() {
         </div>
       ))}
     </dl>
+      <p className="sc-note sc-keys-touch">
+        Every key above shows itself, large, in the middle of the picture for a moment. On phones and tablets: tap the picture to bring the
+        keys back, tap again to play or pause; slide up or down on it, left for brightness, right for volume.
+      </p>
+    </div>
+  );
+}
+
+/** Copies text, with a fallback for browsers that keep the clipboard locked. */
+function CopyButton({ text, label }) {
+  const [done, setDone] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const t = document.createElement('textarea');
+      t.value = text;
+      t.setAttribute('readonly', '');
+      t.style.position = 'fixed';
+      t.style.opacity = '0';
+      document.body.appendChild(t);
+      t.select();
+      try {
+        document.execCommand('copy');
+      } catch {
+        /* nothing more to try */
+      }
+      t.remove();
+    }
+    setDone(true);
+    useApp.getState().announce(`${label} copied.`);
+    setTimeout(() => setDone(false), 1600);
+  };
+  return (
+    <button type="button" className="sc-copy" onClick={copy} aria-label={`Copy ${label.toLowerCase()}`}>
+      {done ? <I.Check /> : <I.Code />}
+      <span>{done ? 'Copied' : 'Copy'}</span>
+    </button>
+  );
+}
+
+/** How to put this player on your own site: the real component, the real packages. */
+function UseIt() {
+  return (
+    <div className="sc-use">
+      <p className="sc-use-lede">
+        Use it on your site. Copy the skin's <code>src</code> folder into your React project, install its packages, and render one component
+        wherever a film should play. Apache 2.0.
+      </p>
+      <section className="sc-step">
+        <div className="sc-step-head">
+          <h3>1. Install</h3>
+          <CopyButton text={USAGE.install} label="Install command" />
+        </div>
+        <pre className="sc-codebox">
+          <code>{USAGE.install}</code>
+        </pre>
+      </section>
+      <section className="sc-step">
+        <div className="sc-step-head">
+          <h3>2. Play a film</h3>
+          <CopyButton text={USAGE.jsx} label="Code" />
+        </div>
+        <pre className="sc-codebox">
+          <code>{USAGE.jsx}</code>
+        </pre>
+      </section>
+      <dl className="sc-props">
+        {USAGE.props.map(([k, v]) => (
+          <div key={k} style={{ display: 'contents' }}>
+            <dt>{k}</dt>
+            <dd>{v}</dd>
+          </div>
+        ))}
+      </dl>
+      <nav className="sc-use-links" aria-label="More">
+        <a href="/embed/">See it on an ordinary page ↗</a>
+        <a href={REPO} target="_blank" rel="noopener noreferrer">
+          The code on GitHub ↗
+        </a>
+      </nav>
+    </div>
   );
 }
 
@@ -856,7 +1032,7 @@ function Credits() {
         </div>
         <div>
           <dt>Films</dt>
-          <dd>Ten Blender Foundation open movies, Creative Commons</dd>
+          <dd>Ten Blender Studio open movies, Creative Commons, posters by Blender Studio</dd>
         </div>
         <div>
           <dt>Frames</dt>

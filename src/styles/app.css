@@ -601,3 +601,9 @@ dialog.about::backdrop { background: transparent; }
 @media (max-width: 640px) { .about-emblem { width: 84px; margin: -26px -6px -10px 0; } .about-title { font-size: clamp(1.25rem, 6.6vw, 1.7rem); } .about-logo { width: 36px; height: 36px; } .about-head { gap: 10px; } }
 @media (max-height: 560px) { .about-emblem { width: 84px; margin: -18px -4px -8px 0; } }
 @media (max-height: 440px) { .about-emblem { width: 70px; margin: -12px 0 -6px 0; } }
+
+/* the About and credits card never squeezes its rows into each other: when a short phone can't fit it all, the card scrolls */
+.about-card { color: #33261c; grid-template-rows: auto auto auto auto; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; align-content: start; }
+.about-card > * { min-height: auto; }
+.about-controls dl { align-items: start; }
+.about-controls dt { padding-top: 1px; }

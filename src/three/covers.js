@@ -3,9 +3,11 @@ import { FONT_MONO, FONT_SERIF, ensureFrameFonts } from '../data/borders.js';
 import { wrapLines } from './canvasTexture.js';
 
 /**
- * Tape covers. The art is a frame from the film itself, served by Mux's
- * image API, given a warm print treatment with the title set below it.
- * A `cover` URL in movies.js (an official poster in public/covers) wins.
+ * Tape covers: the art above, fading softly into a cream title band with the
+ * film's name, a teal rule, the year and the studio. The art is the film's
+ * official poster (movies.js `cover`), its top kept and its own colours, so
+ * the long billing block at its foot falls below the fold; without a poster,
+ * a still from Mux with a warm print treatment.
  */
 const W = 512;
 const H = 864;
@@ -28,6 +30,7 @@ function loadImage(src) {
 }
 
 function paint(ctx, movie, img) {
+  const poster = !!(img && movie.cover);
   const artH = H * 0.7;
   ctx.fillStyle = '#2b221b';
   ctx.fillRect(0, 0, W, H);
@@ -37,8 +40,9 @@ function paint(ctx, movie, img) {
     const dw = img.width * s;
     const dh = img.height * s;
     ctx.save();
-    ctx.filter = 'sepia(0.22) saturate(0.88) contrast(1.04) brightness(1.03)';
-    ctx.drawImage(img, (W - dw) / 2, (artH - dh) / 2, dw, dh);
+    // a poster keeps its own colours and its top (the art); a still gets the warm print treatment, centred
+    ctx.filter = poster ? 'none' : 'sepia(0.22) saturate(0.88) contrast(1.04) brightness(1.03)';
+    ctx.drawImage(img, (W - dw) / 2, poster ? 0 : (artH - dh) / 2, dw, dh);
     ctx.restore();
   } else {
     const g = ctx.createLinearGradient(0, 0, 0, artH);
@@ -52,15 +56,17 @@ function paint(ctx, movie, img) {
     ctx.textBaseline = 'middle';
     ctx.fillText(movie.title[0], W / 2, artH / 2);
   }
-  // halftone grain over the art
-  ctx.fillStyle = 'rgb(40 25 15 / 0.07)';
-  for (let y = 0; y < artH; y += 5) for (let x = (y / 5) % 2 ? 2.5 : 0; x < W; x += 5) ctx.fillRect(x, y, 1.6, 1.6);
-  // soft fade into the title band
-  const fade = ctx.createLinearGradient(0, artH - 60, 0, artH);
-  fade.addColorStop(0, 'rgb(239 228 207 / 0)');
-  fade.addColorStop(1, 'rgb(239 228 207 / 0.9)');
+  // halftone grain over a still (a poster is left clean)
+  if (!poster) {
+    ctx.fillStyle = 'rgb(40 25 15 / 0.07)';
+    for (let y = 0; y < artH; y += 5) for (let x = (y / 5) % 2 ? 2.5 : 0; x < W; x += 5) ctx.fillRect(x, y, 1.6, 1.6);
+  }
+  // a long, eased fade into the title band, so the art's lower edge never shows as a line
+  const FADE = 170;
+  const fade = ctx.createLinearGradient(0, artH - FADE, 0, artH + 2);
+  [[0, 0], [0.25, 0.08], [0.5, 0.3], [0.72, 0.62], [0.88, 0.88], [1, 1]].forEach(([at, a]) => fade.addColorStop(at, `rgb(239 228 207 / ${a})`));
   ctx.fillStyle = fade;
-  ctx.fillRect(0, artH - 60, W, 60);
+  ctx.fillRect(0, artH - FADE, W, FADE + 2);
   // title band
   ctx.fillStyle = '#efe4cf';
   ctx.fillRect(0, artH, W, H - artH);
@@ -74,7 +80,7 @@ function paint(ctx, movie, img) {
   lines.forEach((l, i) => ctx.fillText(l, 28, artH + 98 + i * 60));
   ctx.font = `24px ${FONT_MONO}`;
   ctx.fillStyle = 'rgb(51 38 28 / 0.72)';
-  ctx.fillText(`${movie.year ?? ''}  Blender Foundation`, 28, H - 34);
+  ctx.fillText(`${movie.year ?? ''}  ${movie.studio ?? 'Blender Studio'}`, 28, H - 34);
   // the plastic sleeve's inner edge
   ctx.strokeStyle = 'rgb(255 255 255 / 0.25)';
   ctx.lineWidth = 3;
@@ -154,26 +160,43 @@ export function backTexture(movie) {
     ctx.fillStyle = 'rgb(255 255 255 / 0.035)';
     for (let y = 0; y < H; y += 6) ctx.fillRect(0, y, W, 2);
     stripes(ctx, 0, 120, W, 54, false);
-    // the label
+    // the label: 40 px in from the case's edges, everything set 30 px inside it
+    const L = 40;
+    const R = W - 40;
+    const pad = 30;
     ctx.fillStyle = '#efe4cf';
-    ctx.fillRect(40, 230, W - 80, 470);
-    mark(ctx, 70, 266, 120, '#33261c', '#9e4330');
+    ctx.fillRect(L, 230, R - L, 470);
+    const markH = 104;
+    mark(ctx, L + pad, 262, markH, '#33261c', '#9e4330');
+    const tx = L + pad + markH * 0.44 + 20; // the name starts a fifth of the mark's height after it
+    const room = R - pad - tx;
     ctx.fillStyle = '#33261c';
     ctx.textBaseline = 'alphabetic';
-    ctx.font = `600 54px ${FONT_SERIF}`;
-    ctx.fillText('PLAYBOOTH', 140, 330);
-    ctx.font = `22px ${FONT_MONO}`;
+    let size = 52;
+    ctx.font = `600 ${size}px ${FONT_SERIF}`;
+    while (ctx.measureText('PLAYBOOTH').width > room && size > 24) {
+      size -= 1;
+      ctx.font = `600 ${size}px ${FONT_SERIF}`;
+    }
+    ctx.fillText('PLAYBOOTH', tx, 262 + markH * 0.52 + size * 0.36);
+    let tag = 22;
+    ctx.font = `${tag}px ${FONT_MONO}`;
+    while (ctx.measureText('a photobooth for films').width > room && tag > 14) {
+      tag -= 1;
+      ctx.font = `${tag}px ${FONT_MONO}`;
+    }
     ctx.fillStyle = 'rgb(51 38 28 / 0.7)';
-    ctx.fillText('a photobooth for films', 142, 370);
+    ctx.fillText('a photobooth for films', tx + 2, 262 + markH * 0.52 + size * 0.36 + tag + 14);
     ctx.fillStyle = '#3c8a78';
-    ctx.fillRect(70, 420, 72, 5);
+    ctx.fillRect(L + pad, 420, 72, 5);
     ctx.fillStyle = '#33261c';
     ctx.font = `600 40px ${FONT_SERIF}`;
-    wrapLines(ctx, movie.title, W - 150, 2).forEach((l, i) => ctx.fillText(l, 70, 480 + i * 44));
+    wrapLines(ctx, movie.title, R - L - pad * 2, 2).forEach((l, i) => ctx.fillText(l, L + pad, 480 + i * 44));
     ctx.font = `21px ${FONT_MONO}`;
     ctx.fillStyle = 'rgb(51 38 28 / 0.72)';
-    ctx.fillText(`${movie.year ?? ''}  ${movie.genre ?? ''}`.trim(), 70, 590);
-    ctx.fillText('play  ·  snap  ·  print', 70, 650);
+    ctx.fillText(`${movie.year ?? ''}  ${movie.genre ?? ''}`.trim(), L + pad, 590);
+    ctx.fillText(movie.studio ?? 'Blender Studio', L + pad, 624);
+    ctx.fillText('play  ·  snap  ·  print', L + pad, 666);
     // barcode
     let bx = W - 200;
     for (let i = 0; i < 30; i++) {

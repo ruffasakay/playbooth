@@ -120,9 +120,7 @@ export default function Inspect() {
         </p>
         <p className="inspect-text">{movie.synopsis}</p>
         <p className="inspect-credit">
-          {movie.credit}
-          <br />
-          {movie.license}
+          {movie.studio ?? movie.credit} · {movie.license}
         </p>
         <div className="inspect-actions">
           <button ref={primary} type="button" className="btn btn--primary" onClick={play} data-tip={inserted ? 'Watch' : 'Put in the player'} data-key="Enter">

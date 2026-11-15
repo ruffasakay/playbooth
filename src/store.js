@@ -55,6 +55,8 @@ export const useApp = create((set, get) => ({
   snaps: [], // raw frames snapped this visit (the compiler), newest last
   compilerOpen: false,
   captionStyle: loadCaptionStyle(),
+  /** picture brightness, 0.3 to 1.5 (1 is the film as made); a swipe on the left of the picture or Settings */
+  brightness: 1,
   collection: [], // everything saved on this device, newest first
   printBatch: [], // photos coming out of the printer right now
   printRun: 0,
@@ -319,4 +321,9 @@ function loadCaptionStyle() {
   }
 }
 
-export const movieById = (id) => MOVIES.find((m) => m.id === id) ?? null;
+/** Films that aren't on the shelf: an embedded player registers its own (see player/PlayboothPlayer.jsx). */
+const extraMovies = new Map();
+export function registerMovie(movie) {
+  extraMovies.set(movie.id, movie);
+}
+export const movieById = (id) => MOVIES.find((m) => m.id === id) ?? extraMovies.get(id) ?? null;

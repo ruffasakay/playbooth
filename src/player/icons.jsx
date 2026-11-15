@@ -15,13 +15,13 @@ export const Replay = () => (
   <svg {...base}><path {...line} d="M4.6 12a7.4 7.4 0 1 0 2.2-5.3" /><path {...line} d="M4.4 4.2v3.6H8" /></svg>
 );
 /** An open circle with its arrowhead at the top, the step written inside (the usual skip glyph). */
-export const Seek = ({ back }) => (
+export const Seek = ({ back, step = 10 }) => (
   <svg {...base}>
     <g transform={back ? undefined : 'translate(24 0) scale(-1 1)'} {...line} strokeWidth="1.8">
       <path d="M4.55 7.7A8.6 8.6 0 1 1 4.55 16.3" />
       <path d="M3.3 3.9 4.5 8.2 8.7 7.2" />
     </g>
-    <text x="12.3" y="15.5" textAnchor="middle" fontSize="8.2" fontFamily="'DM Mono', ui-monospace, monospace" fontWeight="600" letterSpacing="-0.3" fill="currentColor">10</text>
+    <text x="12.3" y="15.5" textAnchor="middle" fontSize="8.2" fontFamily="'DM Mono', ui-monospace, monospace" fontWeight="600" letterSpacing="-0.3" fill="currentColor">{step}</text>
   </svg>
 );
 export const Volume = ({ level = 'high' }) => (
@@ -140,4 +140,37 @@ export const Heart = () => (
   <svg {...base}>
     <path {...line} d="M12 19.5s-6.8-4.2-8.4-8.3C2.4 8.2 4.4 5 7.6 5c1.8 0 3.2 1 4.4 2.6C13.2 6 14.6 5 16.4 5c3.2 0 5.2 3.2 4 6.2-1.6 4.1-8.4 8.3-8.4 8.3Z" />
   </svg>
+);
+
+/** A contact sheet: four stills, the scenes of the film. */
+export const Scenes = () => (
+  <svg {...base}>
+    <g {...line}>
+      <rect x="3.5" y="4.5" width="7.4" height="6.2" rx="1.1" />
+      <rect x="13.1" y="4.5" width="7.4" height="6.2" rx="1.1" />
+      <rect x="3.5" y="13.3" width="7.4" height="6.2" rx="1.1" />
+      <rect x="13.1" y="13.3" width="7.4" height="6.2" rx="1.1" />
+    </g>
+  </svg>
+);
+/** Brightness: a sun drawn in line, half of it filled. */
+export const Brightness = () => (
+  <svg {...base}>
+    <circle cx="12" cy="12" r="4.4" {...line} />
+    <path d="M12 7.6a4.4 4.4 0 0 1 0 8.8Z" fill="currentColor" />
+    <path {...line} d="M12 2.8v1.9M12 19.3v1.9M2.8 12h1.9M19.3 12h1.9M5.5 5.5l1.3 1.3M17.2 17.2l1.3 1.3M5.5 18.5l1.3-1.3M17.2 6.8l1.3-1.3" />
+  </svg>
+);
+/** Quality: a screen with HD bars rising. */
+export const Quality = () => (
+  <svg {...base}>
+    <rect x="3" y="5" width="18" height="13" rx="2" {...line} />
+    <path {...line} d="M8 14.5v-2M12 14.5v-4.5M16 14.5V8.5" />
+  </svg>
+);
+export const Close = () => (
+  <svg {...base}><path {...line} strokeWidth="1.9" d="M6.5 6.5l11 11M17.5 6.5l-11 11" /></svg>
+);
+export const Code = () => (
+  <svg {...base}><path {...line} d="M8.5 7.5 4 12l4.5 4.5M15.5 7.5 20 12l-4.5 4.5M13.4 5.5l-2.8 13" /></svg>
 );

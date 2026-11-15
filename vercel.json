@@ -3,5 +3,14 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "rewrites": [{ "source": "/player", "destination": "/player/index.html" }]
+  "rewrites": [
+    {
+      "source": "/player",
+      "destination": "/player/index.html"
+    },
+    {
+      "source": "/embed",
+      "destination": "/embed/index.html"
+    }
+  ]
 }

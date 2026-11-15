@@ -10,6 +10,9 @@ import '../styles/app.css';
 import '../styles/skin.css';
 import './showcase.css';
 import Showcase from './Showcase.jsx';
+import { useApp } from '../store.js';
+
+if (import.meta.env.DEV) window.__app = useApp;
 
 // the showcase is a daylight page; the booth itself opens at night
 document.documentElement.dataset.theme = 'day';
