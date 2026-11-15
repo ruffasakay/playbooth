@@ -17,6 +17,7 @@
     "@fontsource/fraunces": "^5.3.0",
     "@react-three/drei": "10.7.9",
     "@react-three/fiber": "9.8.2",
+    "@vercel/analytics": "^2.0.1",
     "@videojs/core": "10.4.0",
     "@videojs/mux-data": "10.4.0",
     "@videojs/mux-video": "10.4.0",

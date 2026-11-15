@@ -2,17 +2,21 @@ import { Suspense, lazy, useEffect } from 'react';
 import { useApp } from './store.js';
 import { loadPhotos } from './lib/photos.js';
 import { bindSounds } from './lib/sfx.js';
+import { bindMusic } from './lib/music.js';
 import { PlayerLayer } from './player/PlayerLayer.jsx';
 import { Announcer, Hero, Preloader, RoomUI, deepLinkToPlayer } from './ui/Screens.jsx';
 import { AlbumDialog, CompilerDialog, FlatShelf, PhotoDialog } from './ui/Dialogs.jsx';
 import { AboutDialog } from './ui/About.jsx';
 import { Hint } from './ui/Hint.jsx';
 import { hotspotPortal } from './three/portal.js';
+import { useFramePicture } from './player/frameUpload.js';
 
 const Stage = lazy(() => import('./three/Stage.jsx'));
 const Inspect = lazy(() => import('./three/Inspect.jsx'));
 
 if (import.meta.env.DEV) window.__app = useApp;
+// the booth's frame chooser takes your own picture too, as the player does everywhere else
+useApp.setState({ frameUpload: useFramePicture });
 
 function hasWebGL() {
   try {
@@ -35,7 +39,9 @@ function useEnvironment() {
     coarse.addEventListener('change', sync);
     loadPhotos().then((photos) => useApp.getState().setCollection(photos));
     const unbindSounds = bindSounds();
+    const unbindMusic = bindMusic();
     return () => {
+      unbindMusic();
       rm.removeEventListener('change', sync);
       coarse.removeEventListener('change', sync);
       unbindSounds();

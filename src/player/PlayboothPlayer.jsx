@@ -27,10 +27,14 @@ import { useFramePicture } from './frameUpload.js';
  *   />
  *
  * The player lays itself out from its own box, so give it a width and a
- * height (an aspect ratio is enough). One player per page: it shares one
- * store, like the booth.
+ * height (an aspect ratio is enough). On a phone it picks its own shape
+ * (`adaptive`, on by default): held upright, a tall box, so the picture sits
+ * on top with the keys under it, as in a phone's own player; held sideways,
+ * the height of the screen, keys beside the picture. Pass adaptive={false}
+ * to keep your box everywhere. One player per page: it shares one store,
+ * like the booth.
  */
-export function PlayboothPlayer({ title = 'Untitled', playbackId, src, captions, credit = '', year = '', frame, className = '', style }) {
+export function PlayboothPlayer({ title = 'Untitled', playbackId, src, captions, credit = '', year = '', frame, className = '', style, adaptive = true }) {
   const id = `embed:${playbackId || src || title}`;
   const movie = useMemo(
     () => ({ id, title, playbackId, src, captions, studio: credit, credit, license: '', year: String(year), colors: { shell: '#3c8a78' } }),
@@ -66,7 +70,7 @@ export function PlayboothPlayer({ title = 'Untitled', playbackId, src, captions,
 
   return (
     <>
-      <div className={`pb-host ${className}`.trim()} data-fs-root style={style}>
+      <div className={`pb-host${adaptive ? ' pb-host--adapt' : ''} ${className}`.trim()} data-fs-root style={style}>
         <Player>
           <PlayboothSkin>
             <Media />

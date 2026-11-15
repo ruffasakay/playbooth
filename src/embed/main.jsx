@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { Analytics } from '@vercel/analytics/react';
 import { PlayboothPlayer } from '../player/PlayboothPlayer.jsx';
 import { USAGE } from './usage.js';
 import './embed-page.css';
@@ -47,5 +48,6 @@ function Page() {
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Page />
+    <Analytics />
   </StrictMode>,
 );

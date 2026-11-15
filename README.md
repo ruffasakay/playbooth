@@ -85,11 +85,13 @@ As a film lover, the feature I always wanted is a screenshot button. Press **S**
 
 ### Frames
 
-There are 30 frames, ranked:
+There are 34 frames. The chooser mixes them on purpose, so no two dotted, starry, denim or blurred frames sit side by side:
 
-- **Ten patterns made from pictures** (`public/frames/`): Cocoa dots, Cocoa ribbon (a gingham bow tied under the picture), Pink document (a 2003 word processor whose white page is the film), Leopard, Star denim, Halftone stars, Lily & dots, Sage stars, Grain haze and Butter linen.
+- **Fourteen patterns made from pictures** (`public/frames/`): Cocoa dots, Cocoa ribbon (a gingham bow tied under the picture), Pink document (a 2003 word processor whose white page is the film; sliced so its toolbars, ruler and scroll bar never stretch out of shape), Pool mosaic, Leopard, Lily vines, Star denim, Halftone stars, Star glow, Lily & dots, Sage stars, Grain haze, Meadow haze and Butter linen.
 - **Twenty drawn in code**: Star confetti, Comic blocks, Lace, Red film, Lavender swirl, Airmail, Matinee, Denim & lace, Pixel lilac, Black strip, Velvet curtain, Granny squares, Sage checker, Cinema ticket, Postage stamp, Pressed flowers, Red polka, Linen stripe and Booth white, plus No frame.
-- **Your own frame**: outside the booth, the frame chooser takes any landscape picture and turns it into a frame. Its average colour tints the keys.
+- **Your own frame**: everywhere (the booth, the showcase and the embedded player), the frame chooser takes any landscape picture and turns it into a frame. Its average colour tints the keys, and it can be used for prints and photostrips too.
+
+The chooser is a list that scrolls: each row has a thumbnail that shows the pattern clearly, the frame's name and a line about it (one column on a narrow panel, more on a wide one). Its title and the Back and confirm keys stay put while the list scrolls.
 
 ### Snaps and prints (the booth)
 
@@ -105,13 +107,14 @@ There are 30 frames, ranked:
 - **The tapes**: ten tapes on a video-store rack, newest first, each wearing its film's official poster.
 - **Tape moves**: pick a tape to see it close up; drag or click it into the VCR and watch on an old television.
 - **Sounds**: every interface sound is synthesized with WebAudio, and one switch mutes them all.
+- **Music**: a slow, warm lo-fi loop (electric piano, round bass, a few bells, brushes and a record's crackle), also played live by WebAudio, with no files. It is quiet (about -31 dBFS), starts with your first touch or key (browsers require one), fades out when a film starts and comes back when you eject the tape or go to print your snaps. The same sound switch silences it. The booth only; the showcase and the embedded player stay silent.
 
 ### The showcase page (`/player/`)
 
 A one-screen sandbox for the skin on its own:
 
 - **Size**: six shapes (desktop, laptop, tablet, square, phone sideways, phone upright) and a width slider. The skin lays itself out from the box's real size, so this tests the layout itself rather than a zoom.
-- **Film, Frame, Your own frame**: change the film, pick any of the 30 frames, or upload a picture (Fit or Tile, with a margin slider).
+- **Film, Frame, Your own frame**: change the film, pick any of the 34 frames, or upload a picture (Fit or Tile, with a margin slider).
 - **Playback**: autoplay (muted), loop, calm motion, key sounds.
 - **Light or dark page**: switch from the header, to judge the skin against both.
 - **Cards**: the idea, the requirements and accessibility checks with live measurements, every keyboard shortcut, the usage code, and the credits.
@@ -151,6 +154,7 @@ export default function Film() {
 | `captions` | A WebVTT URL. Captions that come inside a Mux stream need nothing. |
 | `frame` | Any frame id from `src/data/borders.js`, for example `cocoadots`, `ribbon`, `pinkdoc`, `lace` or `comic`. |
 | `style`, `className` | Give the player a width and a height, or a width and an `aspectRatio`. The skin lays itself out from its own box. |
+| `adaptive` | On by default. On a phone the player picks its own shape, whatever box you gave it: held upright, a tall box (picture on top, keys below, as in a phone's own player); held sideways, the height of the screen with the keys beside the picture. Pass `adaptive={false}` to keep your box everywhere. |
 
 Notes:
 
@@ -176,6 +180,8 @@ Node 20.19 or newer. The build has three pages: `/` (the booth), `/player/` (the
 ### Deploying
 
 The repository deploys to Vercel as it is: import it, and the included `vercel.json` sets the build command, the `dist` output and the `/player` and `/embed` routes.
+
+Visitor counts use [Vercel Web Analytics](https://vercel.com/docs/analytics) (`@vercel/analytics`): the `<Analytics />` component is on all three pages. It counts nothing until Web Analytics is turned on for the project in the Vercel dashboard, and it does not count visits on `npm run dev`.
 
 ### Useful URLs
 
@@ -219,7 +225,7 @@ The 3D scene and the DOM never reach into each other: both read and write one sm
   - **Progress** (`Scrubber`, `Reel`): a vertical slider with Video.js store seeking. The reel reads Mux's storyboard sprite (`image.mux.com/<id>/storyboard.vtt`) once per film, so moving the pointer never waits on the network.
   - **Input feedback** (`Feedback`, `Gauge`): subscribes to Video.js's input-action events (`subscribeToInputActions` from `@videojs/core/dom`). These fire for shortcuts and gestures but not for button presses, so the large key appears only when the action isn't already visible on a key.
   - **Touch** (`onWindowDown` / `onWindowMove` / `onPictureClick`): a vertical slide past 14 px on either half sets brightness or volume; a second tap on a side within 320 ms steps 10 s.
-  - **Frame chooser** (`FramePicker`): the 30 frames in a grid that always fills its panel; outside the booth it also takes your own picture.
+  - **Frame chooser** (`FramePicker`): the 34 frames as a scrolling list with fixed Back and confirm keys; it also takes your own picture.
 - **Theme tokens** (`src/styles/skin.css`): every frame sets `--k-dock`, `--k-surface`, `--k-ink`, `--k-band`, `--k-accent`, `--k-track` and the play key's colours. Keys show state by filling in, never by a ring drawn around them. The skin also honours the standard Video.js properties: `--media-accent-color`, `--media-accent-text-color`, `--media-border-radius`, `--media-border-color` and `--media-font-family`.
 
 ### Frames
@@ -304,8 +310,8 @@ src/
     embed.css           page styles the player needs, scoped to it
   data/
     movies.js           the ten films
-    borders.js          the 30 frames and their painters
-  lib/                  snaps, prints and photostrips, IndexedDB, sounds
+    borders.js          the 34 frames, their painters and the order they're offered in
+  lib/                  snaps, prints and photostrips, IndexedDB, sounds, music
   ui/                   hero, dialogs (snaps, album, viewer), About, hints, logo
   three/                the 3D booth: street, booth, interior, tapes, machine, prints, posters, camera
   styles/               tokens, app and skin styles
@@ -347,7 +353,7 @@ Made with love by [@ruffasakay](https://contra.com/ruffasakay).
 - **Films and posters**: Blender Foundation and Blender Studio, under the Creative Commons licenses listed above. The tapes show each poster's art and title, and its billing block is left out; the player names the studio and the year; the full credit line and license go with every photo.
 - **Fonts**: Fraunces, DM Mono, Caveat, Atkinson Hyperlegible Next and Literata, all under the SIL Open Font License 1.1.
 - **Video.js mark**: the official one, from the `videojs/video.js` repository.
-- **Everything else**: the 3D models, icons, sounds and drawn frames are original and made in code. The ten pattern frames are pictures chosen by the author.
+- **Everything else**: the 3D models, icons, sounds and drawn frames are original and made in code. The fourteen pattern frames are pictures chosen by the author.
 
 Licensed under the Apache License, Version 2.0. See [`LICENSE`](LICENSE).
 

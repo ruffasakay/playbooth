@@ -332,20 +332,67 @@ function UtilityPole({ position }) {
   );
 }
 
+/**
+ * A classic lamp-post, symmetrical from every side: a stepped plinth, a slim
+ * post with two collars, and a square glass lantern centred on top under a
+ * pointed roof. The lantern glows after dark and lights the pavement below.
+ */
 function StreetLamp({ position, withLight }) {
+  const iron = mat('#2f3532', { metalness: 0.35, roughness: 0.55 });
+  const glass = (
+    <meshStandardMaterial color="#fff3dc" emissive="#ffd59a" emissiveIntensity={0.2} roughness={0.35} ref={dayNight('emissiveIntensity', 0.2, 3.2)} />
+  );
+  const Q = Math.PI / 4; // four-sided pieces turned square to the street
+  const LY = 3.38; // the lantern's middle
   return (
     <group position={position}>
-      <mesh position={[0, 2.2, 0]} castShadow material={mat('#4a4744', { metalness: 0.3, roughness: 0.6 })}>
-        <cylinderGeometry args={[0.05, 0.07, 4.4, 10]} />
+      {/* plinth */}
+      <mesh position={[0, 0.09, 0]} castShadow receiveShadow material={iron}>
+        <cylinderGeometry args={[0.17, 0.2, 0.18, 16]} />
       </mesh>
-      <mesh position={[-0.35, 4.35, 0]} castShadow material={mat('#4a4744')}>
-        <boxGeometry args={[0.8, 0.06, 0.08]} />
+      <mesh position={[0, 0.3, 0]} castShadow material={iron}>
+        <cylinderGeometry args={[0.1, 0.15, 0.26, 16]} />
       </mesh>
-      <mesh position={[-0.7, 4.24, 0]}>
-        <cylinderGeometry args={[0.18, 0.12, 0.16, 16]} />
-        <meshStandardMaterial color="#fff1d6" emissive="#ffd8a0" emissiveIntensity={0.25} ref={dayNight('emissiveIntensity', 0.25, 3.2)} />
+      {/* post */}
+      <mesh position={[0, 1.78, 0]} castShadow material={iron}>
+        <cylinderGeometry args={[0.045, 0.06, 2.7, 12]} />
       </mesh>
-      {withLight && <pointLight position={[-0.7, 4.0, 0]} intensity={0} distance={11} decay={1.5} color="#ffcf98" ref={dayNight('intensity', 0, 16)} />}
+      {[0.5, 3.04].map((y) => (
+        <mesh key={y} position={[0, y, 0]} castShadow material={iron}>
+          <cylinderGeometry args={[0.075, 0.075, 0.07, 16]} />
+        </mesh>
+      ))}
+      <mesh position={[0, 3.12, 0]} castShadow material={iron}>
+        <cylinderGeometry args={[0.13, 0.05, 0.12, 16]} />
+      </mesh>
+      {/* lantern: floor, glass, four corner bars, roof, finial */}
+      <mesh position={[0, 3.2, 0]} rotation={[0, Q, 0]} castShadow material={iron}>
+        <cylinderGeometry args={[0.2, 0.17, 0.05, 4]} />
+      </mesh>
+      <mesh position={[0, LY, 0]} rotation={[0, Q, 0]}>
+        <cylinderGeometry args={[0.19, 0.155, 0.32, 4]} />
+        {glass}
+      </mesh>
+      {[
+        [1, 1],
+        [1, -1],
+        [-1, 1],
+        [-1, -1],
+      ].map(([x, z]) => (
+        <mesh key={`${x}${z}`} position={[x * 0.122, LY, z * 0.122]} rotation={[z * 0.075, 0, -x * 0.075]} material={iron}>
+          <boxGeometry args={[0.022, 0.34, 0.022]} />
+        </mesh>
+      ))}
+      <mesh position={[0, 3.565, 0]} rotation={[0, Q, 0]} castShadow material={iron}>
+        <cylinderGeometry args={[0.24, 0.24, 0.035, 4]} />
+      </mesh>
+      <mesh position={[0, 3.67, 0]} rotation={[0, Q, 0]} castShadow material={iron}>
+        <coneGeometry args={[0.235, 0.18, 4]} />
+      </mesh>
+      <mesh position={[0, 3.8, 0]} material={iron}>
+        <sphereGeometry args={[0.035, 12, 8]} />
+      </mesh>
+      {withLight && <pointLight position={[0, LY - 0.1, 0]} intensity={0} distance={11} decay={1.5} color="#ffcf98" ref={dayNight('intensity', 0, 16)} />}
     </group>
   );
 }

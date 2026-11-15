@@ -372,6 +372,10 @@ export function PlayboothSkin({ children }) {
   // locking is instant: the keys go, one unlock key stays, one click brings everything back
   const lock = () => {
     animate.current = false;
+    // the lock key is about to go, and with it the focus; the hotkeys only listen inside the player, so
+    // hand the focus to the player itself, or volume and brightness keys would stop answering
+    const root = (document.activeElement?.closest?.('.pb-skin')) || stageRef.current?.closest('.pb-skin');
+    requestAnimationFrame(() => root?.focus({ preventScroll: true, focusVisible: false }));
     setPop(null);
     setLocked(true);
     sfx('switch');
@@ -1968,10 +1972,14 @@ export function FrameThumb({ border }) {
     warmFrame(border);
     const el = ref.current;
     if (!el) return;
-    const L = frameLayout(border, 16 / 9, 220);
+    // a pattern frame is a thin band around a film; in the list its picture is what tells frames apart,
+    // so its thumbnail shows a wider band of it (the same picture, at the same proportions, just more of it)
+    const pattern = (border.raster && border.id !== 'pinkdoc') || border.id === 'custom';
+    const shown = pattern ? { ...border, pads: { t: 0.24, r: 0.24, b: border.pads.b > border.pads.t ? 0.36 : 0.24, l: 0.24 } } : border;
+    const L = frameLayout(shown, 16 / 9, 220);
     el.width = L.W;
     el.height = L.H;
-    paintComposite(el.getContext('2d'), border, L, {}, (g, win) => {
+    paintComposite(el.getContext('2d'), shown, L, {}, (g, win) => {
       const grad = g.createLinearGradient(0, win.y, 0, win.y + win.h);
       grad.addColorStop(0, '#d9b98f');
       grad.addColorStop(1, '#6d5444');
@@ -1982,41 +1990,14 @@ export function FrameThumb({ border }) {
   return <canvas ref={ref} className="frame-thumb" aria-hidden="true" />;
 }
 
-/**
- * Every frame in one grid that fills the panel: the column count always
- * divides the number of frames, so no row is left half empty.
- */
-function useFrameGrid(ref, count) {
-  const [grid, setGrid] = useState({ cols: 3, rows: Math.ceil(count / 3), size: 0 });
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return undefined;
-    const fit = () => {
-      const w = el.clientWidth;
-      const h = el.clientHeight;
-      if (!w || !h) return;
-      // every column count is tried; full rows are preferred (30 frames divide evenly), but a count that
-      // doesn't divide (30 frames plus your own) gets the largest tiles with one short last row, never a sliver
-      // tiles are about 1.35 times as wide as tall (thumbnail + name)
-      let best = null;
-      for (let cols = 1; cols <= count; cols++) {
-        const rows = Math.ceil(count / cols);
-        const empty = rows * cols - count;
-        if (empty >= cols) continue;
-        const tw = (w - (cols - 1) * 6) / cols;
-        const th = (h - (rows - 1) * 6) / rows;
-        const size = Math.min(tw, th * 1.35);
-        const score = size - empty * 1.5 - (tw / th > 2.4 || th / tw > 1.2 ? 1000 : 0);
-        if (!best || score > best.score) best = { cols, rows, size, score };
-      }
-      setGrid(best);
-    };
-    fit();
-    const ro = new ResizeObserver(fit);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [ref, count]);
-  return grid;
+/** How many columns the list has right now (one on a narrow panel, more on a wide one), read from the layout. */
+function listColumns(el) {
+  const items = el ? [...el.querySelectorAll('.frame-opt')] : [];
+  if (!items.length) return 1;
+  const top = items[0].offsetTop;
+  let n = 0;
+  while (n < items.length && items[n].offsetTop === top) n++;
+  return Math.max(1, n);
 }
 
 function FramePicker({ active }) {
@@ -2024,11 +2005,11 @@ function FramePicker({ active }) {
   const setBorder = useApp((s) => s.setBorder);
   const group = useRef(null);
   const selected = borderById(borderId);
-  useApp((s) => s.borderRev); // a new picture under the same "custom" id redraws its tile
-  const list = useMemo(() => (borderId === 'custom' && CUSTOM.border ? [...BORDERS, CUSTOM.border] : BORDERS), [borderId]);
-  const grid = useFrameGrid(group, list.length);
-  // outside the booth you can make a frame from your own picture, right here (the booth keeps its own frames)
-  const upload = useApp((s) => (s.host !== 'booth' ? s.frameUpload : null));
+  // your own frame, once made, stays in the list (first, beside the upload) even after you try another
+  const rev = useApp((s) => s.borderRev);
+  const list = useMemo(() => (CUSTOM.border ? [CUSTOM.border, ...BORDERS] : BORDERS), [rev, borderId]); // eslint-disable-line react-hooks/exhaustive-deps
+  // you can make a frame from your own picture, right here, wherever the player is
+  const upload = useApp((s) => s.frameUpload);
   const fileRef = useRef(null);
   const [uploadError, setUploadError] = useState('');
   // outside the booth the chooser opens over a playing film: Back puts the frame it had back
@@ -2042,14 +2023,24 @@ function FramePicker({ active }) {
     setUploadError(problem || '');
     if (!problem) {
       sfx('paper');
-      requestAnimationFrame(() => group.current?.querySelector('[data-id="custom"]')?.focus({ preventScroll: true }));
+      requestAnimationFrame(() => {
+        const el = group.current?.querySelector('[data-id="custom"]');
+        el?.focus({ preventScroll: true });
+        el?.scrollIntoView({ block: 'nearest' });
+      });
     }
   };
 
   useEffect(() => {
     if (!active) return undefined;
-    const id = setTimeout(() => group.current?.querySelector('[aria-checked="true"]')?.focus({ preventScroll: true, focusVisible: false }), useApp.getState().reducedMotion ? 30 : 700);
-    return () => clearTimeout(id);
+    // the chosen frame is brought into view in the list (instantly, so nothing slides) and takes the focus
+    const on = () => group.current?.querySelector('[aria-checked="true"]');
+    const raf = requestAnimationFrame(() => on()?.scrollIntoView({ block: 'center' }));
+    const id = setTimeout(() => on()?.focus({ preventScroll: true, focusVisible: false }), useApp.getState().reducedMotion ? 30 : 700);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(id);
+    };
   }, [active]);
 
   const choose = (id) => {
@@ -2061,7 +2052,11 @@ function FramePicker({ active }) {
     const i = list.findIndex((b) => b.id === borderId);
     const next = list[(i + dir + list.length) % list.length];
     choose(next.id);
-    requestAnimationFrame(() => group.current?.querySelector(`[data-id="${next.id}"]`)?.focus());
+    requestAnimationFrame(() => {
+      const el = group.current?.querySelector(`[data-id="${next.id}"]`);
+      el?.focus({ preventScroll: true });
+      el?.scrollIntoView({ block: 'nearest' });
+    });
   };
 
   return (
@@ -2070,48 +2065,58 @@ function FramePicker({ active }) {
         <h2 className="pb-picker-title" id="pb-picker-title">Choose a frame</h2>
         <p className="pb-picker-name" aria-live="polite">{selected.name}</p>
       </div>
-      <div
-        ref={group}
-        className="pb-frames"
-        role="radiogroup"
-        aria-labelledby="pb-picker-title"
-        style={{ gridTemplateColumns: `repeat(${grid.cols}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${grid.rows}, minmax(0, 1fr))` }}
-        onKeyDown={(e) => {
-          const rtl = document.dir === 'rtl';
-          const cols = grid.cols;
-          const map = { ArrowRight: rtl ? -1 : 1, ArrowLeft: rtl ? 1 : -1, ArrowDown: cols, ArrowUp: -cols };
-          if (map[e.key] != null) {
-            e.preventDefault();
-            move(map[e.key]);
-          }
-        }}
-      >
-        {list.map((b) => {
-          const on = b.id === borderId;
-          return (
-            <button key={b.id} type="button" role="radio" aria-checked={on} aria-label={b.name} tabIndex={on ? 0 : -1} data-id={b.id} className="frame-opt" onClick={() => choose(b.id)}>
-              <FrameThumb border={b} />
+      {/* the list scrolls; the title above and Back and the confirm key below stay where they are */}
+      <div className="pb-frames-scroll">
+        {upload && (
+          <div className="pb-picker-own">
+            <button type="button" className="pb-picker-upload" onClick={() => fileRef.current?.click()} aria-describedby="pb-picker-own-note">
+              <span className="pb-picker-plus" aria-hidden="true">+</span>
+              <span className="pb-picker-upload-text">
+                <b>{CUSTOM.border ? 'Another picture' : 'Your own frame'}</b>
+                <span id="pb-picker-own-note">Upload a landscape picture; it becomes the frame</span>
+              </span>
             </button>
-          );
-        })}
-      </div>
-      {upload && (
-        <div className="pb-picker-own">
-          <button type="button" className="pb-picker-upload" onClick={() => fileRef.current?.click()} aria-describedby="pb-picker-own-note">
-            <span className="pb-picker-plus" aria-hidden="true">+</span>
-            <span className="pb-picker-upload-text">
-              <b>{CUSTOM.border ? 'Another picture' : 'Your own frame'}</b>
-              <span id="pb-picker-own-note">Upload a landscape picture; it becomes the frame</span>
-            </span>
-          </button>
-          <input ref={fileRef} type="file" accept="image/*" hidden onChange={onFile} />
-          {uploadError && (
-            <p className="pb-picker-error" role="alert">
-              {uploadError}
-            </p>
-          )}
+            <input ref={fileRef} type="file" accept="image/*" hidden onChange={onFile} />
+            {uploadError && (
+              <p className="pb-picker-error" role="alert">
+                {uploadError}
+              </p>
+            )}
+          </div>
+        )}
+        <div
+          ref={group}
+          className="pb-frames"
+          role="radiogroup"
+          aria-labelledby="pb-picker-title"
+          onKeyDown={(e) => {
+            const rtl = document.dir === 'rtl';
+            const cols = listColumns(group.current);
+            const map = { ArrowRight: rtl ? -1 : 1, ArrowLeft: rtl ? 1 : -1, ArrowDown: cols, ArrowUp: -cols };
+            if (map[e.key] != null) {
+              e.preventDefault();
+              move(map[e.key]);
+            }
+          }}
+        >
+          {list.map((b) => {
+            const on = b.id === borderId;
+            return (
+              <button key={b.id} type="button" role="radio" aria-checked={on} aria-label={b.name} aria-describedby={`pb-fh-${b.id}`} tabIndex={on ? 0 : -1} data-id={b.id} className="frame-opt" onClick={() => choose(b.id)}>
+                <span className="frame-opt-pic">
+                  <FrameThumb border={b} />
+                </span>
+                <span className="frame-opt-text">
+                  <span className="frame-opt-name">{b.name}</span>
+                  <span className="frame-opt-hint" id={`pb-fh-${b.id}`}>
+                    {b.hint}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
         </div>
-      )}
+      </div>
       <div className="pb-picker-actions">
         <button
           type="button"

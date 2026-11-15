@@ -35,7 +35,7 @@ const C = {
  */
 const ui = (o) => ({ edge: 'none', bar: 'plain', thumb: 'dot', thumbColor: null, ...o });
 
-export const BORDERS = [
+const ALL_BORDERS = [
   {
     id: 'none',
     name: 'No frame',
@@ -73,11 +73,11 @@ export const BORDERS = [
     id: 'pinkdoc',
     name: 'Pink document',
     hint: 'A pink word processor from 2003: the film is the page, the toolbars stay put.',
-    pads: { t: 0.1637, r: 0.038, b: 0.0696, l: 0.047 },
+    pads: { t: 0.1631, r: 0.0369, b: 0.0641, l: 0.0453 },
     radius: 0,
     raster: true,
-    swatch: ['#f7d7e1', '#e05a82'],
-    strip: { bg: '#f9dfe7', ink: '#b2405f' },
+    swatch: ['#fbd3e5', '#ee2f7f'],
+    strip: { bg: '#fbd8e8', ink: '#b2305f' },
     ui: ui({ dock: '#f7d3de', surface: '#fff3f7', ink: '#b2405f', band: '#b2405f', accent: '#e05a82', track: 'rgb(178 64 95 / 0.2)', play: ['#e05a82', '#fff3f7'] }),
   },
   {
@@ -156,6 +156,50 @@ export const BORDERS = [
     swatch: ['#efdcab', '#8a6e3c'],
     strip: { bg: '#efdcab', ink: '#6b5530' },
     ui: ui({ dock: '#ead6a2', surface: '#fbf4e2', ink: '#6b5530', band: '#6b5530', accent: '#8a6e3c', track: 'rgb(107 85 48 / 0.2)', play: ['#6b5530', '#fbf4e2'] }),
+  },
+  {
+    id: 'mosaic',
+    name: 'Pool mosaic',
+    hint: 'Small aqua glass tiles with an oil-slick shimmer, like the wall of an old pool.',
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
+    radius: 0,
+    raster: true,
+    swatch: ['#6cc9b8', '#0f5e57'],
+    strip: { bg: '#8fd6c8', ink: '#0f4f4a' },
+    ui: ui({ dock: '#5fbfae', surface: '#effaf7', ink: '#0f5e57', band: '#0b3f3a', accent: '#0f5e57', track: 'rgb(15 94 87 / 0.22)', play: ['#0f5e57', '#effaf7'] }),
+  },
+  {
+    id: 'lilyvine',
+    name: 'Lily vines',
+    hint: 'Sage scrolls and pink watercolour lilies on white, with tiny stars.',
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
+    radius: 0,
+    raster: true,
+    swatch: ['#fbfbf6', '#a9b78d'],
+    strip: { bg: '#fbfbf6', ink: '#5f6d47' },
+    ui: ui({ dock: '#f3f4ec', surface: '#ffffff', ink: '#5f6d47', band: '#5f6d47', accent: '#d27c9c', track: 'rgb(95 109 71 / 0.2)', play: ['#5f6d47', '#ffffff'] }),
+  },
+  {
+    id: 'starglow',
+    name: 'Star glow',
+    hint: 'Pastel sky behind a fine dot screen, with glowing sparkles and little stars.',
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
+    radius: 0,
+    raster: true,
+    swatch: ['#cfe8ee', '#e8664f'],
+    strip: { bg: '#dcecf0', ink: '#2c5a6e' },
+    ui: ui({ dock: '#cfe6ec', surface: '#ffffff', ink: '#2c5a6e', band: '#2c5a6e', accent: '#e8664f', track: 'rgb(44 90 110 / 0.2)', play: ['#2c5a6e', '#ffffff'] }),
+  },
+  {
+    id: 'meadow',
+    name: 'Meadow haze',
+    hint: 'A soft blur of butter, rose and lilac flowers, as if seen through a window.',
+    pads: { t: 0.05, r: 0.05, b: 0.05, l: 0.05 },
+    radius: 0,
+    raster: true,
+    swatch: ['#ece7c6', '#c9a7d4'],
+    strip: { bg: '#efead0', ink: '#5e4d6c' },
+    ui: ui({ dock: '#e6e1c0', surface: '#fcfaee', ink: '#5e4d6c', band: '#5e4d6c', accent: '#d1668f', track: 'rgb(94 77 108 / 0.2)', play: ['#5e4d6c', '#fcfaee'] }),
   },
   /* ---- from your references, ranked by design and uniqueness ---- */
   {
@@ -350,6 +394,19 @@ export const BORDERS = [
     ui: ui({ dock: '#f6f1e7', surface: '#ece4d6', ink: '#33261c', band: '#33261c', accent: '#33261c', track: 'rgb(51 38 28 / 0.16)', play: ['#33261c', '#f6f1e7'] }),
   },
 ];
+
+/*
+ * The order the frames are offered in: mixed on purpose, so neighbours differ in
+ * pattern, colour and weight (no two dotted, starry, denim or blurred frames side by side).
+ */
+const ORDER = [
+  'none', 'cocoadots', 'pinkdoc', 'mosaic', 'leopard', 'lilyvine', 'halftone', 'linen', 'velvet', 'starglow',
+  'crochet', 'lily', 'reel', 'haze', 'denimstar', 'ticket', 'comic', 'pressed', 'mono', 'ribbon',
+  'lavender', 'airmail', 'sagestars', 'stamp', 'meadow', 'matinee', 'confetti', 'lace', 'checker', 'pixel',
+  'stripe', 'denim', 'polka', 'booth',
+];
+export const BORDERS = ORDER.map((id) => ALL_BORDERS.find((b) => b.id === id));
+if (BORDERS.length !== ALL_BORDERS.length || BORDERS.some((b) => !b)) throw new Error('borders: ORDER and the frame list differ');
 
 export const borderById = (id) => BORDERS.find((b) => b.id === id) ?? (id === 'custom' ? CUSTOM.border : null) ?? BORDERS[1];
 
@@ -1764,6 +1821,10 @@ const STRIP_PAINT = {
   sagestars: rasterStrip('sagestars'),
   haze: rasterStrip('haze'),
   linen: rasterStrip('linen'),
+  mosaic: rasterStrip('mosaic'),
+  lilyvine: rasterStrip('lilyvine'),
+  starglow: rasterStrip('starglow'),
+  meadow: rasterStrip('meadow'),
   denim: (ctx, w, h) => {
     denimFill(ctx, 0, 0, w, h, w);
     laceTrim(ctx, 0, w, 0, 1, w);
@@ -1840,28 +1901,42 @@ function rasterPainters(id, { edge, anchorY = 0.5 }) {
 /*
  * The pink document: sliced, not stretched. The toolbars along the top and
  * bottom keep their proportions at the window's scale; the ruler and the
- * scroll bar run down the sides; the white page is the window itself.
- * Measured on the picture: the page is x 52–1158, y 181–598 of 1200 × 675.
+ * scroll bar run down the sides, their ends kept whole and only the plain
+ * middle of each (the ruler's run, the scroll track) drawn longer or
+ * shorter; the white page is the window itself.
+ * Measured on the picture: the page is x 70–1615, y 252–842 of 1672 × 941.
  */
-const DOC = { w: 1200, h: 675, l: 52, r: 1158, t: 181, b: 598 };
+const DOC = { w: 1672, h: 941, l: 70, r: 1615, t: 252, b: 842, s0: 345, s1: 690 };
 const docPainters = [
   (ctx, L) => {
-    ctx.fillStyle = '#f7d7e1';
+    ctx.fillStyle = '#fbd3e5';
     ctx.fillRect(0, 0, L.W, L.H);
     const img = rasterImage('pinkdoc');
     if (!img || !(L.win.w > 0)) return;
-    const s = img.width / DOC.w; // the file may be any size; DOC is in 1200-wide units
+    const s = img.width / DOC.w; // the file may be any size; DOC is in picture pixels at full size
     const k = L.win.w / (DOC.r - DOC.l); // one picture pixel, at the window's scale
     const x0 = L.win.x - DOC.l * k;
     const top = DOC.t * k;
     const bot = (DOC.h - DOC.b) * k;
     const yTop = L.win.y - top;
     const yBot = L.win.y + L.win.h;
-    // the bands reach the frame's edges even when full screen widens it: their ends repeat outwards
     ctx.drawImage(img, 0, 0, img.width, DOC.t * s, x0, yTop, DOC.w * k, top);
     ctx.drawImage(img, 0, DOC.b * s, img.width, (DOC.h - DOC.b) * s, x0, yBot, DOC.w * k, bot);
-    ctx.drawImage(img, 0, DOC.t * s, DOC.l * s, (DOC.b - DOC.t) * s, x0, L.win.y, DOC.l * k, L.win.h);
-    ctx.drawImage(img, DOC.r * s, DOC.t * s, (DOC.w - DOC.r) * s, (DOC.b - DOC.t) * s, x0 + DOC.r * k, L.win.y, (DOC.w - DOC.r) * k, L.win.h);
+    // the side columns: whole ends, a middle that takes up the difference
+    const head = (DOC.s0 - DOC.t) * k;
+    const foot = (DOC.b - DOC.s1) * k;
+    const mid = Math.max(0, L.win.h - head - foot);
+    const side = (sx, sw, dx) => {
+      if (mid > 0) {
+        ctx.drawImage(img, sx * s, DOC.t * s, sw * s, (DOC.s0 - DOC.t) * s, dx, L.win.y, sw * k, head);
+        ctx.drawImage(img, sx * s, DOC.s0 * s, sw * s, (DOC.s1 - DOC.s0) * s, dx, L.win.y + head, sw * k, mid);
+        ctx.drawImage(img, sx * s, DOC.s1 * s, sw * s, (DOC.b - DOC.s1) * s, dx, L.win.y + head + mid, sw * k, foot);
+      } else {
+        ctx.drawImage(img, sx * s, DOC.t * s, sw * s, (DOC.b - DOC.t) * s, dx, L.win.y, sw * k, L.win.h);
+      }
+    };
+    side(0, DOC.l, x0);
+    side(DOC.r, DOC.w - DOC.r, x0 + DOC.r * k);
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(L.win.x, L.win.y, L.win.w, L.win.h);
   },
@@ -1880,6 +1955,10 @@ const PAINTERS = {
   sagestars: rasterPainters('sagestars', { edge: '#f2f5ea' }),
   haze: rasterPainters('haze', { edge: '#f6f2d8' }),
   linen: rasterPainters('linen', { edge: '#fbf4e2' }),
+  mosaic: rasterPainters('mosaic', { edge: '#effaf7' }),
+  lilyvine: rasterPainters('lilyvine', { edge: '#ffffff' }),
+  starglow: rasterPainters('starglow', { edge: '#ffffff' }),
+  meadow: rasterPainters('meadow', { edge: '#fcfaee' }),
   booth: [boothBack, boothFront],
   lace: [laceBack, () => {}],
   stamp: [stampBack, stampFront],

@@ -22,16 +22,22 @@ for (const s of Object.values(STATIONS)) s.dir.normalize();
 
 const fovFor = (aspect, inside) => (aspect < 0.8 ? 60 : aspect < 1.1 ? 52 : inside ? 50 : 40);
 
-/** Where the landing camera starts: around the corner, lower and wider, no text yet. */
+/**
+ * Where the landing camera starts: close on the booth's sign, a little from
+ * the right, so the first thing anyone sees is the name lit on its board,
+ * never an empty stretch of road. From there it eases back to the street
+ * view in one move. The lens stays the street view's own, so it is a pull
+ * back, not a zoom; the distance is worked out from the screen's shape so
+ * the whole board is in view on a phone held upright too.
+ */
+const SIGN = { target: V(0, 2.66, 2.3), dir: V(0.3, 0.06, 1).normalize(), box: [3.3, 1.45] };
 function introStart(width, height) {
-  const pose = poseFor('hero', width, height);
-  const off = pose.pos.clone().sub(pose.target);
-  off.applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.62).multiplyScalar(1.22);
-  off.y -= 1.0;
-  pose.pos.copy(pose.target).add(off);
-  pose.ox = 0;
-  pose.oy = 0;
-  return pose;
+  const hero = poseFor('hero', width, height);
+  const aspect = width / height;
+  const t = Math.tan(THREE.MathUtils.degToRad(hero.fov) / 2);
+  const [bw, bh] = SIGN.box;
+  const dist = Math.max(bh / 2 / (t * 0.9), bw / 2 / (t * aspect * 0.94));
+  return { pos: SIGN.target.clone().addScaledVector(SIGN.dir, dist), target: SIGN.target.clone(), fov: hero.fov, ox: 0, oy: 0 };
 }
 
 export function poseFor(name, width, height) {
@@ -73,6 +79,7 @@ export function CameraRig() {
   const tmp = useRef({ pos: new THREE.Vector3(), target: new THREE.Vector3(), off: new THREE.Vector3(), axis: new THREE.Vector3() });
   const offsetKey = useRef('');
   const introDone = useRef(false);
+  if (import.meta.env.DEV) window.__rigTl = () => tl.current; // tests step through the camera moves
 
   const snapTo = (pose) => {
     cur.current = { px: pose.pos.x, py: pose.pos.y, pz: pose.pos.z, tx: pose.target.x, ty: pose.target.y, tz: pose.target.z, fov: pose.fov, ox: pose.ox, oy: pose.oy };

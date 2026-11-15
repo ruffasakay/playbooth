@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { Analytics } from '@vercel/analytics/react';
 import '@fontsource-variable/fraunces/full.css';
 import '@fontsource/dm-mono/400.css';
 import '@fontsource/dm-mono/500.css';
@@ -20,5 +21,6 @@ document.documentElement.dataset.theme = 'day';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Showcase />
+    <Analytics />
   </StrictMode>,
 );

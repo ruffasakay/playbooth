@@ -27,3 +27,16 @@
 .hint kbd { min-width: 1.9em; height: 1.75em; background: rgb(244 237 224 / 0.16); color: #f4ede0; font-size: 0.72rem; }
 .hint kbd + kbd { margin-left: -4px; }
 @keyframes hint-in { from { opacity: 0; } }
+
+/*
+ * adaptive (the default): on a phone the player chooses its own shape, whatever
+ * box the page gave it, so it is never a postage stamp with keys around it.
+ * Upright (a narrow screen held tall): a tall box, picture on top, keys below.
+ * Sideways (a short screen held wide): as tall as the screen, keys beside the picture.
+ */
+@media (orientation: portrait) and (max-width: 640px) {
+  .pb-host--adapt { height: auto !important; aspect-ratio: 9 / 16 !important; max-height: calc(100vh - 24px); max-height: calc(100svh - 24px); min-height: 520px; }
+}
+@media (orientation: landscape) and (max-height: 540px) {
+  .pb-host--adapt { aspect-ratio: auto !important; height: calc(100vh - 16px) !important; height: calc(100svh - 16px) !important; min-height: 300px; }
+}

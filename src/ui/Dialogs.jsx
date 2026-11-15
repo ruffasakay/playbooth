@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { MOVIES } from '../data/movies.js';
 import { useApp, movieById } from '../store.js';
-import { BORDERS, borderById } from '../data/borders.js';
+import { BORDERS, CUSTOM, borderById } from '../data/borders.js';
 import { deletePhoto, downloadPhoto, sharePhoto } from '../lib/photos.js';
 import { printEach, printStrip } from '../lib/printFlow.js';
 import * as I from '../player/icons.jsx';
@@ -297,8 +297,10 @@ export function CompilerDialog() {
       setBusy('');
     }
   };
-  const fi = BORDERS.findIndex((b) => b.id === frame);
-  const stepFrame = (d) => setFrame(BORDERS[(fi + d + BORDERS.length) % BORDERS.length].id);
+  // your own frame, when there is one, takes its turn after the others
+  const frames = CUSTOM.border ? [...BORDERS, CUSTOM.border] : BORDERS;
+  const fi = frames.findIndex((b) => b.id === frame);
+  const stepFrame = (d) => setFrame(frames[(fi + d + frames.length) % frames.length].id);
   const fb = borderById(frame);
 
   return (
