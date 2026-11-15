@@ -256,12 +256,12 @@ export function createMusic(ctx, out = ctx.destination) {
 let ctx = null;
 let music = null;
 let playing = false;
-let unlocked = false;
+const GESTURES = ['pointerdown', 'touchend', 'click', 'keydown'];
 
 /** Whether the music should be heard right now. */
 function wanted() {
   const s = useApp.getState();
-  if (s.host !== 'booth' || !s.sound || s.phase === 'loading' || !unlocked) return false;
+  if (s.host !== 'booth' || !s.sound) return false;
   if (typeof document !== 'undefined' && document.hidden) return false;
   // a film has started and you are watching it (or it is still running on the booth's television): the film has the room.
   // Choosing the frame comes before the film, so the music carries on through it; printing your snaps brings it back.
@@ -283,8 +283,10 @@ function update() {
       ctx = new AC();
       music = createMusic(ctx);
     }
+    // starts at once, during the preloader too; where the browser holds sound back until the first touch
+    // or key, the music is already written and its fade-in simply begins at that touch
     ctx.resume?.().catch(() => {});
-    music.start(useApp.getState().reducedMotion ? 1.5 : 3.5);
+    music.start(2.5);
   } else if (music) {
     // quick when the film starts (it should not talk over the opening), gentle otherwise
     music.stop(1.2, () => {
@@ -293,15 +295,20 @@ function update() {
   }
 }
 
-/** Start listening: browsers only allow sound after a first touch, click or key, so the music waits for one. */
+/**
+ * Start the music as the page opens. Most browsers keep a page silent until
+ * it is first touched, clicked or typed on; where they do, the music resumes
+ * on that very first touch, wherever it lands, so nothing has to be pressed
+ * on purpose.
+ */
 export function bindMusic() {
   const unlock = () => {
-    unlocked = true;
+    if (ctx && ctx.state !== 'running' && playing) ctx.resume?.().catch(() => {});
+    if (ctx?.state === 'running') for (const e of GESTURES) window.removeEventListener(e, unlock, opts);
     update();
   };
   const opts = { capture: true, passive: true };
-  window.addEventListener('pointerdown', unlock, opts);
-  window.addEventListener('keydown', unlock, opts);
+  for (const e of GESTURES) window.addEventListener(e, unlock, opts);
   // the film's own play and pause count too, not only the booth's state
   let video = null;
   const watchVideo = (v) => {
@@ -315,10 +322,10 @@ export function bindMusic() {
     update();
   });
   watchVideo(useApp.getState().videoEl);
+  update(); // straight away: during the preloader, not after it
   document.addEventListener('visibilitychange', update);
   return () => {
-    window.removeEventListener('pointerdown', unlock, opts);
-    window.removeEventListener('keydown', unlock, opts);
+    for (const e of GESTURES) window.removeEventListener(e, unlock, opts);
     document.removeEventListener('visibilitychange', update);
     watchVideo(null);
     unsub();

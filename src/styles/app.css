@@ -122,7 +122,7 @@ kbd {
 
 /* ---------- preloader ---------- */
 
-.preloader { position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; background: var(--paper); color: var(--ink); transition: opacity 0.8s var(--ease), visibility 0s 0.8s; }
+.preloader { position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; background: var(--paper); color: var(--ink); transition: opacity 0.6s var(--ease), visibility 0s 0.6s; }
 .preloader[data-done] { opacity: 0; visibility: hidden; }
 .preloader-inner { display: grid; justify-items: center; gap: 14px; }
 .preloader-mark { font-size: 2rem; }

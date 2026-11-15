@@ -17,7 +17,7 @@ The player inside the booth is a complete Video.js 10 skin that also stands on i
 | The player on an ordinary page | https://playbooth.vercel.app/embed/ |
 | Source | https://github.com/ruffasakay/playbooth |
 
-Built with Video.js 10.4 (`@videojs/react`), Mux, React 19, React Three Fiber and three.js. Apache License 2.0.
+Built with Video.js 10.4 (`@videojs/react`), React 19, React Three Fiber and three.js; the films are hosted and streamed on [Mux](https://www.mux.com). Apache License 2.0.
 
 ---
 
@@ -65,9 +65,9 @@ As a film lover, the feature I always wanted is a screenshot button. Press **S**
 ## Features
 
 <p align="center">
-  <img src="docs/player-desktop.jpg" alt="The player on a desktop: Wing It! inside a cream polka-dot frame with a gingham bow. A tall progress column and one column of round keys stand to the right of the picture; the frame, shuffle and next-film keys sit to the left." width="72%">
+  <img src="docs/player-desktop.jpg" alt="The player on a desktop: Wing It! as the white page of a pink 2003-style word processor, toolbars above and below. A tall progress column and one column of round keys stand to the right of the picture; the frame, shuffle and next-film keys sit to the left." width="72%">
   &nbsp;
-  <img src="docs/player-phone.jpg" alt="The player held upright on a phone: the film in a pink desktop-document frame, the progress bar below it, two rows of round keys, and a Frames and films button at the bottom." width="24%">
+  <img src="docs/player-phone.jpg" alt="The player held upright on a phone: the film in an aqua glass-mosaic frame, the progress bar below it, two rows of round keys, and a Frames and films button at the bottom." width="24%">
 </p>
 <p align="center"><sub>The player on a desktop and held upright on a phone. The picture is a still from the poster art of <i>Wing It!</i> (Blender Studio, CC BY 4.0).</sub></p>
 
@@ -76,7 +76,7 @@ As a film lover, the feature I always wanted is a screenshot button. Press **S**
 - **Vertical controls**: a full-height progress column with the time, and one column of keys beside the picture (two or three columns only on short players, such as a phone on its side). Upright, the dock lies under the picture.
 - **Clip reel**: hover or drag the progress and real frames from the film's Mux storyboard ride beside the pointer; a sharp frame replaces the active clip once the pointer rests.
 - **Steps aside**: after a few seconds of play the controls fade and the picture grows (an animated FLIP), and a move or a tap brings them back.
-- **Lock**: one click locks, one click unlocks. While locked, only volume and brightness still answer, by key or by slide, so you can always hear and see comfortably.
+- **Lock**: one click locks, one click unlocks. While locked, only volume and brightness still answer, by key or by slide, so you can always hear and see comfortably. Their levels sit the same distance in from both sides of the picture and step in together when needed to clear the unlock key.
 - **Settings**: quality (every rendition the stream offers, and Auto), playback speed, subtitle style (font, size, colour, outline or box), brightness (30–150%, the picture only) and picture-in-picture.
 - **Feedback**: a keyboard shortcut or a click on the picture flashes a large copy of its key in the middle of the picture, icon only. Volume and brightness show a level at the picture's edge instead: right for volume, left for brightness. Pressing the dock's own keys doesn't double this, since those keys already show their state.
 - **Touch**: a tap brings the keys back; with them up, a tap plays or pauses. Double-tap the left or right of the picture to go back or forward 10 s. Hold and slide up or down: the left half sets brightness, the right half the volume.
@@ -101,13 +101,14 @@ The chooser is a list that scrolls: each row has a thumbnail that shows the patt
 
 ### The booth
 
-<p align="center"><img src="docs/booth.jpg" alt="The booth at night: a small white booth with a green roof and a PLAYBOOTH sign, film posters on its walls, a poster column, a bicycle, a chalkboard and string lights on the street around it." width="80%"></p>
+<p align="center"><img src="docs/booth.jpg" alt="The booth at night: a small white booth with a green roof and a lit PLAYBOOTH sign, film posters on its walls, and on the street around it a lamp-post, a poster column, a bicycle, a chalkboard and string lights." width="80%"></p>
 
-- **The street**: a booth on a street at night (or day, with the switch). Lit poster cases and an advertising column carry the films' real posters, there's a chalkboard by the door, and the room's lamps and string lights come on after dark.
+- **The street**: a booth on a street at night (or day, with the switch). Lit poster cases and an advertising column carry the films' real posters, there's a chalkboard by the door, and the lantern lamp-posts, the room's lamps and the string lights come on after dark.
+- **Arrival**: a short preloader, then the camera starts close on the booth's lit sign and eases back to the street.
 - **The tapes**: ten tapes on a video-store rack, newest first, each wearing its film's official poster.
 - **Tape moves**: pick a tape to see it close up; drag or click it into the VCR and watch on an old television.
 - **Sounds**: every interface sound is synthesized with WebAudio, and one switch mutes them all.
-- **Music**: a slow, warm lo-fi loop (electric piano, round bass, a few bells, brushes and a record's crackle), also played live by WebAudio, with no files. It is quiet (about -31 dBFS), starts with your first touch or key (browsers require one), fades out when a film starts and comes back when you eject the tape or go to print your snaps. The same sound switch silences it. The booth only; the showcase and the embedded player stay silent.
+- **Music**: a slow, warm lo-fi loop (electric piano, round bass, a few bells, brushes and a record's crackle), also played live by WebAudio, with no files. It is quiet (about -31 dBFS) and starts as the page opens, during the preloader; browsers that keep a page silent until it is first touched let it in on the very first touch, click or key. It fades out when a film starts and comes back when you eject the tape or go to print your snaps. The same sound switch silences it. The booth only; the showcase and the embedded player stay silent.
 
 ### The showcase page (`/player/`)
 
@@ -247,6 +248,7 @@ The 3D scene and the DOM never reach into each other: both read and write one sm
 
 - **The places**: the street, the booth, the room, the rack and tapes, the VCR, TV and printer, and the prints. The camera rig moves between named stations (street, room, tapes, player, prints, watch).
 - **Tapes**: they move on keyframed paths. Inserting one slides it out of its cubby, turns it flat, lines it up with the slot and lets the deck draw it in; ejecting plays the same story backwards.
+- **Smooth from the first frame**: behind the preloader, every shader is compiled and every texture uploaded (`compileAsync`, `initTexture`), so the opening move doesn't stutter while three.js prepares things the first time they come into view. The frame-rate check that can step down to a lighter mode starts only after the opening.
 - **Rendering while you watch**: when the camera settles on the TV to watch, the scene stops drawing (the player covers it), so the GPU is left to the video. It resumes exactly where it was when you stand up.
 - **No flicker**: posters, prints and signs stand a few millimetres clear of what's behind them, no two outer faces share a plane, and the renderer uses a logarithmic depth buffer.
 
@@ -327,7 +329,7 @@ docs/                   screenshots for this README
 
 ## Films
 
-Ten Blender Studio open movies under Creative Commons, all streamed from Mux. On the shelf they run newest first, left to right and top to bottom.
+Ten Blender Studio open movies under Creative Commons, hosted and streamed on Mux. On the shelf they run newest first, left to right and top to bottom.
 
 | Film | Credit | License | Mux playback ID |
 | --- | --- | --- | --- |
@@ -352,8 +354,9 @@ Made with love by [@ruffasakay](https://contra.com/ruffasakay).
 
 - **Films and posters**: Blender Foundation and Blender Studio, under the Creative Commons licenses listed above. The tapes show each poster's art and title, and its billing block is left out; the player names the studio and the year; the full credit line and license go with every photo.
 - **Fonts**: Fraunces, DM Mono, Caveat, Atkinson Hyperlegible Next and Literata, all under the SIL Open Font License 1.1.
+- **Video hosting**: the films are hosted and streamed on [Mux](https://www.mux.com).
 - **Video.js mark**: the official one, from the `videojs/video.js` repository.
-- **Everything else**: the 3D models, icons, sounds and drawn frames are original and made in code. The fourteen pattern frames are pictures chosen by the author.
+- **Everything else**: the 3D models, icons, sounds, music and drawn frames are original and made in code. The fourteen pattern frames are pictures chosen by the author.
 
 Licensed under the Apache License, Version 2.0. See [`LICENSE`](LICENSE).
 
@@ -367,3 +370,4 @@ Licensed under the Apache License, Version 2.0. See [`LICENSE`](LICENSE).
 - **Multiple downloads**: browsers may ask once to allow them when you snap several frames.
 - **Storage**: photos live in this browser only (IndexedDB). Private browsing may not keep them; the booth says so and offers to download them.
 - **Pattern frames**: each one loads its picture the first time it's used, so on a slow connection its plain colour shows for a moment first.
+- **Music before the first touch**: most browsers, iPhone and Android included, keep a page silent until it is touched, clicked or typed on. Where they do, the music waits for that first touch instead of starting with the preloader.

@@ -23,6 +23,9 @@ export default function Stage() {
   const [lite, setLite] = useState(forceLite);
   const declines = useRef(0);
   const inside = useApp((s) => s.phase === 'inside');
+  // the frame-rate check starts once the opening move is over: measured during it, the warm-up would read as a slow
+  // device and switch to lite mode mid-move, recompiling every shader at the worst moment
+  const settled = useApp((s) => s.introDone);
   return (
     <div className="stage" data-inside={inside || undefined} aria-hidden="true">
       <Canvas
@@ -30,7 +33,11 @@ export default function Stage() {
         dpr={dpr}
         camera={{ fov: 40, near: 0.1, far: 160, position: [-6, 3, 9] }}
         // a logarithmic depth buffer keeps surfaces a few millimetres apart from flickering, phones included
-        gl={{ antialias: true, powerPreference: 'high-performance', logarithmicDepthBuffer: true }}
+        gl={{
+          antialias: true,
+          powerPreference: 'high-performance',
+          logarithmicDepthBuffer: true,
+        }}
         onCreated={({ gl }) => {
           if (import.meta.env.DEV) window.__gl = gl; // lets the tests count frames
           gl.toneMapping = THREE.ACESFilmicToneMapping;
@@ -38,14 +45,16 @@ export default function Stage() {
           gl.shadowMap.type = THREE.PCFShadowMap;
         }}
       >
-        <PerformanceMonitor
-          onDecline={() => {
-            declines.current += 1;
-            setDpr(1);
-            if (declines.current >= 2) setLite(true);
-          }}
-          onIncline={() => !lite && setDpr(Math.min(1.75, window.devicePixelRatio || 1))}
-        />
+        {settled && (
+          <PerformanceMonitor
+            onDecline={() => {
+              declines.current += 1;
+              setDpr(1);
+              if (declines.current >= 2) setLite(true);
+            }}
+            onIncline={() => !lite && setDpr(Math.min(1.75, window.devicePixelRatio || 1))}
+          />
+        )}
         <color attach="background" args={[PAL.haze]} ref={dayNight('', PAL.haze, '#22242f')} />
         <fog attach="fog" args={[PAL.haze, 16, 46]} ref={dayNight('color', PAL.haze, '#22242f')} />
         <DayNight />
@@ -218,12 +227,44 @@ function SkyDome() {
   );
 }
 
+/**
+ * Ready when the street is drawn and everything in it is prepared: every
+ * material's shader compiled and every picture on the GPU, the booth's inside
+ * included. Three.js would otherwise do that work the first time each thing
+ * came into view, which is what makes an opening camera move stutter. It
+ * happens here, behind the preloader, so the first move is smooth.
+ */
 function ReadySignal() {
   const frames = useRef(0);
+  const { gl, scene, camera } = useThree();
   useFrame(() => {
-    if (frames.current > 3) return;
+    if (frames.current > 2) return;
     frames.current += 1;
-    if (frames.current === 3) document.fonts.ready.then(() => useApp.setState({ sceneReady: true }));
+    if (frames.current !== 2) return;
+    const warm = async () => {
+      try {
+        if (gl.compileAsync) await gl.compileAsync(scene, camera);
+        else gl.compile(scene, camera);
+        const seen = new Set();
+        scene.traverse((o) => {
+          const mats = Array.isArray(o.material) ? o.material : o.material ? [o.material] : [];
+          for (const m of mats) {
+            for (const key of ['map', 'emissiveMap', 'normalMap', 'roughnessMap', 'alphaMap', 'envMap']) {
+              const t = m[key];
+              if (t && t.isTexture && !seen.has(t) && t.image) {
+                seen.add(t);
+                gl.initTexture(t);
+              }
+            }
+          }
+        });
+      } catch {
+        /* nothing to warm: the first frames will do it */
+      }
+      await document.fonts.ready;
+      useApp.setState({ sceneReady: true });
+    };
+    warm();
   });
   return null;
 }

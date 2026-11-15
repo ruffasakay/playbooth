@@ -352,7 +352,7 @@
 /* ---------- locked: one key to come back ---------- */
 
 /* locked: the unlock key is gone from view until the pointer moves, the screen is tapped or it gets keyboard focus */
-.pb-unlock { --key: 60px; position: absolute; z-index: 8; right: 18px; top: calc(50% - 30px); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; --k-surface: #f4ede0; --k-ink: #33261c; }
+.pb-unlock { --key: 52px; position: absolute; z-index: 8; right: 14px; top: calc(50% - 26px); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; --k-surface: #f4ede0; --k-ink: #33261c; }
 .pb-unlock[data-bright], .pb-unlock:focus-visible { opacity: 1; pointer-events: auto; }
 .pb-skin[data-locked] .pb-window { cursor: default; }
 
@@ -513,8 +513,8 @@
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k-ink) 16%, transparent), 0 8px 24px rgb(0 0 0 / 0.38);
   pointer-events: none;
 }
-.pb-gauge[data-side='left'] { left: max(10px, 5%); }
-.pb-gauge[data-side='right'] { right: max(10px, 5%); }
+.pb-gauge[data-side='left'] { left: var(--gauge-inset, max(10px, 5%)); }
+.pb-gauge[data-side='right'] { right: var(--gauge-inset, max(10px, 5%)); }
 .pb-gauge-icon .icon { width: 22px; height: 22px; }
 .pb-gauge-track { position: relative; width: 6px; height: 100%; border-radius: 3px; background: color-mix(in srgb, var(--k-ink) 18%, transparent); box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.22); overflow: hidden; }
 .pb-gauge-fill { position: absolute; inset: auto 0 0; border-radius: 3px; background: var(--k-ink); }

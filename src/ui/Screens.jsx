@@ -14,7 +14,7 @@ export function Preloader() {
   const [gone, setGone] = useState(false);
   const done = (ready || !webgl) && minDone;
   useEffect(() => {
-    const id = setTimeout(() => setMinDone(true), 1100);
+    const id = setTimeout(() => setMinDone(true), 450); // just long enough not to flash
     return () => clearTimeout(id);
   }, []);
   useEffect(() => {
@@ -26,7 +26,7 @@ export function Preloader() {
       const wait = !st.webgl || st.reducedMotion ? 0 : 4300;
       setTimeout(() => useApp.setState({ introDone: true }), wait);
     }
-    const id = setTimeout(() => setGone(true), 900);
+    const id = setTimeout(() => setGone(true), 650);
     return () => clearTimeout(id);
   }, [done]);
   if (gone) return null;

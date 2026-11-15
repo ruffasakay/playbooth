@@ -680,6 +680,7 @@ export function PlayboothSkin({ children }) {
                   height: geo.frame.win.h,
                   borderRadius: geo.frame.win.r || undefined,
                   '--bright': brightness,
+                  '--gauge-inset': `${gaugeInset(geo, size.w, locked)}px`,
                   '--osd': `${Math.round(clamp(Math.min(geo.frame.win.w, geo.frame.win.h) * 0.2, 52, 92))}px`,
                 }}
                 onPointerDown={onWindowDown}
@@ -1077,6 +1078,23 @@ function Feedback() {
 }
 
 /** The level beside your thumb while you slide: brightness on the left, volume on the right. */
+/*
+ * The levels sit the same distance in from both sides of the picture, so
+ * brightness and volume mirror each other. While the player is locked, the
+ * unlock key waits at the right edge of the player; if the picture reaches
+ * under it, both levels step in together, just far enough for the volume
+ * level to clear the key.
+ */
+const UNLOCK = { size: 52, right: 14 };
+function gaugeInset(geo, sw, locked) {
+  const win = geo.frame.win;
+  const base = Math.max(10, win.w * 0.05);
+  if (!locked) return Math.round(base);
+  const winRight = geo.frame.x + win.x + win.w;
+  const keyLeft = sw - UNLOCK.right - UNLOCK.size;
+  return Math.round(Math.max(base, winRight - keyLeft + 12));
+}
+
 function Gauge({ g }) {
   if (!g) return null;
   const bright = g.kind === 'brightness';
